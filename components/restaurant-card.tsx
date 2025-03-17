@@ -45,7 +45,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   return (
     <Link href={`/menu/${restaurant.id}`} className="text-decoration-none text-dark">
       <div className="card mb-3 shadow-sm hover-shadow">
-        <div className="row g-0" style={{ height: "120px" }}>
+        <div className="row g-0" style={{ height: "" }}>
           <div className="col-4 position-relative">
             <Image
               src={restaurant.menu.image || "/placeholder.svg"}

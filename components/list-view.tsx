@@ -21,7 +21,7 @@ const restaurants = [
         en: "Homemade pasta with fresh tomato sauce, basil, and parmesan cheese",
         es: "Pasta casera con salsa de tomate fresco, albahaca y queso parmesano",
       },
-      image: "/placeholder.svg?height=120&width=120",
+      image: "Images/Homemade pasta.png?height=120&width=120",
     },
   },
   {
@@ -38,7 +38,7 @@ const restaurants = [
         en: "Traditional Spanish rice dish with fresh seafood, saffron, and vegetables",
         es: "Plato tradicional español de arroz con mariscos frescos, azafrán y verduras",
       },
-      image: "/placeholder.svg?height=120&width=120",
+      image: "Images/Seafood Paella.png?height=120&width=120",
     },
   },
   {
@@ -55,7 +55,7 @@ const restaurants = [
         en: "Assortment of fresh nigiri and maki rolls with wasabi and pickled ginger",
         es: "Surtido de nigiri fresco y rollos maki con wasabi y jengibre encurtido",
       },
-      image: "/placeholder.svg?height=120&width=120",
+      image: "Images/Sushi Combo Platter.png?height=120&width=120",
     },
   },
   {
@@ -72,7 +72,7 @@ const restaurants = [
         en: "Angus beef patty with caramelized onions, artisan cheese, and truffle aioli",
         es: "Hamburguesa de carne Angus con cebollas caramelizadas, queso artesanal y alioli de trufa",
       },
-      image: "/placeholder.svg?height=120&width=120",
+      image: "Images/Gourmet Burger Special.png?height=120&width=120",
     },
   },
   {
@@ -89,7 +89,7 @@ const restaurants = [
         en: "Stir-fried rice noodles with tofu, bean sprouts, peanuts, and lime",
         es: "Fideos de arroz salteados con tofu, brotes de soja, cacahuetes y lima",
       },
-      image: "/placeholder.svg?height=120&width=120",
+      image: "Images/Pad Thai Special.png?height=120&width=120",
     },
   },
 ]

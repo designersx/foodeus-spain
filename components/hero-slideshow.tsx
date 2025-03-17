@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/language-context"
 const slides = [
   {
     id: 1,
-    image: "/placeholder.svg?height=300&width=800",
+    image: "Images/Daily Specials.png?height=300&width=800",
     title: {
       en: "Discover Today's Special Menus",
       es: "Descubre los Menús Especiales de Hoy",
@@ -15,7 +15,7 @@ const slides = [
   },
   {
     id: 2,
-    image: "/placeholder.svg?height=300&width=800",
+    image: "Images/Special Menus.png?height=300&width=800",
     title: {
       en: "Fresh and Delicious Daily Specials",
       es: "Especiales Diarios Frescos y Deliciosos",
@@ -23,7 +23,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "/placeholder.svg?height=300&width=800",
+    image: "Images//Restaurants Near You.png?height=300&width=800",
     title: {
       en: "Explore Local Restaurants Near You",
       es: "Explora Restaurantes Locales Cerca de Ti",
@@ -60,7 +60,10 @@ export function HeroSlideshow() {
                 priority={index === 0}
               />
               <div className="carousel-caption d-flex align-items-end h-100 pb-4">
-                <h2 className="fs-4 fw-bold text-white mb-0">{slide.title[language]}</h2>
+                
+                <h2 className="fs-4 fw-bold text-white mb-0"  style={{ textShadow: '0px 0px 3px #000000' }}>
+                 {slide.title[language]}</h2>
+
               </div>
             </div>
           </div>

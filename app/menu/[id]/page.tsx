@@ -22,7 +22,7 @@ const menuItems = [
         en: "Homemade pasta with fresh tomato sauce, basil, and parmesan cheese. Our chef's special recipe passed down through generations. Made with locally sourced ingredients and served with a side of garlic bread.",
         es: "Pasta casera con salsa de tomate fresco, albahaca y queso parmesano. La receta especial de nuestro chef transmitida de generación en generación. Elaborada con ingredientes de origen local y servida con una guarnición de pan de ajo.",
       },
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/Images/Homemade pasta.png?height=400&width=800",
       items: [
         {
           en: "Spaghetti with Tomato Sauce",
@@ -65,7 +65,7 @@ const menuItems = [
         en: "Traditional Spanish rice dish with fresh seafood, saffron, and vegetables. Our paella is cooked in the authentic Spanish style in a wide, shallow pan to create the perfect socarrat (crispy bottom layer).",
         es: "Plato tradicional español de arroz con mariscos frescos, azafrán y verduras. Nuestra paella se cocina al estilo español auténtico en una paellera ancha y poco profunda para crear el socarrat perfecto (capa inferior crujiente).",
       },
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/Images/Seafood Paella.png?height=400&width=800",
       items: [
         {
           en: "Saffron Rice",
@@ -108,7 +108,7 @@ const menuItems = [
         en: "Assortment of fresh nigiri and maki rolls with wasabi and pickled ginger. Our sushi is prepared by master chefs using only the freshest fish delivered daily. Perfect for sharing or as a complete meal.",
         es: "Surtido de nigiri fresco y rollos maki con wasabi y jengibre encurtido. Nuestro sushi es preparado por chefs maestros utilizando solo el pescado más fresco entregado diariamente. Perfecto para compartir o como comida completa.",
       },
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/Images/Sushi Combo Platter.png?height=400&width=800",
       items: [
         {
           en: "Salmon Nigiri (2 pcs)",
@@ -151,7 +151,7 @@ const menuItems = [
         en: "Angus beef patty with caramelized onions, artisan cheese, and truffle aioli. Our burgers are made with 100% grass-fed beef and served on a freshly baked brioche bun with a side of hand-cut fries.",
         es: "Hamburguesa de carne Angus con cebollas caramelizadas, queso artesanal y alioli de trufa. Nuestras hamburguesas están hechas con 100% de carne de res alimentada con pasto y se sirven en un pan brioche recién horneado con una guarnición de papas fritas cortadas a mano.",
       },
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/Images/Gourmet Burger Special.png?height=400&width=800",
       items: [
         {
           en: "Angus Beef Patty",
@@ -194,7 +194,7 @@ const menuItems = [
         en: "Stir-fried rice noodles with tofu, bean sprouts, peanuts, and lime. Our authentic Pad Thai is prepared with traditional ingredients and techniques, offering the perfect balance of sweet, sour, and savory flavors.",
         es: "Fideos de arroz salteados con tofu, brotes de soja, cacahuetes y lima. Nuestro auténtico Pad Thai se prepara con ingredientes y técnicas tradicionales, ofreciendo el equilibrio perfecto de sabores dulces, ácidos y salados.",
       },
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/Images/Pad Thai Special.png?height=400&width=800",
       items: [
         {
           en: "Rice Noodles",

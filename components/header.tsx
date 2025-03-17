@@ -11,7 +11,7 @@ export default function Header() {
       <div className="container">
         <Link href="/" className="navbar-brand d-flex align-items-center">
           <Image
-            src="/placeholder.svg?height=32&width=32"
+            src="/Images/Logo.jpg?height=32&width=32"
             alt="Foodeus Logo"
             width={32}
             height={32}
