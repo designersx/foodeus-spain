@@ -327,6 +327,7 @@ interface RawMenu {
   description?: string;
   image_url?: string;
   menu_type?: string;
+  updated_at?: string;
 }
 
 interface RestaurantData {
@@ -356,7 +357,7 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
     };
 
     const menuType = menu.menu_type?.normalize("NFD") || ""; // Handle undefined
-
+    const today = new Date().toISOString().split("T")[0];
     switch (menuType) {
       case "Buffet":
         fullMenu.buffet.push(formattedMenu);
@@ -365,13 +366,20 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
       case "À La Carte": // Handle different Unicode variations
       case "A La Carte": // Handle missing accents
       case "La Carte":
+      case "� La Carte":
         fullMenu.alaCarte.push(formattedMenu);
         break;
       case "Combo Meals":
         fullMenu.comboMeals.push(formattedMenu);
         break;
       case "Today's Special":
-        fullMenu.menuOfTheDay = formattedMenu;
+        if (menu.updated_at) {
+          const updatedDate = new Date(menu.updated_at).toISOString().split("T")[0];
+          if (updatedDate === today) {
+            fullMenu.menuOfTheDay = formattedMenu;
+          }
+        }
+      
         break;
       default:
         break;
@@ -398,19 +406,20 @@ export default function FullMenuPage() {
       .then((data) => {
         if (data.success && data.data) {
           const formattedData = formatMenuData(data.data);
+          console.log('kk',data.data);
           setRestaurant(formattedData);
         }
       })
       .catch((err) => console.error("Error fetching restaurant:", err));
   }, [id]);
 
-  // useEffect(() => {
-  //   // Find the restaurant with the matching ID
-  //   const place = restaurantMenus.find((r) => r.id === id)
-  //   if (place) {
-  //     setRestaurant(place)
-  //   }
-  // }, [id])
+
+  useEffect(() => {
+    if(!restaurant) return;
+    if (restaurant?.fullMenu && !restaurant?.fullMenu?.menuOfTheDay) {
+      setActiveTab("alaCarte");
+    }
+  }, [restaurant]);
 
   console.log(restaurant)
   if (!restaurant) {
@@ -420,6 +429,7 @@ export default function FullMenuPage() {
       </div>
     )
   }
+  
 
   return (
     <div className="pb-4">
@@ -434,6 +444,7 @@ export default function FullMenuPage() {
       </h1>
 
       <ul className="nav nav-tabs mb-4">
+      {restaurant.fullMenu?.menuOfTheDay && (
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "menuOfTheDay" ? "active" : ""}`}
@@ -442,6 +453,9 @@ export default function FullMenuPage() {
             {language === "en" ? "Today's Special" : "Especial de Hoy"}
           </button>
         </li>
+        
+      )
+      }
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "alaCarte" ? "active" : ""}`}
@@ -469,29 +483,31 @@ export default function FullMenuPage() {
           </button>
         </li>
       </ul>
-
+      {}
       <div className="tab-content">
+        {restaurant.fullMenu?.menuOfTheDay && (
         <div className={`tab-pane fade ${activeTab === "menuOfTheDay" ? "show active" : ""}`}>
           <div className="card mb-3">
             <div className="card-body">
               <div className="d-flex gap-3">
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
-                    src={restaurant.fullMenu.menuOfTheDay.image || "/placeholder.svg"}
-                    alt={restaurant.fullMenu.menuOfTheDay.title[language]}
+                    src={restaurant.fullMenu?.menuOfTheDay?.image || "/placeholder.svg"}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
                     fill
                     className="object-fit-cover rounded"
                   />
                 </div>
                 <div>
-                  <h3 className="fs-5 fw-bold">{restaurant.fullMenu.menuOfTheDay.title[language]}</h3>
-                  <p className="small text-secondary mb-1">{restaurant.fullMenu.menuOfTheDay.description[language]}</p>
-                  <p className="text-primary fw-medium mb-0">{restaurant.fullMenu.menuOfTheDay.price[language]}</p>
+                  <h3 className="fs-5 fw-bold">{restaurant.fullMenu?.menuOfTheDay?.title[language]}</h3>
+                  <p className="small text-secondary mb-1">{restaurant?.fullMenu?.menuOfTheDay?.description[language]}</p>
+                  <p className="text-primary fw-medium mb-0">{restaurant?.fullMenu?.menuOfTheDay?.price[language]}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        )}
 
         <div className={`tab-pane fade ${activeTab === "alaCarte" ? "show active" : ""}`}>
           <div className="list-group">

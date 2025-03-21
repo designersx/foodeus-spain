@@ -240,12 +240,28 @@ interface Restaurant {
   menu: MenuItem[];
 }
 
+
+const calculateDistance = (lat1: number, lng1: number, lat2?: number, lng2?: number) => {
+  if (!lat2 || !lng2) return Number.MAX_VALUE; // If coordinates are missing, set a large distance
+  const R = 6371; // Radius of Earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+};
+
 export default function MenuDetailPage() {
   const { id } = useParams()
   const { language } = useLanguage()
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [menuItems, setMenuItems] = useState<Restaurant | null>(null);
-
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
+  const [mapUrl, setMapUrl] = useState<string>("")
   useEffect(() => {
     if (id) {
       // fetch(`http://localhost:8081/enduser/getRestaurantWithMenus/${id}`, {
@@ -309,6 +325,37 @@ export default function MenuDetailPage() {
   }
   }, [id,menuItems])
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+      
+    }
+  }, []);
+
+  useEffect(() => {
+    if (menuItems && userLocation) {
+      const distance = calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        menuItems.coordinates.lat,
+        menuItems.coordinates.lng
+      );
+      const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation?.lat},${userLocation?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`
+      setMapUrl(directionsUrl)
+      setDistanceToRestaurant(distance);
+    }
+  }, [userLocation, menuItems]);
+
   if (!menuItem) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
@@ -317,7 +364,7 @@ export default function MenuDetailPage() {
     )
   }
 
-  console.log('menuItem',menuItems);
+  // console.log('menuItem',menuItems);
   return (
     <>
       {/* Content wrapper with padding to prevent content from being hidden behind buttons */}
@@ -346,8 +393,18 @@ export default function MenuDetailPage() {
         </div>
 
         {/* Price */}
-        <div className="fs-3 fw-bold text-primary mb-3">{menuItem.price[language]}</div>
+        <div className="flex justify-between align-items-center mb-3">
+        <div className="fs-3 fw-bold text-primary">
+          {menuItem?.price[language]}
+        </div>
 
+        {distanceToRestaurant !== null && (
+          <div className="text-muted text-sm">
+            <i className="bi bi-geo-alt me-1"></i>
+            {language === "es" ? "Distancia" : "Distance"}: {distanceToRestaurant.toFixed(1)} km
+          </div>
+        )}
+      </div>
         {/* Description */}
         <div className="mb-4">
           <h2 className="fs-4 fw-semibold mb-2">{language === "en" ? "Description" : "Descripción"}</h2>
@@ -373,19 +430,12 @@ export default function MenuDetailPage() {
         <div className="container">
           <div className="row g-2">
             <div className="col-6">
-              <Link 
-              href={{
-                pathname: `/directions/${menuItems?.id}`,
-                query: {
-                  name: menuItems?.name,
-                  location: menuItems?.location,
-                  lat: menuItems?.coordinates?.lat,
-                  lng: menuItems?.coordinates?.lng
-                }
-              }}
+            {mapUrl && (
+          <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
                className="btn btn-primary w-100">
                 {language === "en" ? "Take Me There" : "Llévame Allí"}
-              </Link>
+                </a>
+          )}
             </div>
             <div className="col-6">
               <Link href={`/full-menu/${menuItems?.id}`} className="btn btn-outline-primary w-100">

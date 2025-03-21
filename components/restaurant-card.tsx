@@ -55,7 +55,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
             />
           </div>
           <div className="col-8">
-            <div className="card-body h-100 d-flex flex-column justify-content-between p-3">
+            <div className="card-body h-100 d-flex flex-column justify-content-between p-3 text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
               <div>
                 <h5 className="card-title fs-6 fw-bold text-truncate mb-1">{restaurant?.menu.title[language]}</h5>
                 <p

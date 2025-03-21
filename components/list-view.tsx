@@ -9,6 +9,9 @@ import { Search } from "lucide-react";
 import {getRestaurantsWithMenus} from "@/services/apiService"
 import Lottie from "lottie-react";
 import hotFoodAnimation from "@/components/ui/hot-food.json"; 
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { ChevronDown } from "lucide-react";
+
 // Sample data for restaurants
 
 // const restaurants = [
@@ -103,6 +106,8 @@ interface Menu {
   title: { en: string; es: string };
   description: { en: string; es: string };
   image: string;
+  items?: string;
+  updated_at:string;
 }
 
 interface Restaurant {
@@ -136,6 +141,7 @@ export function ListView() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [filterBy, setFilterBy] = useState("all"); 
   useEffect(() => {
     // fetch("http://localhost:8081/enduser/getRestaurantsWithMenus", {
     //   method: "GET",
@@ -167,6 +173,8 @@ export function ListView() {
                   title: { en: sortedMenus[0].item_name || "", es: sortedMenus[0].item_name ||"" },
                   description: { en: sortedMenus[0].description || "", es: sortedMenus[0].description ||"" },
                   image: sortedMenus[0]?.image_url || "",
+                  items: sortedMenus[0]?.item_list,
+                  updated_at:sortedMenus[0]?.updated_at
                 }
               : { title: { en: "", es: "" }, description: { en: "", es: "" }, image: "" },
           };
@@ -179,9 +187,43 @@ export function ListView() {
       
   }, []);
 
+  // useEffect(() => {
+  //   if (!restaurants.length) return;
+
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const userPos = {
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude,
+  //         };
+  //         setUserLocation(userPos);
+
+  //         // Calculate distance for each restaurant
+  //         const withDistance = restaurants.map((restaurant) => ({
+  //           ...restaurant,
+  //           distance: calculateDistance(userPos.lat, userPos.lng, restaurant.coordinates.lat, restaurant.coordinates.lng),
+  //         }));
+
+  //         // Sort by distance
+  //         withDistance.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+  //         setRestaurantsWithDistance(withDistance);
+  //         console.log(withDistance)
+  //         setFilteredRestaurants(withDistance);
+  //         setLoading(false);
+       
+  //       },
+  //       (error) => {
+  //         console.error("Error getting location:", error);
+  //         setLoading(false)
+  //       }
+  //     );
+  //   }
+  // }, [restaurants]);
+
   useEffect(() => {
     if (!restaurants.length) return;
-
+  
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -190,58 +232,138 @@ export function ListView() {
             lng: position.coords.longitude,
           };
           setUserLocation(userPos);
+  
+          const today = new Date().toISOString().split("T")[0]; // e.g. "2025-03-19"
+  
+          const withDistance = restaurants.map((restaurant) => {
+            const distance = calculateDistance(
+              userPos.lat,
+              userPos.lng,
+              restaurant.coordinates.lat,
+              restaurant.coordinates.lng
+            );
+            // Get latest updated_at from menus
+            const latestUpdate = restaurant.menu?.updated_at || "";
+  
+            // If using multiple menus:
+            // const latestUpdate = restaurant.menus?.[0]?.updated_at || "";
+  
+            const updatedDate = latestUpdate?.split(" ")[0]; // "2025-03-19"
+            
 
-          // Calculate distance for each restaurant
-          const withDistance = restaurants.map((restaurant) => ({
-            ...restaurant,
-            distance: calculateDistance(userPos.lat, userPos.lng, restaurant.coordinates.lat, restaurant.coordinates.lng),
-          }));
-
-          // Sort by distance
-          withDistance.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+            const updatedToday = updatedDate === today;
+            return { ...restaurant, distance, updatedToday };
+          });
+  
+          // Sort: updatedToday first, then by distance
+          withDistance.sort((a, b) => {
+            if (a.updatedToday && !b.updatedToday) return -1;
+            if (!a.updatedToday && b.updatedToday) return 1;
+            return (a.distance || 0) - (b.distance || 0);
+          });
           setRestaurantsWithDistance(withDistance);
-          console.log(withDistance)
           setFilteredRestaurants(withDistance);
           setLoading(false);
-       
         },
         (error) => {
           console.error("Error getting location:", error);
-          setLoading(false)
+          setLoading(false);
         }
       );
     }
   }, [restaurants]);
-
+  
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180)
   }
   useEffect(() => {
-    const results = restaurantsWithDistance?.filter((restaurant) =>
-      restaurant?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())||
-      restaurant?.location?.toLowerCase()?.includes(searchTerm?.toLowerCase())||
-      restaurant?.menu?.title?.en?.toLowerCase()?.includes(searchTerm?.toLowerCase())
-    );
+    const term = searchTerm?.toLowerCase();
+  
+    const results = restaurantsWithDistance?.filter((restaurant) => {
+      if (!term) return true; // Show all if search is empty
+  
+      switch (filterBy) {
+        case "restaurant":
+          return restaurant?.name?.toLowerCase().includes(term);
+  
+        case "location":
+          return restaurant?.location?.toLowerCase().includes(term);
+  
+        case "menu":
+          return restaurant?.menu?.title?.en?.toLowerCase().includes(term);
+        case "items":
+          return restaurant?.menu?.items?.toLowerCase().includes(term);
+  
+        case "all":
+        default:
+          return (
+            restaurant?.name?.toLowerCase().includes(term) ||
+            restaurant?.location?.toLowerCase().includes(term) ||
+            restaurant?.menu?.title?.en?.toLowerCase().includes(term) ||
+            restaurant?.menu?.items?.toLowerCase().includes(term)
+          );
+      }
+    });
+  
     setFilteredRestaurants(results);
-  }, [searchTerm, restaurantsWithDistance]);
+  }, [searchTerm, restaurantsWithDistance, filterBy]);
+  
 
   return (
     <div className="pb-5">
       <HeroSlideshow />
-      <div className="mt-4 mb-3">
-        <input
-          type="text"
-          placeholder={
-            language === "es"
-              ? "Buscar restaurantes, cocina o ubicación"
-              : "Search restaurants, cuisine, or location"
-          }
-          className="form-control"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <div className="container my-3">
+  <div className="row g-2 align-items-center">
+    {/* Search Input */}
+    <div className="col-12 col-md-9">
+      <input
+        type="text"
+        placeholder={
+          language === "es"
+            ? "Buscar restaurantes, cocina o ubicación"
+            : "Search restaurants, cuisine, or location"
+        }
+        className="form-control"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    {/* Filter Dropdown */}
+    <div className="col-12 col-md-3">
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button className="form-control d-flex justify-content-between align-items-center">
+            {filterBy === "all" ? "All" : filterBy}
+            <ChevronDown className="ms-2" />
+          </button>
+        </DropdownMenu.Trigger>
+
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            className="bg-white border rounded p-2 shadow min-w-[160px] z-50"
+            sideOffset={4}
+          >
+            {["all", "restaurant", "location", "menu", "items"].map((option) => (
+              <DropdownMenu.Item
+                key={option}
+                className="px-2 py-1 text-sm cursor-pointer hover:bg-light rounded"
+                onClick={() => setFilterBy(option)}
+              >
+                {option.charAt(0).toUpperCase() + option.slice(1)}
+              </DropdownMenu.Item>
+            ))}
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    </div>
+  </div>
+</div>
+
+
+
+
       <div className="text-center mt-4">
       {loading ?
         // <div className="position-absolute top-50 start-50 translate-middle">
