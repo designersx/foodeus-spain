@@ -22,3 +22,12 @@
   object-fit: cover;
 }
 
+/* Add css 21-03-2025 */
+
+span.small {
+font-size: 1rem;
+}
+
+.d-flex.align-items-center.text-white-50.small.mt-1 {
+  color: #fff !important;
+}

@@ -58,6 +58,8 @@ export function HeroSlideshow() {
                 fill
                 className="object-fit-cover"
                 priority={index === 0}
+                style={{ filter: 'brightness(65%)' }}
+                
               />
               <div className="carousel-caption d-flex align-items-end h-100 pb-4">
                 
