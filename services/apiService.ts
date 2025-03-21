@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 // Base API URL from environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net/";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net/enuser";
 
 // Create an Axios instance with default settings
 const apiClient = axios.create({
