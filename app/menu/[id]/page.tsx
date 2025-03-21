@@ -264,7 +264,7 @@ export default function MenuDetailPage() {
   const [mapUrl, setMapUrl] = useState<string>("")
   useEffect(() => {
     if (id) {
-      // fetch(`https://foodeus.truet.net/enduser/getRestaurantWithMenus/${id}`, {
+      // fetch(`https://foodeus.truet.net/src/enduser/getRestaurantWithMenus/${id}`, {
       //   method: "GET",
       //   headers: { "Content-Type": "application/json" },
       // })
