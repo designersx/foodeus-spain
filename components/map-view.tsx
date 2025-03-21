@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/context/language-context"
 import KmlMap from "@/components/KmlMap";
-import Lottie from "lottie-react";
-import MapLoading from "@/components/ui/mapLoading.json"; 
+
 export function MapView() {
   const { t } = useLanguage()
   const [destination, setDestination] = useState<string>("");
@@ -61,15 +60,13 @@ export function MapView() {
           style={{ width: "100%", height: "620px", border: "1px solid #ddd" }}
         >
               {loading && (
-            // <div className="position-absolute top-50 start-50 translate-middle">
-            //   <div className="spinner-border text-primary" role="status">
-            //     <span className="visually-hidden">Loading map...</span>
-            //   </div>
-            // </div>
             <div className="position-absolute top-50 start-50 translate-middle">
-                <Lottie animationData={MapLoading} loop={true} className="w-32 h-32 mx-auto" />
-                <p className="mt-4 text-gray-600 font-medium">Loading delicious options...</p>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading map...</span>
               </div>
+              <p className="mt-4 text-gray-600 font-medium">Loading delicious options...</p>
+
+            </div>
           )}
           <iframe
             id="mapFrame"
