@@ -382,6 +382,7 @@ export default function MenuDetailPage() {
             alt={menuItem?.title[language]}
             fill
             className="object-fit-cover"
+            style={{ filter: 'brightness(75%)' }}
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
             <h1 className="text-white fs-3 fw-bold mb-0">{menuItem?.title[language]}</h1>

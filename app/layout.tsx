@@ -5,6 +5,8 @@ import Header from "@/components/header"
 import Script from "next/script"
 import "@/app/globals.css"
 
+
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
