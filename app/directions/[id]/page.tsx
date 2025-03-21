@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
-
+import { useRouter } from "next/navigation";
 // Sample data - in a real app, this would come from an API
 const restaurants = [
   {
@@ -40,18 +40,30 @@ const restaurants = [
 ]
 
 export default function DirectionsPage() {
+  const router = useRouter();
+  const queryParams = new URLSearchParams(window.location.search);
+  const lat = queryParams.get("lat");
+  const lng = queryParams.get("lng");
+  const name=queryParams.get("name");
+  const location=queryParams.get("location");
   const { id } = useParams()
   const { language } = useLanguage()
   const [restaurant, setRestaurant] = useState<any>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [mapUrl, setMapUrl] = useState<string>("")
-
+console.log(id,lat, lng)
   useEffect(() => {
     // Find the restaurant with the matching ID
-    const place = restaurants.find((r) => r.id === id)
-    if (place) {
-      setRestaurant(place)
-    }
+    // const place = restaurants.find((r) => r.id === id)
+    // if (place) {
+      setRestaurant({
+        id: id,
+        name: name,
+        location: location,
+        coordinates: { lat: lat, lng: lng },
+      })
+// }    
+
 
     // Get user's location
     if (navigator.geolocation) {
@@ -68,10 +80,10 @@ export default function DirectionsPage() {
         },
       )
     }
-  }, [id])
+  }, [id,location])
 
   useEffect(() => {
-    if (restaurant && userLocation) {
+    if (userLocation) {
       // Create Google Maps directions URL
       const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}&travelmode=driving`
       setMapUrl(directionsUrl)

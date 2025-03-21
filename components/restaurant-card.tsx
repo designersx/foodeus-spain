@@ -43,21 +43,21 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   }
 
   return (
-    <Link href={`/menu/${restaurant.id}`} className="text-decoration-none text-dark">
+    <Link href={`/menu/${restaurant?.id}`} className="text-decoration-none text-dark">
       <div className="card mb-3 shadow-sm hover-shadow">
         <div className="row g-0" style={{ height: "" }}>
           <div className="col-4 position-relative">
             <Image
-              src={restaurant.menu.image || "/placeholder.svg"}
-              alt={restaurant.menu.title[language]}
+              src={restaurant?.menu.image || "/placeholder.svg"}
+              alt={restaurant?.menu.title[language]}
               fill
               className="object-fit-cover rounded-start"
             />
           </div>
           <div className="col-8">
-            <div className="card-body h-100 d-flex flex-column justify-content-between p-3">
+            <div className="card-body h-100 d-flex flex-column justify-content-between p-3 text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
               <div>
-                <h5 className="card-title fs-6 fw-bold text-truncate mb-1">{restaurant.menu.title[language]}</h5>
+                <h5 className="card-title fs-6 fw-bold text-truncate mb-1">{restaurant?.menu.title[language]}</h5>
                 <p
                   className="card-text small text-secondary mb-0 line-clamp-2"
                   style={{
@@ -72,10 +72,14 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               </div>
               <div className="d-flex justify-content-between align-items-end w-100">
                 <div>
-                  <p className="card-text small mb-0 fw-medium">{restaurant.name}</p>
+                  <p className="card-text small mb-0 fw-medium">{restaurant?.name}</p>
                   <p className="card-text small text-secondary d-flex align-items-center mb-0">
                     <i className="bi bi-geo-alt me-1 small"></i>
-                    <span className="text-truncate">{restaurant.location}</span>
+                    <span className="text-truncate">
+                    {restaurant?.location.length > 45
+                      ? restaurant?.location.slice(0, restaurant?.location?.lastIndexOf(" ", 20)) + "..."
+                      : restaurant?.location}
+                  </span>
                   </p>
                 </div>
                 {distance !== undefined && (
