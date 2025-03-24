@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
 import { useRouter } from "next/navigation";
-// Sample data - in a real app, this would come from an APIdsds
+// Sample data - in a real app, this would come from an APIdsdsdsds
 const restaurants = [
   {
     id: "1",

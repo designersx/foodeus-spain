@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
+import { API_BASE_URL } from "@/services/apiService"
 
 interface Restaurant {
   id: string
@@ -41,14 +42,23 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
       return `${distance.toFixed(1)}km`
     }
   }
+  const isValidUrl = (url:string) => {
+    const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
+    return pattern.test(url);
+  };
+  
 
   return (
     <Link href={`/menu/${restaurant?.id}`} className="text-decoration-none text-dark">
       <div className="card mb-3 shadow-sm hover-shadow">
         <div className="row g-0" style={{ height: "" }}>
           <div className="col-4 position-relative">
+
             <Image
-              src={restaurant?.menu.image || "/placeholder.svg"}
+              // src={`${API_BASE_URL}/${restaurant?.menu.image}`||restaurant?.menu.image|| "/placeholder.svg"}
+              src={isValidUrl(restaurant?.menu.image) 
+                ? restaurant?.menu.image  // If it's a valid URL, use it directly
+                : `${API_BASE_URL}/${restaurant?.menu.image}` || "/placeholder.svg"}
               alt={restaurant?.menu.title[language]}
               fill
               className="object-fit-cover rounded-start"

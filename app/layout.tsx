@@ -4,6 +4,8 @@ import { LanguageProvider } from "@/context/language-context"
 import Header from "@/components/header"
 import Script from "next/script"
 import "@/app/globals.css"
+import "@/app/custom.css"
+import { AuthProvider } from "@/context/auth-context"
 
 
 
@@ -34,7 +36,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <Header />
+          <AuthProvider>
           <main className="container py-3 mb-5">{children}</main>
+          </AuthProvider>
         </LanguageProvider>
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
