@@ -143,7 +143,7 @@ export function ListView() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterBy, setFilterBy] = useState("all"); 
   useEffect(() => {
-    // fetch("http://localhost:8081/enduser/getRestaurantsWithMenus", {
+    // fetch("https://foodeus.truet.net/src/routes/enduser/getRestaurantsWithMenus", {
     //   method: "GET",
     //   headers: { "Content-Type": "application/json" },
     // })
