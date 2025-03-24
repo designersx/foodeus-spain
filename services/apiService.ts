@@ -3,7 +3,8 @@ import axios from "axios";
 
 
 // Base API URL from environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net/enuser";
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //local
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; //live
 
 // Create an Axios instance with default settings
 const apiClient = axios.create({
@@ -16,10 +17,11 @@ const apiClient = axios.create({
 // ✅ Function to get all restaurants with menus
 export const getRestaurantsWithMenus = async () => {
   try {
-    const response = await apiClient.get("/getRestaurantsWithMenus");
+    const response = await apiClient.get("/enduser/getRestaurantsWithMenus");
     return response.data; // Axios automatically parses JSON
+    console.log('menusss', response.data)
   } catch (error) {
-    console.error("❌ Error fetching restaurants:", error);
+    console.error("Error fetching restaurants:", error);
     return { success: false, data: [] };
   }
 };
@@ -27,7 +29,7 @@ export const getRestaurantsWithMenus = async () => {
 // ✅ Function to get a single restaurant by ID
 export const getRestaurantById = async (id: string) => {
   try {
-    const response = await apiClient.get(`/getRestaurantWithMenus/${id}`);
+    const response = await apiClient.get(`/enduser/getRestaurantWithMenus/${id}`);
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching restaurant:", error);
@@ -38,7 +40,7 @@ export const getRestaurantById = async (id: string) => {
 // ✅ Function to search restaurants by name
 export const searchRestaurants = async (query: string) => {
   try {
-    const response = await apiClient.get(`/searchRestaurants`, {
+    const response = await apiClient.get(`/enduser/searchRestaurants`, {
       params: { query }, // Passing query as a URL parameter
     });
     return response.data;
@@ -47,3 +49,22 @@ export const searchRestaurants = async (query: string) => {
     return { success: false, data: [] };
   }
 };
+
+
+export const getRestaurantListforAdmin=async()=>{
+  try { 
+    const response = await apiClient.get(`/restaurants/`);
+    return response.data;
+  } catch (error) {
+    return { success: false, data: [] };
+}
+}
+
+export const getRestaurantByIdforAdmin=async(id:number)=>{
+  try { 
+    const response = await apiClient.get(`/restaurants/${id}`);
+    return response.data;
+  } catch (error) {
+    return { success: false, data: [] };
+}
+}
