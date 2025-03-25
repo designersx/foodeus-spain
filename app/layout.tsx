@@ -6,7 +6,7 @@ import Script from "next/script"
 import "@/app/globals.css"
 import "@/app/custom.css"
 import { AuthProvider } from "@/context/auth-context"
-
+import { Toaster  } from "@/components/ui/toaster"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -38,6 +38,7 @@ export default function RootLayout({
           <Header />
           <AuthProvider>
           <main className="container py-3 mb-5">{children}</main>
+          <Toaster />
           </AuthProvider>
         </LanguageProvider>
         <Script

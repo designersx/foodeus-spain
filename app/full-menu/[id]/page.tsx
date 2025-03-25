@@ -53,7 +53,7 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
   restaurantData.menus.forEach((menu) => {
     const formattedMenu: MenuItem = {
       title: { en: menu.item_name || "", es: menu.item_name ||"" }, // Add Spanish translation if needed
-      price: { en: `$${menu.price ?? 0}`, es: `€${((menu.price ?? 0) * 0.9).toFixed(2)}` }, // Example conversion
+      price: { en: `€${menu.price ?? 0}`, es: `€${((menu.price ?? 0)).toFixed(2)}` }, // Example conversion
       description: { en: menu.description || "", es: menu.description ||"" }, // Add Spanish description
       image: menu.image_url || "/placeholder.svg?height=120&width=120",
     };

@@ -73,8 +73,8 @@ export default function MenuDetailPage() {
                 ? menu.item_list.split(", ").map((item:any) => ({ en: item, es:item }))
                 : [],
               price: {
-                en: `$${Number(menu.price).toFixed(2)}`,
-                es: `€${(Number(menu.price) * 0.85).toFixed(2)}`,
+                en: `€${Number(menu.price).toFixed(2)}`,
+                es: `€${(Number(menu.price)).toFixed(2)}`,
               },
             }));
             // console.log('formattedMenus', formattedMenus);

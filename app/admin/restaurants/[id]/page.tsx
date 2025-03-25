@@ -262,7 +262,8 @@ export default function RestaurantDetailPage() {
             </div>
 
             <TabsContent value="menu" className="space-y-4">
-              {restaurant?.menus?.map((item) => (
+              
+              {restaurant.menus.length>0 && restaurant?.menus?.map((item) => (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-1/4">

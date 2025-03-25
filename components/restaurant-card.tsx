@@ -4,11 +4,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
 import { API_BASE_URL } from "@/services/apiService"
-
+import { Badge } from "@/components/ui/badge"
+import { Edit, Plus, Search, Star } from "lucide-react"
 interface Restaurant {
   id: string
   name: string
   location: string
+  rating: string | undefined 
   coordinates: {
     lat: number
     lng: number
@@ -82,7 +84,13 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               </div>
               <div className="d-flex justify-content-between align-items-end w-100">
                 <div>
-                  <p className="card-text small mb-0 fw-medium">{restaurant?.name}</p>
+         <span className="flex items-center gap-2 text-sm font-medium">
+  <span>{restaurant?.name}</span>
+  <span className="flex items-center gap-1">
+    <Star className="h-3 w-3" style={{ color: "#FFD700", fill: "#FFD700" }} />
+    {restaurant?.rating ?? 3.5}
+  </span>
+</span>
                   <p className="card-text small text-secondary d-flex align-items-center mb-0">
                     <i className="bi bi-geo-alt me-1 small"></i>
                     <span className="text-truncate">
