@@ -14,18 +14,44 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/services/apiService"
 
+interface RestaurantFormData {
+  name: string;
+  cuisine: string;
+  address: string;
+  phone: string;
+  website: string;
+  category: string;
+  description: string;
+  image: File | null; // 'image' is a file input, so it can be a `File` or `null` if no file is selected
+}
 export default function AddRestaurantPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [restaurantData, setRestaurantData] = useState({
+    name: '',
+    cuisine: '',
+    address: '',
+    phone: '',
+    website: '',
+    category: '',
+    description: '',
+    open_hours: '',
+    ratings: '',
+    latitude: '',
+    longitude: '',
+    cover_image: null, // File input
+  });
 
   const [formData, setFormData] = useState({
     name: "",
     address: "",
     addressLink: "",
+    ratings:"",
     latitude: "",
     longitude: "",
     cuisine: "",
@@ -33,12 +59,12 @@ export default function AddRestaurantPage() {
     phone: "",
     website: "",
     hours: "",
-    coverImage: null as File | null,
+    cover_image: null as File | null,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setRestaurantData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -48,7 +74,7 @@ export default function AddRestaurantPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     if (file) {
-      setFormData((prev) => ({ ...prev, coverImage: file }))
+      setFormData((prev) => ({ ...prev, cover_image: file }))
 
       // Create a preview URL for the image
       const reader = new FileReader()
@@ -60,30 +86,60 @@ export default function AddRestaurantPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
+  
+    // Prepare FormData
+    const formData = new FormData();
+    
+    // Append form fields to FormData
+    formData.append('name', restaurantData.name);
+    formData.append('cuisine', restaurantData.cuisine);
+    formData.append('address', restaurantData.address);
+    formData.append('phone', restaurantData.phone);
+    formData.append('website', restaurantData.website);
+    formData.append('category', restaurantData.category);
+    formData.append('description', restaurantData.description);
+    formData.append('open_hours', restaurantData.open_hours);
+    formData.append('ratings', restaurantData.ratings);
+    formData.append('latitude', restaurantData.latitude);
+    formData.append('longitude', restaurantData.longitude);
 
+    // Append the image file if it exists
+    if (restaurantData.cover_image) {
+      formData.append('image', restaurantData.cover_image); // 'image' is the key expected by the backend
+    }
+    const token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQyODM5MjM1LCJleHAiOjE3NDI4ODI0MzV9.r9Omopz_6pux16JQc04_URyT8pmP5_N1iKmdXpqx9SE"
     try {
-      // In a real app, you would call your API to create the restaurant
-      // You would also upload the image to a storage service
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Send the FormData to the API
+      const response = await apiClient.post('/restaurants/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Axios will handle the boundary for multipart form data
+          Authorization: `Bearer ${token}`, // Add your API token here
+        },
+      });
 
-      toast({
-        title: "Restaurant added",
-        description: "The restaurant has been added successfully",
-      })
-
-      router.push("/admin/restaurants")
+      if (response.data.success) {
+        toast({
+          title: "Restaurant added",
+          description: "The restaurant has been added successfully",
+        });
+        console.log('response',response);
+        router.push("/admin/restaurants");
+      } else {
+        throw new Error('Failed to add restaurant');
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "There was an error adding the restaurant",
         variant: "destructive",
-      })
+      });
+      console.error("Error adding restaurant:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="full-width-container space-y-6">
@@ -134,8 +190,8 @@ export default function AddRestaurantPage() {
                 )}
                 <Input
                   ref={fileInputRef}
-                  id="coverImage"
-                  name="coverImage"
+                  id="cover_image"
+                  name="cover_image"
                   type="file"
                   accept="image/*"
                   className="hidden"
@@ -167,14 +223,16 @@ export default function AddRestaurantPage() {
                     <SelectValue placeholder="Select cuisine type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="american">American</SelectItem>
-                    <SelectItem value="chinese">Chinese</SelectItem>
-                    <SelectItem value="indian">Indian</SelectItem>
-                    <SelectItem value="italian">Italian</SelectItem>
-                    <SelectItem value="japanese">Japanese</SelectItem>
-                    <SelectItem value="mexican">Mexican</SelectItem>
-                    <SelectItem value="spanish">Spanish</SelectItem>
-                    <SelectItem value="thai">Thai</SelectItem>
+                    <SelectItem value="Hamburguesas">Hamburguesas</SelectItem>
+                    <SelectItem value="Carnívoros">Carnívoros</SelectItem>
+                    <SelectItem value="Mexicano">Mexicano</SelectItem>
+                    <SelectItem value="Asiático">Asiático</SelectItem>
+                    <SelectItem value="Japonés">Japonés</SelectItem>
+                    <SelectItem value="Italiano">Italiano</SelectItem>
+                    <SelectItem value="Fusión">Fusión</SelectItem>
+                    <SelectItem value="Latino">Latino</SelectItem>
+                    <SelectItem value="Otros">Otros</SelectItem>
+                    <SelectItem value="Español">Español</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -212,7 +270,7 @@ export default function AddRestaurantPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="addressLink">Address Link (Google Maps URL)</Label>
                 <Input
                   id="addressLink"
@@ -222,7 +280,7 @@ export default function AddRestaurantPage() {
                   onChange={handleChange}
                 />
                 <p className="text-xs text-muted-foreground">Paste a Google Maps link to the restaurant location</p>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">

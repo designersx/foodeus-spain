@@ -12,9 +12,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { login ,API_BASE_URL} from "@/services/apiService"
+import axios from "axios"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
@@ -25,20 +28,29 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // In a real app, you would call your authentication API here
-      // For demo purposes, we'll just simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Store auth token or user info in localStorage/cookies
-      localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
-
+      console.log("Logging in with email:", email, "and password:", password);
+      // Call the login function from the auth service
+      const response=await axios.post(`${API_BASE_URL}/admin/login`,{email,password});
+      console.log('llds',response);
+      if(response.data.success){
+        console.log('insed',response)
+        localStorage.setItem('token',response.data.data.token);
+        localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
+        router.push("/admin/restaurants")
       toast({
         title: "Login successful",
         description: "Welcome to Foodeus Admin Panel",
       })
-
-      router.push("/admin/restaurants")
+      }
+  
+      
     } catch (error) {
+      console.error("Failed to log in:", error)
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || "Something went wrong!");
+      } else {
+        setError("Unexpected error occurred");
+      }
       toast({
         title: "Login failed",
         description: "Please check your credentials and try again",
@@ -90,6 +102,8 @@ export default function LoginPage() {
                 required
               />
             </div>
+            <span className="text-danger d-block text-center">{error&& error}
+            </span>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>

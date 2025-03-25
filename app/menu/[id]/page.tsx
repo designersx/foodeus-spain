@@ -42,6 +42,7 @@ export default function MenuDetailPage() {
   const { language } = useLanguage()
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [menuItems, setMenuItems] = useState<Restaurant | null>(null);
+  const [dataa, setdataa] = useState<Restaurant | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
   const [mapUrl, setMapUrl] = useState<string>("")
@@ -78,6 +79,8 @@ export default function MenuDetailPage() {
             }));
             // console.log('formattedMenus', formattedMenus);
             // Set the restaurant in state with formatted data
+            setdataa(restaurant.menus)
+            console.log('dataasasas',dataa);
             setMenuItems({
               id: restaurant.restaurant_id || "",
               name: restaurant.name || "",
@@ -166,7 +169,7 @@ export default function MenuDetailPage() {
         {/* Hero image */}
         <div className="position-relative rounded overflow-hidden mb-4" style={{ height: "250px" }}>
           <Image
-            src={isValidUrl(menuItem?.image) ?menuItem?.image:`${API_BASE_URL}/${menuItem?.image}` || "/placeholder.svg"}
+            src={isValidUrl(menuItem?.image)?menuItem?.image:`${API_BASE_URL}${menuItem?.image.split("/public")[1]}` || "/placeholder.svg"}
             alt={menuItem?.title[language]}
             fill
             className="object-fit-cover"
