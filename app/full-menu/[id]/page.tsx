@@ -200,7 +200,7 @@ export default function FullMenuPage() {
                   <Image
                     src={isValidUrl(restaurant.fullMenu?.menuOfTheDay?.image)
                       ? restaurant.fullMenu?.menuOfTheDay?.image
-                      :`${API_BASE_URL}/${restaurant.fullMenu?.menuOfTheDay?.image}` || "/placeholder.svg"}
+                      :`${API_BASE_URL}${restaurant.fullMenu?.menuOfTheDay?.image.split("/public")[1]}`|| "/placeholder.svg"}
                     alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
                     fill
                     className="object-fit-cover rounded"

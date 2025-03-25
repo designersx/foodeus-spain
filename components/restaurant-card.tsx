@@ -58,7 +58,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               // src={`${API_BASE_URL}/${restaurant?.menu.image}`||restaurant?.menu.image|| "/placeholder.svg"}
               src={isValidUrl(restaurant?.menu.image) 
                 ? restaurant?.menu.image  // If it's a valid URL, use it directly
-                : `${API_BASE_URL}/${restaurant?.menu.image}` || "/placeholder.svg"}
+                :`${API_BASE_URL}${restaurant.menu.image.split("/public")[1]}` || "/placeholder.svg"}
               alt={restaurant?.menu.title[language]}
               fill
               className="object-fit-cover rounded-start"

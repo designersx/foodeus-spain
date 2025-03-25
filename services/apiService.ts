@@ -7,7 +7,7 @@ import axios from "axios";
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; //livec
 
 // Create an Axios instance with default settings
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -68,3 +68,25 @@ export const getRestaurantByIdforAdmin=async(id:number)=>{
     return { success: false, data: [] };
 }
 }
+
+const addRestaurant = async (data:any) => {
+  try {
+    const response = await apiClient.post(`/restaurants/add`, data);
+    return response.data; // The data returned from the API
+  } catch (error) {
+    console.error('Error adding restaurant:', error);
+    return { success: false, data: [] }; // Return a fallback value on error
+  }
+};
+
+export const login = async (email: string, password: string) => {
+  try {
+    const response = await apiClient.post('/admin/login', { email, password });
+
+    // Store the received token in localStorage (or any other storage mechanism)
+    return response.data;
+  } catch (error) {
+    console.error("Error during login:", error);
+    return { success: false, data: [] };
+  }
+};

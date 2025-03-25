@@ -40,19 +40,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (isLoading) return
-
-    const isAuthRoute = pathname?.startsWith("/auth")
-    console.log(`Auth check - Path: ${pathname}, isAuthRoute: ${isAuthRoute}, User:`, user)
-
-    if (!user && !isAuthRoute && pathname !== "/") {
-      console.log("User not logged in - Redirecting to /auth/login")
-      router.push("/auth/login")
-    } else if (user && isAuthRoute) {
-      console.log("User logged in - Redirecting to /admin/restaurants")
-      router.push("/admin/restaurants")
+    if (isLoading) return;
+  
+    const isAuthRoute = pathname?.startsWith("/auth");
+    const isAdminRoute = pathname?.startsWith("/admin");
+  
+    console.log(`Auth check - Path: ${pathname}, isAuthRoute: ${isAuthRoute}, isAdminRoute: ${isAdminRoute}, User:`, user);
+  
+    // If user is not logged in and trying to access an admin route, redirect to /auth/login
+    if (!user && isAdminRoute) {
+      console.log("User not logged in - Redirecting to /auth/login");
+      router.push("/auth/login");
     }
-  }, [user, isLoading, pathname, router])
+  
+    // If user is logged in and trying to access auth route, redirect to /admin/restaurants
+    else if (user && isAuthRoute) {
+      console.log("User logged in - Redirecting to /admin/restaurants");
+      router.push("/admin/restaurants");
+    }
+  
+    // If user is not logged in and not on auth or admin route, allow them to stay on the current route
+  }, [user, isLoading, pathname, router]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
@@ -66,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData)
 
       console.log("Login successful - Redirecting to dashboard")
-      router.push("/admin/dashboard")
+      router.push("/admin/restaurants")
     } catch (error) {
       console.error("Login error:", error)
     } finally {
