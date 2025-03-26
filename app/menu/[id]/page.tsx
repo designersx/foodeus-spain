@@ -56,7 +56,7 @@ export default function MenuDetailPage() {
    
   useEffect(() => {
     if (id) {
-      // fetch(`http://localhost:8081/enduser/getRestaurantWithMenus/${id}`, {
+      // fetch(`https://foodeus.truet.net/src/routes/enduser/getRestaurantWithMenus/${id}`, {
       //   method: "GET",
       //   headers: { "Content-Type": "application/json" },
       // })
