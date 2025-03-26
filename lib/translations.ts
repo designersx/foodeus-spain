@@ -1,5 +1,6 @@
 export const translations = {
   en: {
+    dishView:"Dish View",
     listView: "List View",
     mapView: "Map View",
     menuOfTheDay: "Menu of the Day",
@@ -9,6 +10,7 @@ export const translations = {
     restaurants: "Restaurants",
   },
   es: {
+    dishView:"Vista del plato",
     listView: "Vista de Lista",
     mapView: "Vista de Mapa",
     menuOfTheDay: "Menú del Día",

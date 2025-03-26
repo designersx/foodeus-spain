@@ -137,7 +137,7 @@ export default function RestaurantsPage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredRestaurants.map((restaurant) => (
+        {filteredRestaurants?.map((restaurant) => (
           <Card key={restaurant.id} className="overflow-hidden">
             <div className="aspect-video w-full overflow-hidden">
               <img

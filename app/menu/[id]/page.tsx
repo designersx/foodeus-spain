@@ -6,6 +6,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
 import {API_BASE_URL, getRestaurantById} from "@/services/apiService"
+import {getMenuImagePath} from "@/utils/getImagePath"
+import { Edit, Plus, Search, Star } from "lucide-react"
 
 interface MenuItem {
   title: { en: string; es: string };
@@ -13,6 +15,8 @@ interface MenuItem {
   image: string;
   items: { en: string; es: string }[];
   price: { en: string; es: string };
+  menu_type?: string;
+  updated_at?: any
 }
 
 interface Restaurant {
@@ -21,6 +25,8 @@ interface Restaurant {
   location: string;
   coordinates: { lat: number; lng: number };
   menu: MenuItem[];
+  ratings?: string | number;
+  totalRating?: string | number;
 }
 
 
@@ -38,14 +44,16 @@ const calculateDistance = (lat1: number, lng1: number, lat2?: number, lng2?: num
 };
 
 export default function MenuDetailPage() {
-  const { id } = useParams()
+  const { id ,} = useParams()
   const { language } = useLanguage()
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [menuItems, setMenuItems] = useState<Restaurant | null>(null);
-  const [dataa, setdataa] = useState<Restaurant | null>(null);
+  const [data, setdata] = useState<Restaurant | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
   const [mapUrl, setMapUrl] = useState<string>("")
+   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
+   
   useEffect(() => {
     if (id) {
       // fetch(`https://foodeus.truet.net/src/routes/enduser/getRestaurantWithMenus/${id}`, {
@@ -73,14 +81,15 @@ export default function MenuDetailPage() {
                 ? menu.item_list.split(", ").map((item:any) => ({ en: item, es:item }))
                 : [],
               price: {
-                en: `$${Number(menu.price).toFixed(2)}`,
-                es: `€${(Number(menu.price) * 0.85).toFixed(2)}`,
+                en: `€${Number(menu.price).toFixed(2)}`,
+                es: `€${(Number(menu.price)).toFixed(2)}`,
               },
+              updated_at: menu.updated_at,
+              menu_type: menu.menu_type,
             }));
             // console.log('formattedMenus', formattedMenus);
             // Set the restaurant in state with formatted data
-            setdataa(restaurant.menus)
-            console.log('dataasasas',dataa);
+            setdata(restaurant)
             setMenuItems({
               id: restaurant.restaurant_id || "",
               name: restaurant.name || "",
@@ -102,14 +111,34 @@ export default function MenuDetailPage() {
   // console.log('menuItems', menuItems,menuItems?.menu[0]);
 
   useEffect(() => {
-    // Find the menu item with the matching ID
-    if(menuItems && menuItems?.menu?.length > 0) {
-    // const item = menuItems.find((item) => item.id === id)
-    // if (item) {
-      setMenuItem(menuItems.menu[0])
-    // }
-  }
-  }, [id,menuItems])
+    if (menuItems && menuItems.menu?.length > 0) {
+      let selectedItem = null;
+  
+      // Step 2: Fallback to "Today's Special" updated today
+      if (!selectedItem) {
+        const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+        selectedItem = menuItems.menu.find(
+          (item) =>
+            item.menu_type === "Today's Special" &&
+            item.updated_at?.split(" ")[0] === today
+        );
+      }
+  
+      // Step 3: Fallback to most recently updated
+      if (!selectedItem) {
+        selectedItem = [...menuItems.menu].sort((a, b) => {
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        })[0];
+      }
+  
+      if (selectedItem) {
+        console.log('selectedItem',selectedItem);
+        setMenuItem(selectedItem);
+        setSrc(selectedItem.image);
+      }
+    }
+  }, [id, menuItems]);
+  
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -155,6 +184,10 @@ export default function MenuDetailPage() {
     return pattern.test(url);
   };
 
+  const formatTotalRatings = (count: number) => {
+    const rounded = Math.floor(count / 10) * 10;
+    return `${rounded}+`;
+  };
   // console.log('menuItem',menuItems);
   return (
     <>
@@ -169,8 +202,9 @@ export default function MenuDetailPage() {
         {/* Hero image */}
         <div className="position-relative rounded overflow-hidden mb-4" style={{ height: "250px" }}>
           <Image
-            src={isValidUrl(menuItem?.image)?menuItem?.image:`${API_BASE_URL}${menuItem?.image.split("/public")[1]}` || "/placeholder.svg"}
+            src={src}
             alt={menuItem?.title[language]}
+            onError={() => setSrc("/Images/fallback.jpg")}
             fill
             className="object-fit-cover"
             style={{ filter: 'brightness(75%)' }}
@@ -185,7 +219,7 @@ export default function MenuDetailPage() {
         </div>
 
         {/* Price */}
-        <div className="flex justify-between align-items-center mb-3">
+        <div className="flex justify-between align-items-center mb-1">
         <div className="fs-3 fw-bold text-primary">
           {menuItem?.price[language]}
         </div>
@@ -197,8 +231,16 @@ export default function MenuDetailPage() {
           </div>
         )}
       </div>
-        {/* Description */}
+       
+        {/* ratings & Description */}
         <div className="mb-4">
+        <span className="flex items-center gap-1 text-sm text-muted-foreground">   
+          <Star className="h-3 w-3" style={{ color: "#FFD700", fill: "#FFD700" }} />
+          {data?.ratings}{" "}
+          {`(${formatTotalRatings(Number(data?.totalRating))} ${
+            language === "es" ? "valoraciones" : "ratings"
+          })`}
+        </span>
           <h2 className="fs-4 fw-semibold mb-2">{language === "en" ? "Description" : "Descripción"}</h2>
           <p className="text-secondary">{menuItem.description[language]}</p>
         </div>

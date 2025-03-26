@@ -46,7 +46,7 @@ export default function Header() {
           </div>
 
           {/* Hamburger Menu */}
-          <button
+          {/* <button
             className="navbar-toggler"
             type="button"
             data-bs-toggle="offcanvas"
@@ -56,11 +56,11 @@ export default function Header() {
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
-          </button>
+          </button> */}
         </div>
 
         {/* Offcanvas Menu */}
-        <div
+        {/* <div
           className="offcanvas offcanvas-end"
           tabIndex={-1}
           id="navbarOffcanvas"
@@ -86,7 +86,7 @@ export default function Header() {
               </li>
             </ul>
           </div>
-        </div>
+        </div> */}
       </div>
     </nav>
   )

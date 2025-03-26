@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import React, { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, MapPin, Upload } from "lucide-react"
@@ -16,22 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/services/apiService"
 
-interface RestaurantFormData {
-  name: string;
-  cuisine: string;
-  address: string;
-  phone: string;
-  website: string;
-  category: string;
-  description: string;
-  image: File | null; // 'image' is a file input, so it can be a `File` or `null` if no file is selected
-}
 export default function AddRestaurantPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [restaurantData, setRestaurantData] = useState({
     name: '',
     cuisine: '',
@@ -44,21 +33,7 @@ export default function AddRestaurantPage() {
     ratings: '',
     latitude: '',
     longitude: '',
-    cover_image: null, // File input
-  });
-
-  const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    addressLink: "",
-    ratings:"",
-    latitude: "",
-    longitude: "",
-    cuisine: "",
-    description: "",
-    phone: "",
-    website: "",
-    hours: "",
+    placeId:'',
     cover_image: null as File | null,
   })
 
@@ -68,15 +43,14 @@ export default function AddRestaurantPage() {
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setRestaurantData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     if (file) {
-      setFormData((prev) => ({ ...prev, cover_image: file }))
+      setRestaurantData((prev) => ({ ...prev, cover_image: file }))
 
-      // Create a preview URL for the image
       const reader = new FileReader()
       reader.onloadend = () => {
         setCoverImagePreview(reader.result as string)
@@ -86,60 +60,45 @@ export default function AddRestaurantPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-  
-    // Prepare FormData
-    const formData = new FormData();
-    
-    // Append form fields to FormData
-    formData.append('name', restaurantData.name);
-    formData.append('cuisine', restaurantData.cuisine);
-    formData.append('address', restaurantData.address);
-    formData.append('phone', restaurantData.phone);
-    formData.append('website', restaurantData.website);
-    formData.append('category', restaurantData.category);
-    formData.append('description', restaurantData.description);
-    formData.append('open_hours', restaurantData.open_hours);
-    formData.append('ratings', restaurantData.ratings);
-    formData.append('latitude', restaurantData.latitude);
-    formData.append('longitude', restaurantData.longitude);
+    e.preventDefault()
+    setIsLoading(true)
 
-    // Append the image file if it exists
-    if (restaurantData.cover_image) {
-      formData.append('image', restaurantData.cover_image); // 'image' is the key expected by the backend
-    }
-    const token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQyODM5MjM1LCJleHAiOjE3NDI4ODI0MzV9.r9Omopz_6pux16JQc04_URyT8pmP5_N1iKmdXpqx9SE"
+    const formData = new FormData()
+    Object.entries(restaurantData).forEach(([key, value]) => {
+      if (value !== null) {
+        formData.append(key, value as any)
+      }
+    })
+
     try {
-      // Send the FormData to the API
+      const token = localStorage.getItem('token') // Replace with real token or use auth logic
       const response = await apiClient.post('/restaurants/add', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data', // Axios will handle the boundary for multipart form data
-          Authorization: `Bearer ${token}`, // Add your API token here
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (response.data.success) {
         toast({
           title: "Restaurant added",
           description: "The restaurant has been added successfully",
-        });
-        console.log('response',response);
-        router.push("/admin/restaurants");
+        })
+        router.push("/admin/restaurants")
       } else {
-        throw new Error('Failed to add restaurant');
+        throw new Error('Failed to add restaurant')
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "There was an error adding the restaurant",
         variant: "destructive",
-      });
-      console.error("Error adding restaurant:", error);
+      })
+      console.error("Error adding restaurant:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="full-width-container space-y-6">
@@ -162,6 +121,7 @@ export default function AddRestaurantPage() {
             <CardTitle>Restaurant Information</CardTitle>
             <CardDescription>Enter the details of the new restaurant</CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
             {/* Cover Image Upload */}
             <div className="space-y-2">
@@ -173,7 +133,7 @@ export default function AddRestaurantPage() {
                 {coverImagePreview ? (
                   <div className="relative">
                     <img
-                      src={coverImagePreview || "/placeholder.svg"}
+                      src={coverImagePreview}
                       alt="Cover preview"
                       className="mx-auto max-h-[200px] rounded-md object-cover"
                     />
@@ -200,24 +160,25 @@ export default function AddRestaurantPage() {
               </div>
             </div>
 
+            {/* Input Fields */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="name">Restaurant Name</Label>
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Enter restaurant name"
-                  value={formData.name}
+                  value={restaurantData.name}
                   onChange={handleChange}
+                  placeholder="Enter restaurant name"
                   required
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="cuisine">Cuisine Type</Label>
                 <Select
-                  value={formData.cuisine}
+                  value={restaurantData.cuisine}
                   onValueChange={(value) => handleSelectChange("cuisine", value)}
-                  required
                 >
                   <SelectTrigger id="cuisine">
                     <SelectValue placeholder="Select cuisine type" />
@@ -231,8 +192,8 @@ export default function AddRestaurantPage() {
                     <SelectItem value="Italiano">Italiano</SelectItem>
                     <SelectItem value="Fusión">Fusión</SelectItem>
                     <SelectItem value="Latino">Latino</SelectItem>
-                    <SelectItem value="Otros">Otros</SelectItem>
                     <SelectItem value="Español">Español</SelectItem>
+                    <SelectItem value="Otros">Otros</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -243,15 +204,14 @@ export default function AddRestaurantPage() {
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Enter restaurant description"
-                value={formData.description}
+                value={restaurantData.description}
                 onChange={handleChange}
+                placeholder="Enter restaurant description"
                 rows={3}
                 required
               />
             </div>
 
-            {/* Location Information */}
             <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
@@ -263,24 +223,12 @@ export default function AddRestaurantPage() {
                 <Input
                   id="address"
                   name="address"
-                  placeholder="Enter full address"
-                  value={formData.address}
+                  value={restaurantData.address}
                   onChange={handleChange}
+                  placeholder="Enter full address"
                   required
                 />
               </div>
-
-              {/* <div className="space-y-2">
-                <Label htmlFor="addressLink">Address Link (Google Maps URL)</Label>
-                <Input
-                  id="addressLink"
-                  name="addressLink"
-                  placeholder="https://maps.google.com/?q=..."
-                  value={formData.addressLink}
-                  onChange={handleChange}
-                />
-                <p className="text-xs text-muted-foreground">Paste a Google Maps link to the restaurant location</p>
-              </div> */}
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -288,9 +236,9 @@ export default function AddRestaurantPage() {
                   <Input
                     id="latitude"
                     name="latitude"
-                    placeholder="e.g. 40.7128"
-                    value={formData.latitude}
+                    value={restaurantData.latitude}
                     onChange={handleChange}
+                    placeholder="e.g. 40.7128"
                   />
                 </div>
                 <div className="space-y-2">
@@ -298,9 +246,9 @@ export default function AddRestaurantPage() {
                   <Input
                     id="longitude"
                     name="longitude"
-                    placeholder="e.g. -74.0060"
-                    value={formData.longitude}
+                    value={restaurantData.longitude}
                     onChange={handleChange}
+                    placeholder="e.g. -74.0060"
                   />
                 </div>
               </div>
@@ -312,9 +260,9 @@ export default function AddRestaurantPage() {
                 <Input
                   id="phone"
                   name="phone"
-                  placeholder="(555) 123-4567"
-                  value={formData.phone}
+                  value={restaurantData.phone}
                   onChange={handleChange}
+                  placeholder="(555) 123-4567"
                   required
                 />
               </div>
@@ -323,25 +271,26 @@ export default function AddRestaurantPage() {
                 <Input
                   id="website"
                   name="website"
-                  placeholder="www.example.com"
-                  value={formData.website}
+                  value={restaurantData.website}
                   onChange={handleChange}
+                  placeholder="www.example.com"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hours">Business Hours</Label>
+              <Label htmlFor="open_hours">Business Hours</Label>
               <Input
-                id="hours"
-                name="hours"
-                placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
-                value={formData.hours}
+                id="open_hours"
+                name="open_hours"
+                value={restaurantData.open_hours}
                 onChange={handleChange}
+                placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
                 required
               />
             </div>
           </CardContent>
+
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>
               <Link href="/admin/restaurants">Cancel</Link>
@@ -355,4 +304,3 @@ export default function AddRestaurantPage() {
     </div>
   )
 }
-
