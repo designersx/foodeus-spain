@@ -6,7 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/context/language-context"
 import {API_BASE_URL, getRestaurantById} from "@/services/apiService"
-
+import {getMenuImagePath} from "@/utils/getImagePath"
 
 
 interface MenuItem {
@@ -105,7 +105,7 @@ export default function FullMenuPage() {
   const [restaurant, setRestaurant] = useState<any>(null)
   const [activeTab, setActiveTab] = useState("menuOfTheDay")
   const [menuItems, setMenuItems] = useState(null);
-
+   const [src, setSrc] = useState<string>("");
   useEffect(() => {
     if (!id) return;
       getRestaurantById(`${id}`)
@@ -124,6 +124,8 @@ export default function FullMenuPage() {
     if(!restaurant) return;
     if (restaurant?.fullMenu && !restaurant?.fullMenu?.menuOfTheDay) {
       setActiveTab("alaCarte");
+    }else{
+      setSrc(getMenuImagePath(restaurant.fullMenu?.menuOfTheDay?.image));
     }
   }, [restaurant]);
 
@@ -198,10 +200,9 @@ export default function FullMenuPage() {
               <div className="d-flex gap-3">
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
-                    src={isValidUrl(restaurant.fullMenu?.menuOfTheDay?.image)
-                      ? restaurant.fullMenu?.menuOfTheDay?.image
-                      :`${API_BASE_URL}${restaurant.fullMenu?.menuOfTheDay?.image.split("/public")[1]}`|| "/placeholder.svg"}
+                    src={src}
                     alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    onError={() => setSrc("/Images/fallback.jpg")}
                     fill
                     className="object-fit-cover rounded"
                   />

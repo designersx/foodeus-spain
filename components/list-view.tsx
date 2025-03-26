@@ -11,103 +11,16 @@ import Lottie from "lottie-react";
 import hotFoodAnimation from "@/components/ui/hot-food.json";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { useRestaurantStore } from "@/store/restaurantStore";
 
-// Sample data for restaurants
-
-// const restaurants = [
-//   {
-//     id: "1",
-//     name: "La Trattoria",
-//     location: "123 Main St, Anytown",
-//     coordinates: { lat: 40.7128, lng: -74.006 },
-//     menu: {
-//       title: {
-//         en: "Italian Pasta Special",
-//         es: "Especial de Pasta Italiana",
-//       },
-//       description: {
-//         en: "Homemade pasta with fresh tomato sauce, basil, and parmesan cheese",
-//         es: "Pasta casera con salsa de tomate fresco, albahaca y queso parmesano",
-//       },
-//       image: "Images/Homemade pasta.png?height=120&width=120",
-//     },
-//   },
-//   {
-//     id: "2",
-//     name: "El Rincón",
-//     location: "45679 Oak Ave, Somewhere",
-//     coordinates: { lat: 40.7168, lng: -73.998 },
-//     menu: {
-//       title: {
-//         en: "Seafood Paella",
-//         es: "Paella de Mariscos",
-//       },
-//       description: {
-//         en: "Traditional Spanish rice dish with fresh seafood, saffron, and vegetables",
-//         es: "Plato tradicional español de arroz con mariscos frescos, azafrán y verduras",
-//       },
-//       image: "Images/Seafood Paella.png?height=120&width=120",
-//     },
-//   },
-//   {
-//     id: "3",
-//     name: "Sushi Spot",
-//     location: "789 Pine Rd, Elsewhere",
-//     coordinates: { lat: 40.7218, lng: -74.012 },
-//     menu: {
-//       title: {
-//         en: "Sushi Combo Platter",
-//         es: "Plato Combinado de Sushi",
-//       },
-//       description: {
-//         en: "Assortment of fresh nigiri and maki rolls with wasabi and pickled ginger",
-//         es: "Surtido de nigiri fresco y rollos maki con wasabi y jengibre encurtido",
-//       },
-//       image: "Images/Sushi Combo Platter.png?height=120&width=120",
-//     },
-//   },
-//   {
-//     id: "4",
-//     name: "Burger Joint",
-//     location: "101 Elm St, Nowhere",
-//     coordinates: { lat: 40.7148, lng: -74.016 },
-//     menu: {
-//       title: {
-//         en: "Gourmet Burger Special",
-//         es: "Especial de Hamburguesa Gourmet",
-//       },
-//       description: {
-//         en: "Angus beef patty with caramelized onions, artisan cheese, and truffle aioli",
-//         es: "Hamburguesa de carne Angus con cebollas caramelizadas, queso artesanal y alioli de trufa",
-//       },
-//       image: "Images/Gourmet Burger Special.png?height=120&width=120",
-//     },
-//   },
-//   {
-//     id: "5",
-//     name: "Thai Delight",
-//     location: "202 Maple Dr, Anyplace",
-//     coordinates: { lat: 40.7108, lng: -74.002 },
-//     menu: {
-//       title: {
-//         en: "Pad Thai Special",
-//         es: "Especial de Pad Thai",
-//       },
-//       description: {
-//         en: "Stir-fried rice noodles with tofu, bean sprouts, peanuts, and lime",
-//         es: "Fideos de arroz salteados con tofu, brotes de soja, cacahuetes y lima",
-//       },
-//       image: "Images/Pad Thai Special.png?height=120&width=120",
-//     },
-//   },
-// ]
-// Define types
 interface Menu {
   title: { en: string; es: string };
   description: { en: string; es: string };
   image: string;
   items?: string;
-  updated_at: string;
+  updated_at?: any
+  menu_id?: string|number;
+  menu_type?: string;
 }
 
 interface Restaurant {
@@ -117,7 +30,9 @@ interface Restaurant {
   coordinates: { lat: number; lng: number };
   menu: Menu;
   distance?: number;
-  rating: string | undefined;
+  rating?: string | number;  // 👈 add or confirm this field
+  ratings?: string | number;
+  updatedToday?: boolean;
 }
 
 // Function to calculate distance
@@ -150,14 +65,18 @@ export function ListView() {
   const [restaurantsWithDistance, setRestaurantsWithDistance] = useState<
     Restaurant[]
   >([]);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  // const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(
     []
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [filterBy, setFilterBy] = useState("all");
+
+  const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
+
   useEffect(() => {
+    if (!hasFetched) {
     getRestaurantsWithMenus()
       .then((data) => {
         console.log("API Response:", data);
@@ -170,12 +89,24 @@ export function ListView() {
           (restaurant: any) => {
             // Ensure menus exist before sorting
             const sortedMenus = restaurant.menus
-              ? [...restaurant.menus].sort(
-                  (a, b) =>
-                    new Date(b.updated_at).getTime() -
-                    new Date(a.updated_at).getTime()
-                )
-              : [];
+            ? [...restaurant.menus].sort((a, b) => {
+                const today = new Date().toDateString(); // Strip time
+
+                const isATodaySpecial =
+                  a.menu_type === "Today's Special" &&
+                  new Date(a.updated_at).toDateString() === today;
+
+                const isBTodaySpecial =
+                  b.menu_type === "Today's Special" &&
+                  new Date(b.updated_at).toDateString() === today;
+
+                if (isATodaySpecial && !isBTodaySpecial) return -1;
+                if (!isATodaySpecial && isBTodaySpecial) return 1;
+
+                // Otherwise, sort by updated_at descending
+                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+              })
+            : [];
 
             return {
               id: restaurant.restaurant_id?.toString() || "",
@@ -185,6 +116,7 @@ export function ListView() {
                 lat: Number(restaurant.location?.latitude) || 0,
                 lng: Number(restaurant.location?.longitude) || 0,
               },
+              rating: restaurant.ratings?.toString() || "",
               menu:
                 sortedMenus.length > 0
                   ? {
@@ -199,6 +131,8 @@ export function ListView() {
                       image: sortedMenus[0]?.image_url || "",
                       items: sortedMenus[0]?.item_list,
                       updated_at: sortedMenus[0]?.updated_at,
+                      menu_type: sortedMenus[0]?.menu_type,
+                      menu_id: sortedMenus[0]?.menu_id,
                     }
                   : {
                       title: { en: "", es: "" },
@@ -208,61 +142,72 @@ export function ListView() {
             };
           }
         );
-
+        // console.log("formattedRestaurants", formattedRestaurants);
         setRestaurants(formattedRestaurants);
+        setHasFetched(true); 
       })
       .catch((err) => {
         console.error("Error fetching restaurants:", err);
         setLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    if (!restaurants.length) return;
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserLocation(userPos);
-
-          const today = new Date().toISOString().split("T")[0];
-
-          const withDistance = restaurants.map((restaurant) => {
-            const distance = calculateDistance(
-              userPos.lat,
-              userPos.lng,
-              restaurant.coordinates.lat,
-              restaurant.coordinates.lng
-            );
-            const latestUpdate = restaurant.menu?.updated_at || "";
-
-            const updatedDate = latestUpdate?.split(" ")[0];
-
-            const updatedToday = updatedDate === today;
-            return { ...restaurant, distance, updatedToday };
-          });
-
-          // Sort: updatedToday first, then by distance
-          withDistance.sort((a, b) => {
-            if (a.updatedToday && !b.updatedToday) return -1;
-            if (!a.updatedToday && b.updatedToday) return 1;
-            return (a.distance || 0) - (b.distance || 0);
-          });
-          setRestaurantsWithDistance(withDistance);
-          setFilteredRestaurants(withDistance);
-          setLoading(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setLoading(false);
-        }
-      );
     }
-  }, [restaurants]);
+  }, [hasFetched, setRestaurants, setHasFetched]);
+
+useEffect(() => {
+  if (!restaurants.length) return;
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userPos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(userPos);
+
+        const today = new Date().toISOString().split("T")[0];
+
+        const withDistance = restaurants.map((restaurant) => {
+          const distance = calculateDistance(
+            userPos.lat,
+            userPos.lng,
+            restaurant.coordinates.lat,
+            restaurant.coordinates.lng
+          );
+
+          const latestUpdate = restaurant.menu?.updated_at || "";
+          const updatedDate = latestUpdate?.split(" ")[0];
+
+          const updatedToday =
+            updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
+
+          return {
+            ...restaurant,
+            distance,
+            updatedToday,
+            rating: restaurant.rating || 3,
+          };
+        });
+
+        // Sort: today's special updated today first, then by distance
+        withDistance.sort((a, b) => {
+          if (a.updatedToday && !b.updatedToday) return -1;
+          if (!a.updatedToday && b.updatedToday) return 1;
+          return (a.distance || 0) - (b.distance || 0);
+        });
+
+        setRestaurantsWithDistance(withDistance);
+        setFilteredRestaurants(withDistance);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        setLoading(false);
+      }
+    );
+  }
+}, [restaurants]);
+
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
