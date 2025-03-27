@@ -1,12 +1,11 @@
 "use client"
 
 import type React from "react"
-
+import { useAuth } from "@/context/auth-context";
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Utensils } from "lucide-react"
-
+import { Utensils , Eye, EyeOff,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,9 +19,11 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
   const { toast } = useToast()
-
+  const { login } = useAuth(); 
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -33,16 +34,14 @@ export default function LoginPage() {
       const response=await axios.post(`${API_BASE_URL}/admin/login`,{email,password});
       console.log('llds',response);
       if(response.data.success){
-        console.log('insed',response)
         localStorage.setItem('token',response.data.data.token);
         localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
-        router.push("/admin/restaurants")
+        await login(email, password)
       toast({
         title: "Login successful",
         description: "Welcome to Foodeus Admin Panel",
       })
       }
-  
       
     } catch (error) {
       console.error("Failed to log in:", error)
@@ -83,6 +82,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="admin@foodeus.com"
                 value={email}
+                maxLength={50}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
@@ -94,13 +94,24 @@ export default function LoginPage() {
                   Forgot password?
                 </Link> */}
               </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  maxLength={40}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <span className="text-danger d-block text-center">{error&& error}
             </span>
@@ -109,12 +120,12 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
-            <div className="text-center text-sm">
+            {/* <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link href="/auth/signup" className="text-primary hover:underline">
                 Sign up
               </Link>
-            </div>
+            </div> */}
           </CardFooter>
         </form>
       </Card>

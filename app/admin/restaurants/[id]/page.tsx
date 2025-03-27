@@ -21,51 +21,8 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService"
 
-// Sample restaurant data
-// const restaurantsData = [
-//   {
-//     id: "1",
-//     name: "El Rincón",
-//     address: "456 Oak Ave, Somewhere",
-//     cuisine: "Spanish",
-//     rating: 4.7,
-//     image: "/placeholder.svg?height=300&width=600",
-//     description: "Authentic Spanish cuisine in a cozy atmosphere",
-//     phone: "(555) 123-4567",
-//     website: "www.elrincon.com",
-//     hours: "Mon-Sat: 11am-10pm, Sun: 12pm-9pm",
-//     menuItems: [
-//       {
-//         id: "1",
-//         name: "Seafood Paella",
-//         description: "Traditional Spanish rice dish with fresh seafood, saffron, and vegetables",
-//         price: 24.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Main Course",
-//         popular: true,
-//       },
-//       {
-//         id: "2",
-//         name: "Patatas Bravas",
-//         description: "Crispy fried potatoes served with spicy tomato sauce and aioli",
-//         price: 8.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Appetizer",
-//         popular: false,
-//       },
-//       {
-//         id: "3",
-//         name: "Gambas al Ajillo",
-//         description: "Garlic shrimp cooked in olive oil with chili flakes",
-//         price: 12.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Appetizer",
-//         popular: true,
-//       },
-//     ],
-//   },
-//   // Other restaurants would be here
-// ]
+
+
 interface MenuItem {
   id: string;
   name: string;
@@ -82,7 +39,7 @@ interface Restaurant {
   address: string;
   category: string;
   rating: number;
-  cover_image: string;
+  cover_image: string| undefined; 
   description: string;
   phone: string;
   website: string;
@@ -97,24 +54,32 @@ export default function RestaurantDetailPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const restaurantId = parseInt(params.id as string, 10) 
   console.log(restaurantId)
+
   useEffect(() => {
-    // Fetch restaurants from the API
     const fetchRestaurants = async () => {
-    const response = await getRestaurantByIdforAdmin(restaurantId);
-    const restaurants = await response;
-    console.log('dssd',restaurants)
-    setRestaurant(restaurants.data)
-    }
+      setLoading(true);
+      try {
+        const response = await getRestaurantByIdforAdmin(restaurantId);
+        const restaurants = await response;
+        setRestaurant(restaurants.data);
+      } catch (error) {
+        console.error("Error fetching restaurant:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchRestaurants();
-  }, [])
+  }, []);
 
   // const restaurantId = params.id as string
   // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
 
-  if (!restaurant) {
+  if (!restaurant && !loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Restaurant not found</h2>
@@ -126,14 +91,14 @@ export default function RestaurantDetailPage() {
     )
   }
 
-  // const handleDeleteRestaurant = () => {
-  //   // In a real app, you would call your API to delete the restaurant
-  //   toast({
-  //     title: "Restaurant deleted",
-  //     description: `${restaurant?.name} has been deleted successfully`,
-  //   })
-  //   router.push("/admin/restaurants")
-  // }
+  if(loading){
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh]">
+        <h2 className="text-2xl font-bold">Loading restaurant...</h2>
+      </div>
+    )
+  }
+
 
   const handleDeleteMenuItem = (itemId: string) => {
     // In a real app, you would call your API to delete the menu item
@@ -198,20 +163,34 @@ export default function RestaurantDetailPage() {
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Website</h4>
-                  <p className="text-sm text-muted-foreground">{restaurant.website}</p>
+                  <p className="text-sm text-muted-foreground">{restaurant?.website}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Hours</h4>
-                  <p className="text-sm text-muted-foreground">{restaurant?.open_hours ? restaurant?.open_hours
-  :'NIL'}</p>
-                </div>
+                  <p className="text-sm text-muted-foreground">
+                  {restaurant?.open_hours
+                    ? restaurant.open_hours
+                        .replace(/�\?\?�\?\?/g, "-")
+                        .replace(/�\?/g, " ")
+                        .replace(/[^\w\s:.,/-]/g, "")
+                    : "NIL"}
+                </p>       
+               </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" asChild>
-                <Link href={`/admin/restaurants/${restaurant?.id}/edit`}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (restaurant) {
+                  sessionStorage.setItem('editRestaurant', JSON.stringify(restaurant))
+                  router.push(`/admin/restaurants/${restaurant.id}/edit`)
+                }
+              }}
+            >
+                {/* <Link href={`/admin/restaurants/${restaurant?.id}/edit`}> */}
                   <Edit className="h-4 w-4 mr-2" /> Edit Restaurant
-                </Link>
+                {/* </Link> */}
               </Button>
               <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <DialogTrigger asChild>
@@ -263,7 +242,7 @@ export default function RestaurantDetailPage() {
 
             <TabsContent value="menu" className="space-y-4">
               
-              {restaurant.menus.length>0 && restaurant?.menus?.map((item) => (
+              {restaurant && restaurant.menus.length>0 && restaurant?.menus?.map((item) => (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-1/4">

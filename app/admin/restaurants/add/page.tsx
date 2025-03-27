@@ -1,14 +1,14 @@
 "use client"
 
-import React, { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import React, { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, MapPin, Upload } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
@@ -17,9 +17,6 @@ import { apiClient } from "@/services/apiService"
 export default function AddRestaurantPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [restaurantData, setRestaurantData] = useState({
     name: '',
@@ -30,12 +27,51 @@ export default function AddRestaurantPage() {
     category: '',
     description: '',
     open_hours: '',
-    ratings: '',
     latitude: '',
     longitude: '',
-    placeId:'',
+    placeId: '',
     cover_image: null as File | null,
   })
+
+  const [addressInput, setAddressInput] = useState("")
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Fetch suggestions using Google Places JS SDK
+  useEffect(() => {
+    if (!addressInput || typeof window === 'undefined' || !window.google) return
+    if (!addressInput || addressInput.length < 5) return
+
+    // Optional: prevent gibberish
+    const isGibberish = !/[a-zA-Z0-9]/.test(addressInput)
+    if (isGibberish) return
+    const service = new window.google.maps.places.AutocompleteService()
+    service.getPlacePredictions({ input: addressInput, types: ["geocode"] }, (predictions) => {
+      setSuggestions(predictions || [])
+    })
+  }, [addressInput])
+
+  const handleSelectPlace = (placeId: string) => {
+    const service = new window.google.maps.places.PlacesService(document.createElement("div"))
+    service.getDetails({ placeId, fields: ["formatted_address", "geometry"] }, (place, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        const lat = place?.geometry?.location?.lat()
+        const lng = place?.geometry?.location?.lng()
+
+        setRestaurantData((prev) => ({
+          ...prev,
+          address: place?.formatted_address || "",
+          latitude: lat?.toString() || "",
+          longitude: lng?.toString() || "",
+          placeId,
+        }))
+        setAddressInput(place?.formatted_address || "")
+        setSuggestions([])
+      }
+    })
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -50,7 +86,6 @@ export default function AddRestaurantPage() {
     const file = e.target.files?.[0] || null
     if (file) {
       setRestaurantData((prev) => ({ ...prev, cover_image: file }))
-
       const reader = new FileReader()
       reader.onloadend = () => {
         setCoverImagePreview(reader.result as string)
@@ -62,7 +97,6 @@ export default function AddRestaurantPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
     const formData = new FormData()
     Object.entries(restaurantData).forEach(([key, value]) => {
       if (value !== null) {
@@ -71,7 +105,7 @@ export default function AddRestaurantPage() {
     })
 
     try {
-      const token = localStorage.getItem('token') // Replace with real token or use auth logic
+      const token = localStorage.getItem('token')
       const response = await apiClient.post('/restaurants/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -101,198 +135,144 @@ export default function AddRestaurantPage() {
   }
 
   return (
-    <div className="full-width-container space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/admin/restaurants">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurants
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" asChild>
+        <Link href="/admin/restaurants">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurants
+        </Link>
+      </Button>
 
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add Restaurant</h1>
-        <p className="text-muted-foreground">Add a new restaurant to your platform</p>
-      </div>
+      <h1 className="text-3xl font-bold tracking-tight">Add Restaurant</h1>
 
-      <form onSubmit={handleSubmit} className="w-full">
-        <Card className="w-full">
+      <form onSubmit={handleSubmit}>
+        <Card>
           <CardHeader>
-            <CardTitle>Restaurant Information</CardTitle>
-            <CardDescription>Enter the details of the new restaurant</CardDescription>
+            <CardTitle>Restaurant Info</CardTitle>
+            <CardDescription>Provide restaurant details</CardDescription>
           </CardHeader>
-
           <CardContent className="space-y-6">
-            {/* Cover Image Upload */}
-            <div className="space-y-2">
+            {/* Cover Image */}
+            <div>
               <Label>Cover Image</Label>
               <div
-                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                className="border-dashed border-2 rounded-lg p-4 cursor-pointer hover:bg-muted/50"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {coverImagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={coverImagePreview}
-                      alt="Cover preview"
-                      className="mx-auto max-h-[200px] rounded-md object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                      <p className="text-white font-medium">Change Image</p>
-                    </div>
-                  </div>
+                  <img
+                    src={coverImagePreview}
+                    alt="Preview"
+                    className="max-h-[200px] object-cover rounded-md mx-auto"
+                  />
                 ) : (
-                  <div className="py-4 flex flex-col items-center">
-                    <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                    <p className="text-sm font-medium">Click to upload cover image</p>
-                    <p className="text-xs text-muted-foreground mt-1">Recommended size: 1200x800px (16:9 ratio)</p>
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 text-muted-foreground mb-2 mx-auto" />
+                    <p className="text-sm">Click to upload cover image</p>
                   </div>
                 )}
                 <Input
-                  ref={fileInputRef}
-                  id="cover_image"
-                  name="cover_image"
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  ref={fileInputRef}
                   onChange={handleFileChange}
                 />
               </div>
             </div>
 
-            {/* Input Fields */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+            {/* Name & Cuisine */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
                 <Label htmlFor="name">Restaurant Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={restaurantData.name}
-                  onChange={handleChange}
-                  placeholder="Enter restaurant name"
-                  required
-                />
+                <Input name="name" value={restaurantData.name} onChange={handleChange} required />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cuisine">Cuisine Type</Label>
+              <div>
+                <Label>Cuisine</Label>
                 <Select
-                  value={restaurantData.cuisine}
-                  onValueChange={(value) => handleSelectChange("cuisine", value)}
+                  value={restaurantData.category}
+                  onValueChange={(val) => handleSelectChange("category", val)}
                 >
-                  <SelectTrigger id="cuisine">
-                    <SelectValue placeholder="Select cuisine type" />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cuisine" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Hamburguesas">Hamburguesas</SelectItem>
-                    <SelectItem value="Carnívoros">Carnívoros</SelectItem>
-                    <SelectItem value="Mexicano">Mexicano</SelectItem>
-                    <SelectItem value="Asiático">Asiático</SelectItem>
-                    <SelectItem value="Japonés">Japonés</SelectItem>
-                    <SelectItem value="Italiano">Italiano</SelectItem>
-                    <SelectItem value="Fusión">Fusión</SelectItem>
-                    <SelectItem value="Latino">Latino</SelectItem>
-                    <SelectItem value="Español">Español</SelectItem>
-                    <SelectItem value="Otros">Otros</SelectItem>
+                    <SelectItem value="Italian">Italian</SelectItem>
+                    <SelectItem value="Mexican">Mexican</SelectItem>
+                    <SelectItem value="Indian">Indian</SelectItem>
+                    <SelectItem value="Asian">Asian</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+            {/* Address w/ autocomplete */}
+            <div className="relative space-y-2">
+              <Label>Address</Label>
+              <Input
+                value={addressInput}
+                onChange={(e) => setAddressInput(e.target.value)}
+                placeholder="Type address"
+                required
+              />
+              {suggestions.length > 0 && (
+                <div className="absolute top-full left-0 z-50 bg-white shadow border rounded w-full max-h-60 overflow-auto">
+                  {suggestions.map((s) => (
+                    <div
+                      key={s.place_id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => handleSelectPlace(s.place_id)}
+                    >
+                      {s.description}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Lat/Lng Display */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Latitude</Label>
+                <Input value={restaurantData.latitude} readOnly />
+              </div>
+              <div>
+                <Label>Longitude</Label>
+                <Input value={restaurantData.longitude} readOnly />
+              </div>
+            </div>
+
+            {/* Contact & Details */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Phone</Label>
+                <Input name="phone" value={restaurantData.phone} onChange={handleChange} required />
+              </div>
+              <div>
+                <Label>Website</Label>
+                <Input name="website" value={restaurantData.website} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div>
+              <Label>Business Hours</Label>
+              <Input name="open_hours" value={restaurantData.open_hours} onChange={handleChange} required />
+            </div>
+
+            <div>
+              <Label>Description</Label>
               <Textarea
-                id="description"
                 name="description"
                 value={restaurantData.description}
                 onChange={handleChange}
-                placeholder="Enter restaurant description"
                 rows={3}
                 required
               />
             </div>
-
-            <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <h3 className="font-medium">Location Information</h3>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  name="address"
-                  value={restaurantData.address}
-                  onChange={handleChange}
-                  placeholder="Enter full address"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="latitude">Latitude</Label>
-                  <Input
-                    id="latitude"
-                    name="latitude"
-                    value={restaurantData.latitude}
-                    onChange={handleChange}
-                    placeholder="e.g. 40.7128"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="longitude">Longitude</Label>
-                  <Input
-                    id="longitude"
-                    name="longitude"
-                    value={restaurantData.longitude}
-                    onChange={handleChange}
-                    placeholder="e.g. -74.0060"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={restaurantData.phone}
-                  onChange={handleChange}
-                  placeholder="(555) 123-4567"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  name="website"
-                  value={restaurantData.website}
-                  onChange={handleChange}
-                  placeholder="www.example.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="open_hours">Business Hours</Label>
-              <Input
-                id="open_hours"
-                name="open_hours"
-                value={restaurantData.open_hours}
-                onChange={handleChange}
-                placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
-                required
-              />
-            </div>
           </CardContent>
-
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" asChild>
+          <CardFooter className="justify-between">
+            <Button type="button" variant="outline" asChild>
               <Link href="/admin/restaurants">Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
