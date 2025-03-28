@@ -73,6 +73,7 @@ export default function EditRestaurantPage() {
         cover_image: null,
       });
       const normalized = getMenuImagePath(parsed.cover_image || parsed.image || "/placeholder.svg");
+      // console.log('ss',normalized);
       setCoverImagePreview(normalized);
     }
   }, []);
@@ -165,7 +166,7 @@ export default function EditRestaurantPage() {
       </div>
     );
   }
-
+console.log('dsdsdsd',coverImagePreview);
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -200,6 +201,7 @@ export default function EditRestaurantPage() {
                   <div className="relative">
                     <img
                       src={coverImagePreview}
+                      onError={()=>setCoverImagePreview('/Images/restaurent-fall.jpg')}
                       alt="Cover preview"
                       className="mx-auto max-h-[200px] rounded-md object-cover"
                     />

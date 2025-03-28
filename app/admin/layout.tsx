@@ -77,14 +77,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/capture-menu"}>
                   <a href="/admin/capture-menu">
                     <Clipboard className="h-4 w-4" />
                     <span>Capture Menu</span>
                   </a>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
