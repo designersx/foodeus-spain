@@ -7,7 +7,7 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage()
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top border-bottom">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light  border-bottom">
       <div className="container">
         <Link href="/" className="navbar-brand d-flex align-items-center">
           <Image

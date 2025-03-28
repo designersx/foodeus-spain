@@ -61,7 +61,7 @@ export function HeroSlideshow() {
                 style={{ filter: 'brightness(65%)' }}
                 
               />
-              <div className="carousel-caption d-flex align-items-end h-100 pb-4">
+              <div className="carousel-caption  pb-4">
                 
                 <h2 className="fs-4 fw-bold text-white mb-0"  style={{ textShadow: '0px 0px 3px #000000' }}>
                  {slide.title[language]}</h2>

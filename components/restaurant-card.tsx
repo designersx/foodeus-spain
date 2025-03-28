@@ -89,7 +89,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                   {restaurant.menu.description[language]}
                 </p>
               </div>
-              <div className="d-flex justify-content-between align-items-end w-100">
+              <div className="resturantLoc  w-100">
                 <div>
                   <span className="flex items-center gap-2 text-sm font-medium">
                     <span>{restaurant?.name}</span>
