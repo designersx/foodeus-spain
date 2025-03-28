@@ -3307,6 +3307,8 @@
 
   span.small {
     margin: 5px 0 0 0;
+    font-size: 16px;
+    font-size: clamp(12px, 2vh, 16px);
   }
 
   .fullMenu{
@@ -3321,3 +3323,42 @@
     white-space: nowrap;
     margin: 0 0 10px 0;
 }
+
+.resturantLoc{
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  flex-wrap: wrap ;
+}
+
+.carousel-caption{
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.SearchFixed{
+  position: sticky;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  margin:0px 0 0 0;
+  background-color: #fff;
+  padding: 0 0 8px 0;
+  
+  z-index:4;
+}
+
+.sticky-top-0 {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: white; /* Optional: to avoid content underneath showing */
+}
+
