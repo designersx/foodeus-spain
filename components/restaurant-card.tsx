@@ -98,11 +98,13 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                       {restaurant?.rating}
                     </span>
                   </span>
+                  
+                  {restaurant?.location.length}
                   <p className="card-text small text-secondary d-flex align-items-center mb-0">
                     <i className="bi bi-geo-alt me-1 small"></i>
                     <span className="text-truncate">
-                    {restaurant?.location.length > 45
-                      ? restaurant?.location.slice(0, restaurant?.location?.lastIndexOf(" ", 20)) + "..."
+                    {restaurant?.location.length > 20
+                      ? restaurant.location.slice(0, 20) + "..."
                       : restaurant?.location}
                   </span>
                   </p>

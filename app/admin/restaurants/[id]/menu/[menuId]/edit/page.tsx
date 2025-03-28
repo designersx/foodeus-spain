@@ -128,37 +128,38 @@ export default function EditMenuItemPage() {
           <CardContent className="space-y-6">
             <div>
               <div className="space-y-2">
-            <Label>Item Image</Label>
+            <Label>Item Image ( click Image to select new )</Label>
             <div
-              className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-              style={{ height: '150px' }}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {imagePreview ? (
-                <div className="relative h-full w-full">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="mx-auto h-full w-full rounded-md object-scale-down"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                    <p className="text-white font-medium">Change Image</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="py-4 flex flex-col items-center justify-center h-full">
-                  <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                  <p className="text-sm font-medium">Click to upload item image</p>
-                </div>
-              )}
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
+  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-center"
+  style={{ height: '250px' }}
+  onClick={() => fileInputRef.current?.click()}
+>
+  {imagePreview ? (
+    <div className="relative h-full w-full flex items-center justify-center overflow-hidden rounded-md">
+      <img
+        src={imagePreview}
+        alt="Click to upload Image"
+        className="max-h-full max-w-full object-fill "
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
+        <p className="text-white font-medium">Change Image</p>
+      </div>
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center text-center">
+      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+      <p className="text-sm font-medium">Click to upload item image</p>
+    </div>
+  )}
+
+  <Input
+    ref={fileInputRef}
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={handleFileChange}
+  />
+</div>
           </div>
             </div>
             <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required />

@@ -214,7 +214,7 @@ export default function AddMenuItemPage() {
               }}
               required
               maxLength={5}
-              pattern="^\d{1,3}(\.\d{0,2})?$"
+              pattern="^\d{1,5}(\.\d{0,2})?$"
               title="Enter a valid price (e.g. 9.99)"
             />
                           </div>

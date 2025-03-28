@@ -142,7 +142,7 @@ export function ListView() {
             };
           }
         );
-        console.log("formattedRestaurants", formattedRestaurants);
+        // console.log("formattedRestaurants", formattedRestaurants);
         setRestaurants(formattedRestaurants);
         setHasFetched(true); 
       })

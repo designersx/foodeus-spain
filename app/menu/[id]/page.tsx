@@ -66,7 +66,7 @@ export default function MenuDetailPage() {
   
           if (data?.data && typeof data.data === "object" && !Array.isArray(data.data)) {
             const restaurant = data.data;
-            console.log('restaurant',data.data);
+            // console.log('restaurant',data.data);
             // Ensure menus exist before sorting
             const sortedMenus = restaurant.menus
               ? [...restaurant.menus].sort((a, b) =>  new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
@@ -131,7 +131,7 @@ export default function MenuDetailPage() {
       }
   
       if (selectedItem) {
-        console.log('selectedItem',selectedItem);
+        // console.log('selectedItem',selectedItem);
         setMenuItem(selectedItem);
         setSrc(selectedItem.image);
       }

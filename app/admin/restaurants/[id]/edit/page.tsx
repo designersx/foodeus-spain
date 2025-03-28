@@ -192,7 +192,7 @@ console.log('dsdsdsd',coverImagePreview);
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Cover Image</Label>
+              <Label>Cover Image (Click Image to select new)</Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
