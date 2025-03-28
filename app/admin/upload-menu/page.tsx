@@ -40,69 +40,161 @@ export default function ImportMenuCSV() {
   3,Steak à la Carte,18.50,A La Carte,"Steak, Side Salad","Cooked-to-order steak from our à la carte menu","https://example.com/steak.jpg"
   4,Burger Combo,11.99,Combo Meals,"Burger, Fries, Coke","Classic combo meal","https://example.com/combo.jpg"`
   
-  // Handle file upload and parse CSV
+  const expectedMenuHeaders = [
+    "Restaurant_ID", "Item_Name", "Price", "Menu_Type", 
+    "Item_list", "Description", "Image_URL"
+  ];
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setFileName(file.name)
-    const reader = new FileReader()
+    const file = e.target.files?.[0];
+    if (!file) return;
+  
+    setFileName(file.name);
+    const reader = new FileReader();
+    
     reader.onload = (event) => {
-      const text = event.target?.result as string
+      const text = event.target?.result as string;
       const rows = text
         .split("\n")
         .map((row) => row.trim())
-        .filter((row) => row)
-      const headers = rows[0].split(",").map((h) => h.trim())
-
+        .filter((row) => row);
+  
+      const headers = rows[0].split(",").map((h) => h.trim());
+  
+      // Check for missing or extra headers
+      const missingHeaders = expectedMenuHeaders.filter((header) => !headers.includes(header));
+      const extraHeaders = headers.filter((header) => !expectedMenuHeaders.includes(header));
+  
+      if (missingHeaders.length > 0) {
+        toast({
+          title: "Error",
+          description: `Missing required fields: ${missingHeaders.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      if (extraHeaders.length > 0) {
+        toast({
+          title: "Error",
+          description: `Extra fields detected: ${extraHeaders.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+  
       try {
         const data = rows.slice(1).map((row) => {
-          // Handle quoted values with commas inside them
-          const values: string[] = []
-          let inQuotes = false
-          let currentValue = ""
-
+          const values: string[] = [];
+          let inQuotes = false;
+          let currentValue = "";
+  
           for (let i = 0; i < row.length; i++) {
-            const char = row[i]
-
+            const char = row[i];
+  
             if (char === '"' && (i === 0 || row[i - 1] !== "\\")) {
-              inQuotes = !inQuotes
+              inQuotes = !inQuotes;
             } else if (char === "," && !inQuotes) {
-              values.push(currentValue)
-              currentValue = ""
+              values.push(currentValue);
+              currentValue = "";
             } else {
-              currentValue += char
+              currentValue += char;
             }
           }
-
+  
           // Add the last value
-          values.push(currentValue)
-
+          values.push(currentValue);
+  
           // Create object from headers and values
           return headers.reduce((obj, header, index) => {
-            obj[header as keyof CSVRow] = values[index]?.replace(/^"|"$/g, "") || ""
-            return obj
-          }, {} as CSVRow)
-        })
-
-        setCsvData(data)
-        setActiveTab("preview")
-        setSelectedFile(file)
+            obj[header as keyof CSVRow] = values[index]?.replace(/^"|"$/g, "") || "";
+            return obj;
+          }, {} as CSVRow);
+        });
+  
+        setCsvData(data);
+        setActiveTab("preview");
+        setSelectedFile(file);
         toast({
           title: "CSV Loaded",
           description: `Successfully loaded ${data.length} rows of data.`,
-        })
+        });
       } catch (error) {
-        console.error("Error parsing CSV:", error)
+        console.error("Error parsing CSV:", error);
         toast({
           title: "Error",
           description: "Failed to parse CSV file. Please check the format.",
           variant: "destructive",
-        })
+        });
       }
-    }
-    reader.readAsText(file)
-  }
+    };
+  
+    reader.readAsText(file);
+  };
+  
+  // Handle file upload and parse CSV
+//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0]
+//     if (!file) return
+
+//     setFileName(file.name)
+//     const reader = new FileReader()
+//     reader.onload = (event) => {
+//       const text = event.target?.result as string
+//       const rows = text
+//         .split("\n")
+//         .map((row) => row.trim())
+//         .filter((row) => row)
+//       const headers = rows[0].split(",").map((h) => h.trim())
+
+//       try {
+//         const data = rows.slice(1).map((row) => {
+//           // Handle quoted values with commas inside them
+//           const values: string[] = []
+//           let inQuotes = false
+//           let currentValue = ""
+
+//           for (let i = 0; i < row.length; i++) {
+//             const char = row[i]
+
+//             if (char === '"' && (i === 0 || row[i - 1] !== "\\")) {
+//               inQuotes = !inQuotes
+//             } else if (char === "," && !inQuotes) {
+//               values.push(currentValue)
+//               currentValue = ""
+//             } else {
+//               currentValue += char
+//             }
+//           }
+
+//           // Add the last value
+//           values.push(currentValue)
+
+//           // Create object from headers and values
+//           return headers.reduce((obj, header, index) => {
+//             obj[header as keyof CSVRow] = values[index]?.replace(/^"|"$/g, "") || ""
+//             return obj
+//           }, {} as CSVRow)
+//         })
+
+//         setCsvData(data)
+//         setActiveTab("preview")
+//         setSelectedFile(file)
+//         toast({
+//           title: "CSV Loaded",
+//           description: `Successfully loaded ${data.length} rows of data.`,
+//         })
+//       } catch (error) {
+//         console.error("Error parsing CSV:", error)
+//         toast({
+//           title: "Error",
+//           description: "Failed to parse CSV file. Please check the format.",
+//           variant: "destructive",
+//         })
+//       }
+//     }
+//     reader.readAsText(file)
+//   }
 
   // Download sample CSV
   const handleDownloadSample = () => {

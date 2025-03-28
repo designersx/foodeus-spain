@@ -47,8 +47,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg" asChild>
                   <div className="flex items-center gap-2">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                      <Utensils className="size-4" />
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg  text-primary-foreground">
+                      {/* <Utensils className="size-4" /> */}
+                      <img alt="Foodeus Logo" loading="lazy" width="32" height="32" decoding="async" data-nimg="1" className="rounded-circle me-2"  src="/Images/Logo.jpg?height=32&amp;width=32"/>
                     </div>
                     <div className="flex flex-col gap-0.5 leading-none">
                       <span className="font-semibold">Foodeus</span>
@@ -87,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SidebarMenuItem> */}
 
                   <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/admin/capture-menu"}>
+                <SidebarMenuButton asChild isActive={pathname === "/admin/upload-menu"}>
                   <a href="/admin/upload-menu">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Menu</span>
@@ -95,8 +96,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/admin/capture-menu"}>
-                  <a href="/admin/upload-menu">
+                <SidebarMenuButton asChild isActive={pathname === "/admin/upload-restaurant"}>
+                  <a href="/admin/upload-restaurant">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Restaurants</span>
                   </a>

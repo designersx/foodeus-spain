@@ -42,23 +42,50 @@ export default function ImportRestaurantCSV() {
 abc123,Restaurant,Fancy Dine,"Fine dining in Madrid",40.4168,-3.7038,"123 Madrid St",+34123456789,https://fancydine.com,4.5,210,"Mon-Fri: 10AM-10PM"
 xyz456,Cafe,Sunny Beans,"Cozy cafe in downtown",40.4178,-3.7025,"456 Coffee Ave",+34987654321,https://sunnybeans.com,4.2,180,"Daily: 8AM-8PM"`;
 
+const expectedHeaders = [
+    "placeId", "Category", "Name", "Description", 
+    "Original_Latitude", "Original_Longitude", "Address", 
+    "Phone", "Website", "Rating", "Total_Ratings", "Opening_Hours"
+  ];
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
     setSelectedFile(file);
-
+  
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
       const rows = text.split("\n").map((row) => row.trim()).filter(Boolean);
       const headers = rows[0].split(",").map((h) => h.trim());
-
+  
+      // Check if the uploaded CSV contains the expected headers
+      const missingHeaders = expectedHeaders.filter((header) => !headers.includes(header));
+      const extraHeaders = headers.filter((header) => !expectedHeaders.includes(header));
+  
+      if (missingHeaders.length > 0) {
+        toast({ 
+          title: "Error", 
+          description: `Missing required fields: ${missingHeaders.join(", ")}`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+  
+      if (extraHeaders.length > 0) {
+        toast({ 
+          title: "Error", 
+          description: `Extra fields detected: ${extraHeaders.join(", ")}`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+  
       try {
         const data = rows.slice(1).map((row) => {
           const values: string[] = [];
           let inQuotes = false, currentValue = "";
-
+  
           for (let i = 0; i < row.length; i++) {
             const char = row[i];
             if (char === '"') inQuotes = !inQuotes;
@@ -68,13 +95,13 @@ xyz456,Cafe,Sunny Beans,"Cozy cafe in downtown",40.4178,-3.7025,"456 Coffee Ave"
             } else currentValue += char;
           }
           values.push(currentValue);
-
+  
           return headers.reduce((obj, header, index) => {
             obj[header as keyof RestaurantCSVRow] = values[index]?.replace(/^"|"$/g, "") || "";
             return obj;
           }, {} as RestaurantCSVRow);
         });
-
+  
         setCsvData(data);
         setActiveTab("preview");
         toast({ title: "CSV Loaded", description: `Successfully loaded ${data.length} rows.` });
@@ -84,6 +111,48 @@ xyz456,Cafe,Sunny Beans,"Cozy cafe in downtown",40.4178,-3.7025,"456 Coffee Ave"
     };
     reader.readAsText(file);
   };
+//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0];
+//     if (!file) return;
+//     setFileName(file.name);
+//     setSelectedFile(file);
+
+//     const reader = new FileReader();
+//     reader.onload = (event) => {
+//       const text = event.target?.result as string;
+//       const rows = text.split("\n").map((row) => row.trim()).filter(Boolean);
+//       const headers = rows[0].split(",").map((h) => h.trim());
+
+//       try {
+//         const data = rows.slice(1).map((row) => {
+//           const values: string[] = [];
+//           let inQuotes = false, currentValue = "";
+
+//           for (let i = 0; i < row.length; i++) {
+//             const char = row[i];
+//             if (char === '"') inQuotes = !inQuotes;
+//             else if (char === "," && !inQuotes) {
+//               values.push(currentValue);
+//               currentValue = "";
+//             } else currentValue += char;
+//           }
+//           values.push(currentValue);
+
+//           return headers.reduce((obj, header, index) => {
+//             obj[header as keyof RestaurantCSVRow] = values[index]?.replace(/^"|"$/g, "") || "";
+//             return obj;
+//           }, {} as RestaurantCSVRow);
+//         });
+
+//         setCsvData(data);
+//         setActiveTab("preview");
+//         toast({ title: "CSV Loaded", description: `Successfully loaded ${data.length} rows.` });
+//       } catch (error) {
+//         toast({ title: "Error", description: "Failed to parse CSV.", variant: "destructive" });
+//       }
+//     };
+//     reader.readAsText(file);
+//   };
 
   const handleDownloadSample = () => {
     const blob = new Blob([sampleCSV], { type: "text/csv" });
@@ -115,7 +184,7 @@ xyz456,Cafe,Sunny Beans,"Cozy cafe in downtown",40.4178,-3.7025,"456 Coffee Ave"
       const token = localStorage.getItem("token");
       formData.append("file", selectedFile);
 
-      const response = await apiClient.post("/restaurants/upload-csv", formData, {
+      const response = await apiClient.post("/restaurants/admin_upload-csv", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -216,6 +285,9 @@ xyz456,Cafe,Sunny Beans,"Cozy cafe in downtown",40.4178,-3.7025,"456 Coffee Ave"
                 </div>
               ) : (
                 <div className="overflow-x-auto">
+                    <Button onClick={handleUpload} disabled={isLoading || csvData.length === 0} className="gap-2">
+                      {isLoading ? <span>Uploading...</span> : <><Upload className="h-4 w-4" />Upload Now</>}
+                    </Button>
                   <Table>
                     <TableHeader>
                       <TableRow>
