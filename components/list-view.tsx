@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import { useLanguage } from "@/context/language-context";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { HeroSlideshow } from "@/components/hero-slideshow";
@@ -20,7 +20,7 @@ interface Menu {
   items?: string;
   updated_at?: any
   menu_id?: string|number;
-  menu_type?: string;
+  menu_type?: any;
 }
 
 interface Restaurant {
@@ -244,21 +244,71 @@ useEffect(() => {
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
 
+// serachbar go on top
+const searchRef = useRef(null);
+const [isSticky, setIsSticky] = useState(false);
+const [lastScrollY, setLastScrollY] = useState(0);
+const [focused, setFocused] = useState(false);
+
+// Scroll to top with offset on focus
+const handleFocus = () => {
+  const element = searchRef.current;
+  const offset = 10;
+
+  if (element) {
+    const y = element.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+
+  setFocused(true);
+};
+
+const handleBlur = () => {
+  setFocused(false);
+  setIsSticky(false);
+};
+
+// Scroll direction detection
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    if (focused) {
+      if (currentScrollY < lastScrollY) {
+        // Scrolling up
+        setIsSticky(true);
+      } else {
+        // Scrolling down
+        setIsSticky(false);
+      }
+    }
+
+    setLastScrollY(currentScrollY);
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [lastScrollY, focused]);
   return (
     <div className="pb-5">
       <HeroSlideshow />
-      <div className="container my-3">
+      <div className=" SearchFixed container my-3">
         <div className="row g-2 align-items-center">
           {/* Search Input */}
           <div className="col-12 col-md-9">
-            <input
+          <input
+              ref={searchRef}
               type="text"
               placeholder={
                 language === "es"
                   ? "Buscar restaurantes, cocina o ubicación"
                   : "Search restaurants, cuisine, or location"
               }
-              className="form-control"
+              className={`form-control w-full p-3 border rounded-md transition-all duration-300 ${
+                isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
+              }`}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

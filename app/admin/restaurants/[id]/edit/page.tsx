@@ -1,144 +1,172 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, MapPin, Upload } from "lucide-react";
 
-import { useState, useRef, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
-import { ArrowLeft, MapPin, Upload } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-
-// Sample restaurant data
-const restaurantsData = [
-  {
-    id: "1",
-    name: "El Rincón",
-    address: "456 Oak Ave, Somewhere",
-    addressLink: "https://maps.google.com/?q=456+Oak+Ave+Somewhere",
-    latitude: "40.7128",
-    longitude: "-74.0060",
-    cuisine: "spanish",
-    description: "Authentic Spanish cuisine in a cozy atmosphere",
-    phone: "(555) 123-4567",
-    website: "www.elrincon.com",
-    hours: "Mon-Sat: 11am-10pm, Sun: 12pm-9pm",
-    image: "/placeholder.svg?height=300&width=600",
-  },
-  // Other restaurants would be here
-]
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { getMenuImagePath } from "@/utils/getImagePath";
+import { apiClient } from "@/services/apiService";
 
 export default function EditRestaurantPage() {
-  const router = useRouter()
-  const params = useParams()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const restaurantId = params.id as string
-  const restaurant = restaurantsData.find((r) => r.id === restaurantId)
+  const router = useRouter();
+  const params = useParams();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(
+    null
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const restaurantId = params.id as string;
+  const [restaurant, setRestaurant] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    addressLink: "",
     latitude: "",
     longitude: "",
+    category: "",
     cuisine: "",
     description: "",
     phone: "",
     website: "",
-    hours: "",
-    coverImage: null as File | null,
-  })
+    open_hours: "",
+    cover_image: null as File | null,
+  });
 
   useEffect(() => {
-    if (restaurant) {
+    const data = sessionStorage.getItem("editRestaurant");
+    
+    if (data) {
+      const parsed = JSON.parse(data);
+      const cleanHours = parsed.open_hours
+      ?.replace(/�\?\?�\?\?/g, "-")        // replace �?? with -
+      .replace(/�\?/g, " ")           // replace �? with space
+      .replace(/[^\w\s:.,/-]/g, "")   // remove remaining symbols/emojis
+      || "";  
+
+       setRestaurant(parsed);
       setFormData({
-        name: restaurant.name,
-        address: restaurant.address,
-        addressLink: restaurant.addressLink || "",
-        latitude: restaurant.latitude || "",
-        longitude: restaurant.longitude || "",
-        cuisine: restaurant.cuisine,
-        description: restaurant.description,
-        phone: restaurant.phone,
-        website: restaurant.website,
-        hours: restaurant.hours,
-        coverImage: null,
-      })
-
-      setCoverImagePreview(restaurant.image)
+        name: parsed.name,
+        address: parsed.address,
+        latitude: parsed.latitude || "",
+        longitude: parsed.longitude || "",
+        category: parsed.category || "",
+        cuisine: parsed.cuisine || "",
+        description: parsed.description,
+        phone: parsed.phone,
+        website: parsed.website,
+        open_hours: cleanHours,
+        cover_image: null,
+      });
+      const normalized = getMenuImagePath(parsed.cover_image || parsed.image || "/placeholder.svg");
+      // console.log('ss',normalized);
+      setCoverImagePreview(normalized);
     }
-  }, [restaurant])
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null
+    const file = e.target.files?.[0] || null;
     if (file) {
-      setFormData((prev) => ({ ...prev, coverImage: file }))
-
-      // Create a preview URL for the image
-      const reader = new FileReader()
+      setFormData((prev) => ({ ...prev, cover_image: file }));
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setCoverImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      // In a real app, you would call your API to update the restaurant
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const token = localStorage.getItem("token");
+      const data = new FormData();
 
-      toast({
-        title: "Restaurant updated",
-        description: "The restaurant has been updated successfully",
-      })
+      data.append("name", formData.name);
+      data.append("address", formData.address);
+      data.append("latitude", formData.latitude);
+      data.append("longitude", formData.longitude);
+      data.append("category", formData.category);
+      data.append("cuisine", formData.cuisine);
+      data.append("description", formData.description);
+      data.append("phone", formData.phone);
+      data.append("website", formData.website);
+      data.append("open_hours", formData.open_hours);
+      data.append("ratings", "4.5"); // optional default value
 
-      router.push(`/admin/restaurants/${restaurantId}`)
+      if (formData.cover_image) {
+        data.append("cover_image", formData.cover_image);
+      }
+
+      const response = await apiClient.put(
+        `/restaurants/update/${restaurantId}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast({
+          title: "Restaurant updated",
+          description: "The restaurant has been updated successfully",
+        });
+        router.push(`/admin/restaurants/${restaurantId}`);
+      } else {
+        throw new Error("Failed to update restaurant");
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "There was an error updating the restaurant",
         variant: "destructive",
-      })
+      });
+      console.error("Error updating restaurant:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!restaurant) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Restaurant not found</h2>
-        <p className="text-muted-foreground mb-4">The restaurant you're looking for doesn't exist</p>
+        <p className="text-muted-foreground mb-4">
+          The restaurant you're looking for doesn't exist
+        </p>
         <Button asChild>
           <Link href="/admin/restaurants">Back to Restaurants</Link>
         </Button>
       </div>
-    )
+    );
   }
-
+console.log('dsdsdsd',coverImagePreview);
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -151,7 +179,9 @@ export default function EditRestaurantPage() {
 
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Edit Restaurant</h1>
-        <p className="text-muted-foreground">Update the details of {restaurant.name}</p>
+        <p className="text-muted-foreground">
+          Update the details of {restaurant.name}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full">
@@ -161,9 +191,8 @@ export default function EditRestaurantPage() {
             <CardDescription>Update the restaurant details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Cover Image Upload */}
             <div className="space-y-2">
-              <Label>Cover Image</Label>
+              <Label>Cover Image (Click Image to select new)</Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
@@ -171,7 +200,8 @@ export default function EditRestaurantPage() {
                 {coverImagePreview ? (
                   <div className="relative">
                     <img
-                      src={coverImagePreview || "/placeholder.svg"}
+                      src={coverImagePreview}
+                      onError={()=>setCoverImagePreview('/Images/restaurent-fall.jpg')}
                       alt="Cover preview"
                       className="mx-auto max-h-[200px] rounded-md object-cover"
                     />
@@ -182,14 +212,18 @@ export default function EditRestaurantPage() {
                 ) : (
                   <div className="py-4 flex flex-col items-center">
                     <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                    <p className="text-sm font-medium">Click to upload cover image</p>
-                    <p className="text-xs text-muted-foreground mt-1">Recommended size: 1200x800px (16:9 ratio)</p>
+                    <p className="text-sm font-medium">
+                      Click to upload cover image
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Recommended size: 1200x800px (16:9 ratio)
+                    </p>
                   </div>
                 )}
                 <Input
                   ref={fileInputRef}
-                  id="coverImage"
-                  name="coverImage"
+                  id="cover_image"
+                  name="cover_image"
                   type="file"
                   accept="image/*"
                   className="hidden"
@@ -211,26 +245,14 @@ export default function EditRestaurantPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cuisine">Cuisine Type</Label>
-                <Select
-                  value={formData.cuisine}
-                  onValueChange={(value) => handleSelectChange("cuisine", value)}
-                  required
-                >
-                  <SelectTrigger id="cuisine">
-                    <SelectValue placeholder="Select cuisine type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="american">American</SelectItem>
-                    <SelectItem value="chinese">Chinese</SelectItem>
-                    <SelectItem value="indian">Indian</SelectItem>
-                    <SelectItem value="italian">Italian</SelectItem>
-                    <SelectItem value="japanese">Japanese</SelectItem>
-                    <SelectItem value="mexican">Mexican</SelectItem>
-                    <SelectItem value="spanish">Spanish</SelectItem>
-                    <SelectItem value="thai">Thai</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  name="category"
+                  placeholder="e.g. Fast Food, Café"
+                  value={formData.category}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
@@ -247,7 +269,6 @@ export default function EditRestaurantPage() {
               />
             </div>
 
-            {/* Location Information */}
             <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
@@ -264,18 +285,6 @@ export default function EditRestaurantPage() {
                   onChange={handleChange}
                   required
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="addressLink">Address Link (Google Maps URL)</Label>
-                <Input
-                  id="addressLink"
-                  name="addressLink"
-                  placeholder="https://maps.google.com/?q=..."
-                  value={formData.addressLink}
-                  onChange={handleChange}
-                />
-                <p className="text-xs text-muted-foreground">Paste a Google Maps link to the restaurant location</p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -327,17 +336,18 @@ export default function EditRestaurantPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hours">Business Hours</Label>
+              <Label htmlFor="open_hours">Business Hours</Label>
               <Input
-                id="hours"
-                name="hours"
+                id="open_hours"
+                name="open_hours"
                 placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
-                value={formData.hours}
+                value={formData.open_hours}
                 onChange={handleChange}
                 required
               />
             </div>
           </CardContent>
+
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>
               <Link href={`/admin/restaurants/${restaurantId}`}>Cancel</Link>
@@ -349,6 +359,5 @@ export default function EditRestaurantPage() {
         </Card>
       </form>
     </div>
-  )
+  );
 }
-

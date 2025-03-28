@@ -28,7 +28,7 @@ interface Restaurant {
     }
     image: string,
     menu_id?: string|number;
-    menu_type?: string;
+    menu_type?: any;
     updated_at?: any
   }
   distance?: number
@@ -89,7 +89,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                   {restaurant.menu.description[language]}
                 </p>
               </div>
-              <div className="d-flex justify-content-between align-items-end w-100">
+              <div className="resturantLoc  w-100">
                 <div>
                   <span className="flex items-center gap-2 text-sm font-medium">
                     <span>{restaurant?.name}</span>
@@ -98,11 +98,12 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                       {restaurant?.rating}
                     </span>
                   </span>
+                  
                   <p className="card-text small text-secondary d-flex align-items-center mb-0">
                     <i className="bi bi-geo-alt me-1 small"></i>
                     <span className="text-truncate">
-                    {restaurant?.location.length > 45
-                      ? restaurant?.location.slice(0, restaurant?.location?.lastIndexOf(" ", 20)) + "..."
+                    {restaurant?.location.length > 20
+                      ? restaurant.location.slice(0, 20) + "..."
                       : restaurant?.location}
                   </span>
                   </p>

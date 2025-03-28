@@ -23,10 +23,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  console.log("AuthProvider Rendered - User:", user)
+  // console.log("AuthProvider Rendered - User:", user)
 
   useEffect(() => {
-    console.log("Checking localStorage for user data...")
+    // console.log("Checking localStorage for user data...")
 
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("foodeus-admin-auth")
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isAuthRoute = pathname?.startsWith("/auth");
     const isAdminRoute = pathname?.startsWith("/admin");
   
-    console.log(`Auth check - Path: ${pathname}, isAuthRoute: ${isAuthRoute}, isAdminRoute: ${isAdminRoute}, User:`, user);
+    // console.log(`Auth check - Path: ${pathname}, isAuthRoute: ${isAuthRoute}, isAdminRoute: ${isAdminRoute}, User:`, user);
   
     // If user is not logged in and trying to access an admin route, redirect to /auth/login
     if (!user && isAdminRoute) {
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
-    console.log("Logging in user:", email)
+    // console.log("Logging in user:", email)
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("foodeus-admin-auth", JSON.stringify(userData))
       setUser(userData)
 
-      console.log("Login successful - Redirecting to dashboard")
+      // console.log("Login successful - Redirecting to dashboard")
       router.push("/admin/restaurants")
     } catch (error) {
       console.error("Login error:", error)
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    console.log("Logging out user...")
+    // console.log("Logging out user...")
     localStorage.removeItem("foodeus-admin-auth")
     setUser(null)
     router.push("/auth/login")

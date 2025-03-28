@@ -53,7 +53,7 @@ export default function MenuDetailPage() {
   const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
   const [mapUrl, setMapUrl] = useState<string>("")
    const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
-   
+
   useEffect(() => {
     if (id) {
       // fetch(`https://foodeus.truet.net/src/routes/enduser/getRestaurantWithMenus/${id}`, {
@@ -66,7 +66,7 @@ export default function MenuDetailPage() {
   
           if (data?.data && typeof data.data === "object" && !Array.isArray(data.data)) {
             const restaurant = data.data;
-            console.log('restaurant',data.data);
+            // console.log('restaurant',data.data);
             // Ensure menus exist before sorting
             const sortedMenus = restaurant.menus
               ? [...restaurant.menus].sort((a, b) =>  new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
@@ -76,7 +76,7 @@ export default function MenuDetailPage() {
             const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
               title: { en: menu.item_name || "", es:  menu.item_name ||"" },
               description: { en: menu.description || "", es:menu.description || "" },
-              image: menu.image_url || "/placeholder.svg?height=120&width=120",
+              image: menu.image_url || "",
               items: menu.item_list
                 ? menu.item_list.split(", ").map((item:any) => ({ en: item, es:item }))
                 : [],
@@ -108,7 +108,6 @@ export default function MenuDetailPage() {
     }
   }, [id]);
 
-  // console.log('menuItems', menuItems,menuItems?.menu[0]);
 
   useEffect(() => {
     if (menuItems && menuItems.menu?.length > 0) {
@@ -132,7 +131,7 @@ export default function MenuDetailPage() {
       }
   
       if (selectedItem) {
-        console.log('selectedItem',selectedItem);
+        // console.log('selectedItem',selectedItem);
         setMenuItem(selectedItem);
         setSrc(selectedItem.image);
       }
@@ -188,7 +187,7 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
-  // console.log('menuItem',menuItems);
+  console.log('menuItem',menuItem);
   return (
     <>
       {/* Content wrapper with padding to prevent content from being hidden behind buttons */}
@@ -201,13 +200,24 @@ export default function MenuDetailPage() {
 
         {/* Hero image */}
         <div className="position-relative rounded overflow-hidden mb-4" style={{ height: "250px" }}>
-          <Image
-            src={src}
-            alt={menuItem?.title[language]}
-            onError={() => setSrc("/Images/fallback.jpg")}
-            fill
-            className="object-fit-cover"
-            style={{ filter: 'brightness(75%)' }}
+        <Image
+          src={
+            isValidUrl(src)
+              ? src
+              : src.includes("/public")
+                ? `${API_BASE_URL}/${src.split("/public")[1]}`
+                : `${API_BASE_URL}/${src}`
+                ? src :"none"
+          }
+          alt={menuItem?.title[language]}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null; // prevent infinite loop if fallback also fails
+            target.src = '/Images/fallback.jpg';
+          }}
+          fill
+          className="object-cover"
+          style={{ filter: "brightness(75%)" }}
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
             <h1 className="text-white fs-3 fw-bold mb-0">{menuItem?.title[language]}</h1>

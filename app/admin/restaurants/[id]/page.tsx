@@ -4,7 +4,7 @@ import { useState ,useEffect} from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 } from "lucide-react"
-
+import {apiClient} from "@/services/apiService";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,55 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService"
 
-// Sample restaurant data
-// const restaurantsData = [
-//   {
-//     id: "1",
-//     name: "El Rincón",
-//     address: "456 Oak Ave, Somewhere",
-//     cuisine: "Spanish",
-//     rating: 4.7,
-//     image: "/placeholder.svg?height=300&width=600",
-//     description: "Authentic Spanish cuisine in a cozy atmosphere",
-//     phone: "(555) 123-4567",
-//     website: "www.elrincon.com",
-//     hours: "Mon-Sat: 11am-10pm, Sun: 12pm-9pm",
-//     menuItems: [
-//       {
-//         id: "1",
-//         name: "Seafood Paella",
-//         description: "Traditional Spanish rice dish with fresh seafood, saffron, and vegetables",
-//         price: 24.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Main Course",
-//         popular: true,
-//       },
-//       {
-//         id: "2",
-//         name: "Patatas Bravas",
-//         description: "Crispy fried potatoes served with spicy tomato sauce and aioli",
-//         price: 8.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Appetizer",
-//         popular: false,
-//       },
-//       {
-//         id: "3",
-//         name: "Gambas al Ajillo",
-//         description: "Garlic shrimp cooked in olive oil with chili flakes",
-//         price: 12.99,
-//         image: "/placeholder.svg?height=200&width=300",
-//         category: "Appetizer",
-//         popular: true,
-//       },
-//     ],
-//   },
-//   // Other restaurants would be here
-// ]
+
+
 interface MenuItem {
   id: string;
   name: string;
@@ -82,12 +40,12 @@ interface Restaurant {
   address: string;
   category: string;
   rating: number;
-  cover_image: string;
+  cover_image: any ;
   description: string;
   phone: string;
   website: string;
-open_hours: string;
-  menus: MenuItem[];
+  open_hours: string;
+  menus: MenuItem[]; 
 }
 
 
@@ -97,24 +55,32 @@ export default function RestaurantDetailPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const restaurantId = parseInt(params.id as string, 10) 
-  console.log(restaurantId)
+  const [relod,setreload] = useState(false)
+  const [fallback, setFallback] = useState("")
   useEffect(() => {
-    // Fetch restaurants from the API
     const fetchRestaurants = async () => {
-    const response = await getRestaurantByIdforAdmin(restaurantId);
-    const restaurants = await response;
-    console.log('dssd',restaurants)
-    setRestaurant(restaurants.data)
-    }
+      setLoading(true);
+      try {
+        const response = await getRestaurantByIdforAdmin(restaurantId);
+        const restaurants = await response;
+        setRestaurant(restaurants.data);
+      } catch (error) {
+        console.error("Error fetching restaurant:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchRestaurants();
-  }, [])
+  }, [relod]);
 
   // const restaurantId = params.id as string
   // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
 
-  if (!restaurant) {
+  if (!restaurant && !loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Restaurant not found</h2>
@@ -126,27 +92,52 @@ export default function RestaurantDetailPage() {
     )
   }
 
-  // const handleDeleteRestaurant = () => {
-  //   // In a real app, you would call your API to delete the restaurant
-  //   toast({
-  //     title: "Restaurant deleted",
-  //     description: `${restaurant?.name} has been deleted successfully`,
-  //   })
-  //   router.push("/admin/restaurants")
-  // }
+  if(loading){
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh]">
+        <h2 className="text-2xl font-bold">Loading restaurant...</h2>
+      </div>
+    )
+  }
 
-  const handleDeleteMenuItem = (itemId: string) => {
-    // In a real app, you would call your API to delete the menu item
-    toast({
-      title: "Menu item deleted",
-      description: "The menu item has been deleted successfully",
-    })
+
+  const handleDeleteMenuItem = async(itemId: string) => {
+    try {
+      console.log(itemId)
+      const token = localStorage.getItem("token");
+  
+      const response = await apiClient.delete(`/menus/delete/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.data.success) {
+        toast({
+          title: "Menu item deleted",
+          description: "The menu item has been deleted successfully",
+        });
+        setreload((prev)=>!prev)
+        // Optionally refresh the menu list or remove the item from local state
+      } else {
+        throw new Error(response.data.message || "Failed to delete item");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was an error deleting the menu item.",
+        variant: "destructive",
+      });
+      console.error("Delete error:", error);
+    }
   }
 
   const isValidUrl = (url:string) => {
     const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
     return pattern.test(url);
   };
+ const src= restaurant?.cover_image?`${API_BASE_URL}/${restaurant?.cover_image}`: '/Images/restaurent-fall.jpg'
+  console.log('sdsdsd',restaurant )
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -161,12 +152,13 @@ export default function RestaurantDetailPage() {
         <div className="w-full lg:w-1/3">
           <Card>
             <div className="aspect-video w-full overflow-hidden">
-              <img
-                src={isValidUrl(restaurant?.cover_image)? restaurant?.cover_image:`${API_BASE_URL}/${restaurant?.cover_image}` || "/placeholder.svg"}
-                alt={restaurant?.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <img
+              src={src}
+              alt={restaurant?.name}
+              onError={() => setFallback("/Images/restaurent-fall.jpg")}  
+              className="h-full w-full object-cover"
+            />
+                        </div>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -198,20 +190,34 @@ export default function RestaurantDetailPage() {
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Website</h4>
-                  <p className="text-sm text-muted-foreground">{restaurant.website}</p>
+                  <p className="text-sm text-muted-foreground">{restaurant?.website}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Hours</h4>
-                  <p className="text-sm text-muted-foreground">{restaurant?.open_hours ? restaurant?.open_hours
-  :'NIL'}</p>
-                </div>
+                  <p className="text-sm text-muted-foreground">
+                  {restaurant?.open_hours
+                    ? restaurant.open_hours
+                        .replace(/�\?\?�\?\?/g, "-")
+                        .replace(/�\?/g, " ")
+                        .replace(/[^\w\s:.,/-]/g, "")
+                    : "NIL"}
+                </p>       
+               </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" asChild>
-                <Link href={`/admin/restaurants/${restaurant?.id}/edit`}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (restaurant) {
+                  sessionStorage.setItem('editRestaurant', JSON.stringify(restaurant))
+                  router.push(`/admin/restaurants/${restaurant.id}/edit`)
+                }
+              }}
+            >
+                {/* <Link href={`/admin/restaurants/${restaurant?.id}/edit`}> */}
                   <Edit className="h-4 w-4 mr-2" /> Edit Restaurant
-                </Link>
+                {/* </Link> */}
               </Button>
               <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <DialogTrigger asChild>
@@ -263,14 +269,19 @@ export default function RestaurantDetailPage() {
 
             <TabsContent value="menu" className="space-y-4">
               
-              {restaurant.menus.length>0 && restaurant?.menus?.map((item) => (
+              {restaurant && restaurant.menus.length>=1 && restaurant?.menus?.map((item) =>{
+                let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
+                return (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-1/4">
                       <div className="aspect-square w-full overflow-hidden">
                         <img
-                          src={isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`|| "/placeholder.svg"}
+                          src={src}
                           alt={item.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src ="/Images/fallback.jpg"}}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -288,11 +299,16 @@ export default function RestaurantDetailPage() {
                         </div>
                       </div>
                       <div className="mt-4 flex justify-end gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`}>
-                            <Edit className="h-3.5 w-3.5 mr-1" /> Edit
-                          </Link>
-                        </Button>
+                        <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          sessionStorage.setItem("editMenuItem", JSON.stringify(item));
+                          router.push(`/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`);
+                        }}
+                      >
+                        <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                      </Button>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm">
@@ -307,7 +323,9 @@ export default function RestaurantDetailPage() {
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
+                            <DialogClose asChild>
                               <Button variant="outline">Cancel</Button>
+                            </DialogClose>
                               <Button variant="destructive" onClick={() => handleDeleteMenuItem(item.id)}>
                                 Delete
                               </Button>
@@ -318,7 +336,14 @@ export default function RestaurantDetailPage() {
                     </div>
                   </div>
                 </Card>
-              ))}
+              )})}
+              {restaurant && restaurant.menus.length<1 &&
+              <>
+              <div className="flex justify-center items-center py-12">
+                <p>No menu items found.</p>
+              </div>
+              </>
+              }
             </TabsContent>
 
             <TabsContent value="reviews">
