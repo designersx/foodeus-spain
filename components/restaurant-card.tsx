@@ -28,7 +28,7 @@ interface Restaurant {
     }
     image: string,
     menu_id?: string|number;
-    menu_type?: string;
+    menu_type?: any;
     updated_at?: any
   }
   distance?: number

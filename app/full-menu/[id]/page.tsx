@@ -218,9 +218,16 @@ export default function FullMenuPage() {
         </div>
         )}
 
-        <div className={`tab-pane fade ${activeTab === "alaCarte" ? "show active" : ""}`}>
-          <div className="list-group">
-            {restaurant.fullMenu.alaCarte.map((item: any, index: number) => (
+      <div className={`tab-pane fade ${activeTab === "alaCarte" ? "show active" : ""}`}>
+        <div className="list-group">
+          {restaurant.fullMenu.alaCarte.length === 0 ? (
+            <div className="list-group-item text-center text-muted py-4">
+              {language === "es"
+                ? "Actualmente no hay elementos a la carta disponibles."
+                : "No à la carte items available at the moment."}
+            </div>
+          ) : (
+            restaurant.fullMenu.alaCarte.map((item: any, index: number) => (
               <div key={index} className="list-group-item">
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
@@ -230,41 +237,61 @@ export default function FullMenuPage() {
                   <p className="text-primary fw-medium">{item.price[language]}</p>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
+      </div>
 
-        <div className={`tab-pane fade ${activeTab === "buffet" ? "show active" : ""}`}>
-          <div className="list-group">
-            {restaurant.fullMenu.buffet.map((item: any, index: number) => (
-              <div key={index} className="list-group-item">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                    <p className="small text-secondary mb-0">{item.description[language]}</p>
-                  </div>
-                  <p className="text-primary fw-medium">{item.price[language]}</p>
-                </div>
-              </div>
-            ))}
+      <div className={`tab-pane fade ${activeTab === "buffet" ? "show active" : ""}`}>
+      <div className="list-group">
+        {restaurant.fullMenu.buffet.length === 0 ? (
+          <div className="list-group-item text-center text-muted py-4">
+            {language === "es"
+              ? "Actualmente no hay elementos de buffet disponibles."
+              : "No buffet items available at the moment."}
           </div>
-        </div>
+        ) : (
+          restaurant.fullMenu.buffet.map((item: any, index: number) => (
+            <div key={index} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
+                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                </div>
+                <p className="text-primary fw-medium">{item.price[language]}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
 
-        <div className={`tab-pane fade ${activeTab === "comboMeals" ? "show active" : ""}`}>
-          <div className="list-group">
-            {restaurant.fullMenu.comboMeals.map((item: any, index: number) => (
-              <div key={index} className="list-group-item">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                    <p className="small text-secondary mb-0">{item.description[language]}</p>
-                  </div>
-                  <p className="text-primary fw-medium">{item.price[language]}</p>
-                </div>
-              </div>
-            ))}
+
+    <div className={`tab-pane fade ${activeTab === "comboMeals" ? "show active" : ""}`}>
+      <div className="list-group">
+        {restaurant.fullMenu.comboMeals.length === 0 ? (
+          <div className="list-group-item text-center text-muted py-4">
+            {language === "es"
+              ? "Actualmente no hay combos disponibles."
+              : "No combo meals available at the moment."}
           </div>
-        </div>
+        ) : (
+          restaurant.fullMenu.comboMeals.map((item: any, index: number) => (
+            <div key={index} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
+                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                </div>
+                <p className="text-primary fw-medium">{item.price[language]}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+
+
       </div>
     </div>
   )

@@ -20,7 +20,7 @@ interface Menu {
   items?: string;
   updated_at?: any
   menu_id?: string|number;
-  menu_type?: string;
+  menu_type?: any;
 }
 
 interface Restaurant {
@@ -142,7 +142,7 @@ export function ListView() {
             };
           }
         );
-        // console.log("formattedRestaurants", formattedRestaurants);
+        console.log("formattedRestaurants", formattedRestaurants);
         setRestaurants(formattedRestaurants);
         setHasFetched(true); 
       })

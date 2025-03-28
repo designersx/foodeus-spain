@@ -1,117 +1,117 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState, useRef } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Upload } from "lucide-react";
 
-import { useState, useRef } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
-import { ArrowLeft, Upload } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { useToast } from "@/hooks/use-toast"
-
-// Sample restaurant data
-const restaurantsData = [
-  {
-    id: "1",
-    name: "El Rincón",
-    // other restaurant data...
-  },
-  // Other restaurants would be here
-]
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiService";
 
 export default function AddMenuItemPage() {
-  const router = useRouter()
-  const params = useParams()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter();
+  const params = useParams();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const restaurantId = params.id as string
-  const restaurant = restaurantsData.find((r) => r.id === restaurantId)
+  const restaurantId = params.id as string;
 
   const [formData, setFormData] = useState({
-    name: "",
+    item_name: "",
     description: "",
     price: "",
-    category: "",
-    isPopular: false,
-    isVegetarian: false,
-    isVegan: false,
-    isGlutenFree: false,
+    menu_type: "",
+    item_list: "",
     image: null as File | null,
-  })
+  });
+
+  const [customMenuType, setCustomMenuType] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }))
-  }
+  const handleSelectChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, menu_type: value }));
+    if (value !== "Other") {
+      setCustomMenuType("");
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null
+    const file = e.target.files?.[0] || null;
     if (file) {
-      setFormData((prev) => ({ ...prev, image: file }))
-
-      // Create a preview URL for the image
-      const reader = new FileReader()
+      setFormData((prev) => ({ ...prev, image: file }));
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      // In a real app, you would call your API to add the menu item
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const token = localStorage.getItem("token");
+      const data = new FormData();
 
-      toast({
-        title: "Menu item added",
-        description: "The menu item has been added successfully",
-      })
+      data.append("restaurant_id", restaurantId);
+      data.append("item_name", formData.item_name);
+      data.append("price", formData.price);
+      data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "General");
+      data.append("item_list", formData.item_list);
+      data.append("description", formData.description);
 
-      router.push(`/admin/restaurants/${restaurantId}`)
+      if (formData.image) {
+        data.append("image_urls", formData.image);
+      }
+
+      const response = await apiClient.post("/menus/add", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        toast({
+          title: "Menu item added",
+          description: "The menu item has been added successfully",
+        });
+        router.push(`/admin/restaurants/${restaurantId}`);
+      } else {
+        throw new Error("Failed to add menu item");
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "There was an error adding the menu item",
         variant: "destructive",
-      })
+      });
+      console.error("Add Menu Item Error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
-  if (!restaurant) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[50vh]">
-        <h2 className="text-2xl font-bold">Restaurant not found</h2>
-        <p className="text-muted-foreground mb-4">The restaurant you're looking for doesn't exist</p>
-        <Button asChild>
-          <Link href="/admin/restaurants">Back to Restaurants</Link>
-        </Button>
-      </div>
-    )
-  }
+  };
 
   return (
     <div className="full-width-container space-y-6">
@@ -125,7 +125,7 @@ export default function AddMenuItemPage() {
 
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Add Menu Item</h1>
-        <p className="text-muted-foreground">Add a new menu item to {restaurant.name}</p>
+        <p className="text-muted-foreground">Add a new menu item to this restaurant</p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full">
@@ -135,7 +135,6 @@ export default function AddMenuItemPage() {
             <CardDescription>Enter the details of the new menu item</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Item Image Upload */}
             <div className="space-y-2">
               <Label>Item Image</Label>
               <div
@@ -145,7 +144,7 @@ export default function AddMenuItemPage() {
                 {imagePreview ? (
                   <div className="relative">
                     <img
-                      src={imagePreview || "/placeholder.svg"}
+                      src={imagePreview}
                       alt="Item preview"
                       className="mx-auto max-h-[200px] rounded-md object-cover"
                     />
@@ -157,7 +156,6 @@ export default function AddMenuItemPage() {
                   <div className="py-4 flex flex-col items-center">
                     <Upload className="h-10 w-10 text-muted-foreground mb-2" />
                     <p className="text-sm font-medium">Click to upload item image</p>
-                    <p className="text-xs text-muted-foreground mt-1">Upload a high-quality image of the menu item</p>
                   </div>
                 )}
                 <Input
@@ -173,13 +171,14 @@ export default function AddMenuItemPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">Item Name</Label>
+              <Label htmlFor="item_name">Item Name</Label>
               <Input
-                id="name"
-                name="name"
-                placeholder="Enter menu item name"
-                value={formData.name}
+                id="item_name"
+                name="item_name"
+                placeholder="Enter item name"
+                value={formData.item_name}
                 onChange={handleChange}
+                maxLength={50}
                 required
               />
             </div>
@@ -193,94 +192,81 @@ export default function AddMenuItemPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
+                maxLength={200}
                 required
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
+                <Label htmlFor="price">Price €</Label>
                 <Input
-                  id="price"
-                  name="price"
-                  placeholder="Enter price (e.g. 12.99)"
-                  value={formData.price}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              id="price"
+              name="price"
+              type="text"
+              inputMode="decimal"
+              placeholder="e.g. 12.99"
+              value={formData.price}
+              onChange={handleChange}
+              onInput={(e) => {
+                const input = e.currentTarget;
+                input.value = input.value.replace(/[^0-9.]/g, ""); // remove any letter
+              }}
+              required
+              maxLength={5}
+              pattern="^\d{1,3}(\.\d{0,2})?$"
+              title="Enter a valid price (e.g. 9.99)"
+            />
+                          </div>
+
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="menu_type">Menu Type</Label>
                 <Select
-                  value={formData.category}
-                  onValueChange={(value) => handleSelectChange("category", value)}
-                  required
+                  value={formData.menu_type}
+                  onValueChange={handleSelectChange}
                 >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select category" />
+                  <SelectTrigger id="menu_type">
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="appetizer">Appetizer</SelectItem>
-                    <SelectItem value="main-course">Main Course</SelectItem>
-                    <SelectItem value="dessert">Dessert</SelectItem>
-                    <SelectItem value="beverage">Beverage</SelectItem>
-                    <SelectItem value="side">Side</SelectItem>
+                    <SelectItem value="Today's Special">Today's Special</SelectItem>
+                    <SelectItem value="Buffet">Buffet</SelectItem>
+                    <SelectItem value="A La Carte">A La Carte</SelectItem>
+                    <SelectItem value="Combo Meals">Combo Meals</SelectItem>
+                    {/* {/* <SelectItem value="Breakfast">Breakfast</SelectItem>
+                    <SelectItem value="Lunch">Lunch</SelectItem>
+                    <SelectItem value="Dinner">Dinner</SelectItem>
+                    <SelectItem value="Dessert">Dessert</SelectItem>
+                    <SelectItem value="Drinks">Drinks</SelectItem> */}
+                    {/* <SelectItem value="Other">Other</SelectItem>  */}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Dietary Options */}
-            <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-              <h3 className="font-medium">Item Properties</h3>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isPopular">Popular Item</Label>
-                  <p className="text-xs text-muted-foreground">Mark this as a popular menu item</p>
-                </div>
-                <Switch
-                  id="isPopular"
-                  checked={formData.isPopular}
-                  onCheckedChange={(checked) => handleSwitchChange("isPopular", checked)}
+            {formData.menu_type === "Other" && (
+              <div className="space-y-2">
+                <Label htmlFor="custom_menu_type">Custom Menu Type</Label>
+                <Input
+                  id="custom_menu_type"
+                  placeholder="e.g. Seasonal Special"
+                  value={customMenuType}
+                  onChange={(e) => setCustomMenuType(e.target.value)}
+                  required
                 />
               </div>
+            )}
 
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isVegetarian">Vegetarian</Label>
-                  <p className="text-xs text-muted-foreground">This item is suitable for vegetarians</p>
-                </div>
-                <Switch
-                  id="isVegetarian"
-                  checked={formData.isVegetarian}
-                  onCheckedChange={(checked) => handleSwitchChange("isVegetarian", checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isVegan">Vegan</Label>
-                  <p className="text-xs text-muted-foreground">This item is suitable for vegans</p>
-                </div>
-                <Switch
-                  id="isVegan"
-                  checked={formData.isVegan}
-                  onCheckedChange={(checked) => handleSwitchChange("isVegan", checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isGlutenFree">Gluten Free</Label>
-                  <p className="text-xs text-muted-foreground">This item is gluten free</p>
-                </div>
-                <Switch
-                  id="isGlutenFree"
-                  checked={formData.isGlutenFree}
-                  onCheckedChange={(checked) => handleSwitchChange("isGlutenFree", checked)}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="item_list">Item List (optional)</Label>
+              <Input
+                id="item_list"
+                name="item_list"
+                placeholder="Comma-separated items"
+                value={formData.item_list}
+                maxLength={100}
+                onChange={handleChange}
+              />
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
@@ -294,6 +280,5 @@ export default function AddMenuItemPage() {
         </Card>
       </form>
     </div>
-  )
+  );
 }
-

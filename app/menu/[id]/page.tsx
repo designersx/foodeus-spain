@@ -53,7 +53,7 @@ export default function MenuDetailPage() {
   const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
   const [mapUrl, setMapUrl] = useState<string>("")
    const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
-   
+
   useEffect(() => {
     if (id) {
       // fetch(`http://localhost:8081/enduser/getRestaurantWithMenus/${id}`, {
@@ -108,7 +108,6 @@ export default function MenuDetailPage() {
     }
   }, [id]);
 
-  // console.log('menuItems', menuItems,menuItems?.menu[0]);
 
   useEffect(() => {
     if (menuItems && menuItems.menu?.length > 0) {
@@ -201,13 +200,20 @@ export default function MenuDetailPage() {
 
         {/* Hero image */}
         <div className="position-relative rounded overflow-hidden mb-4" style={{ height: "250px" }}>
-          <Image
-            src={src}
-            alt={menuItem?.title[language]}
-            onError={() => setSrc("/Images/fallback.jpg")}
-            fill
-            className="object-fit-cover"
-            style={{ filter: 'brightness(75%)' }}
+        <Image
+          src={
+            isValidUrl(src)
+              ? src
+              : src.includes("/public")
+                ? `${API_BASE_URL}/${src.split("/public")[1]}`
+                : `${API_BASE_URL}/${src}`
+                ? src :"none"
+          }
+          alt={menuItem?.title[language]}
+          onError={() => setSrc("/Images/fallback.jpg")}
+          fill
+          className="object-fit-cover"
+          style={{ filter: "brightness(75%)" }}
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
             <h1 className="text-white fs-3 fw-bold mb-0">{menuItem?.title[language]}</h1>

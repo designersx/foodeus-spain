@@ -7,7 +7,7 @@ interface Menu {
   image: string;
   items?: string;
 
-  menu_type: string;
+  menu_type: any;
   updated_at?: any
 }
 

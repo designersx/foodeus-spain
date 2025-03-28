@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { getRestaurantListforAdmin } from "@/services/apiService"
+import { API_BASE_URL, getRestaurantListforAdmin } from "@/services/apiService"
 
 interface Restaurant {
   id: number;
@@ -85,15 +85,16 @@ export default function RestaurantsPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedRestaurants?.map((restaurant) => {
         // console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);  
+        let img=restaurant.cover_image?`${API_BASE_URL}/${restaurant.cover_image}`:'/Images/restaurent-fall.jpg'
         // let img = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${restaurant?.g_image}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
           return (
             <Card key={restaurant.id} className="overflow-hidden">
               <div className="aspect-video w-full overflow-hidden">
                 <img
-                  src={restaurant.cover_image}
+                  src={img}
                   onError={(e) => {
                     e.currentTarget.onerror = null // Prevent infinite loop
-                    e.currentTarget.src = "/Images/restfall.jpeg"
+                    e.currentTarget.src = "/Images/restaurent-fall.jpg"
                   }}
                   alt={restaurant?.name}
                   className="h-full w-full object-cover"

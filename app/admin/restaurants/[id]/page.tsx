@@ -4,7 +4,7 @@ import { useState ,useEffect} from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 } from "lucide-react"
-
+import {apiClient} from "@/services/apiService";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService"
@@ -39,12 +40,12 @@ interface Restaurant {
   address: string;
   category: string;
   rating: number;
-  cover_image: string| undefined; 
+  cover_image: any ;
   description: string;
   phone: string;
   website: string;
-open_hours: string;
-  menus: MenuItem[];
+  open_hours: string;
+  menus: MenuItem[]; 
 }
 
 
@@ -57,8 +58,8 @@ export default function RestaurantDetailPage() {
   const [loading, setLoading] = useState(true)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const restaurantId = parseInt(params.id as string, 10) 
-  console.log(restaurantId)
-
+  const [relod,setreload] = useState(false)
+  const [fallback, setFallback] = useState("")
   useEffect(() => {
     const fetchRestaurants = async () => {
       setLoading(true);
@@ -74,7 +75,7 @@ export default function RestaurantDetailPage() {
     };
   
     fetchRestaurants();
-  }, []);
+  }, [relod]);
 
   // const restaurantId = params.id as string
   // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
@@ -100,18 +101,43 @@ export default function RestaurantDetailPage() {
   }
 
 
-  const handleDeleteMenuItem = (itemId: string) => {
-    // In a real app, you would call your API to delete the menu item
-    toast({
-      title: "Menu item deleted",
-      description: "The menu item has been deleted successfully",
-    })
+  const handleDeleteMenuItem = async(itemId: string) => {
+    try {
+      console.log(itemId)
+      const token = localStorage.getItem("token");
+  
+      const response = await apiClient.delete(`/menus/delete/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.data.success) {
+        toast({
+          title: "Menu item deleted",
+          description: "The menu item has been deleted successfully",
+        });
+        setreload((prev)=>!prev)
+        // Optionally refresh the menu list or remove the item from local state
+      } else {
+        throw new Error(response.data.message || "Failed to delete item");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was an error deleting the menu item.",
+        variant: "destructive",
+      });
+      console.error("Delete error:", error);
+    }
   }
 
   const isValidUrl = (url:string) => {
     const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
     return pattern.test(url);
   };
+ const src= restaurant?.cover_image?`${API_BASE_URL}/${restaurant?.cover_image}`: '/Images/restaurent-fall.jpg'
+  console.log('sdsdsd',restaurant )
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -126,12 +152,13 @@ export default function RestaurantDetailPage() {
         <div className="w-full lg:w-1/3">
           <Card>
             <div className="aspect-video w-full overflow-hidden">
-              <img
-                src={isValidUrl(restaurant?.cover_image)? restaurant?.cover_image:`${API_BASE_URL}/${restaurant?.cover_image}` || "/placeholder.svg"}
-                alt={restaurant?.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <img
+              src={src}
+              alt={restaurant?.name}
+              onError={() => setFallback("/Images/restaurent-fall.jpg")}  
+              className="h-full w-full object-cover"
+            />
+                        </div>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -242,14 +269,19 @@ export default function RestaurantDetailPage() {
 
             <TabsContent value="menu" className="space-y-4">
               
-              {restaurant && restaurant.menus.length>0 && restaurant?.menus?.map((item) => (
+              {restaurant && restaurant.menus.length>=1 && restaurant?.menus?.map((item) =>{
+                let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
+                return (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-1/4">
                       <div className="aspect-square w-full overflow-hidden">
                         <img
-                          src={isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`|| "/placeholder.svg"}
+                          src={src}
                           alt={item.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src ="/Images/fallback.jpg"}}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -267,11 +299,16 @@ export default function RestaurantDetailPage() {
                         </div>
                       </div>
                       <div className="mt-4 flex justify-end gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`}>
-                            <Edit className="h-3.5 w-3.5 mr-1" /> Edit
-                          </Link>
-                        </Button>
+                        <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          sessionStorage.setItem("editMenuItem", JSON.stringify(item));
+                          router.push(`/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`);
+                        }}
+                      >
+                        <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                      </Button>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm">
@@ -286,7 +323,9 @@ export default function RestaurantDetailPage() {
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
+                            <DialogClose asChild>
                               <Button variant="outline">Cancel</Button>
+                            </DialogClose>
                               <Button variant="destructive" onClick={() => handleDeleteMenuItem(item.id)}>
                                 Delete
                               </Button>
@@ -297,7 +336,14 @@ export default function RestaurantDetailPage() {
                     </div>
                   </div>
                 </Card>
-              ))}
+              )})}
+              {restaurant && restaurant.menus.length<1 &&
+              <>
+              <div className="flex justify-center items-center py-12">
+                <p>No menu items found.</p>
+              </div>
+              </>
+              }
             </TabsContent>
 
             <TabsContent value="reviews">
