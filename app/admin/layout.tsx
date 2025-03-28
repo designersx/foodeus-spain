@@ -5,7 +5,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { BarChart3, Clipboard, LogOut, MenuIcon as Restaurant, Utensils } from "lucide-react"
-
+import Link from 'next/link';
 import { useAuth } from "@/context/auth-context"
 import {
   Sidebar,
@@ -72,10 +72,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SidebarMenuItem>*/}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/restaurants"}>
-                  <a href="/admin/restaurants">
+                  <Link href="/admin/restaurants">
                     <Restaurant className="h-4 w-4" />
                     <span>Restaurants</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {/* <SidebarMenuItem>
@@ -89,18 +89,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                   <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/upload-menu"}>
-                  <a href="/admin/upload-menu">
+                  <Link href="/admin/upload-menu">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Menu</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/upload-restaurant"}>
-                  <a href="/admin/upload-restaurant">
+                  <Link href="/admin/upload-restaurant">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Restaurants</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
