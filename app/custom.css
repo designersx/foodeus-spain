@@ -1792,7 +1792,7 @@
   html,
   body {
     max-width: 100vw;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     height: 100%;
     width: 100%;
   }
@@ -3035,9 +3035,14 @@
   .\[\&\>span\:last-child\]\:truncate>span:last-child {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: unset !important;
   }
   
+  .text-truncate {
+    
+    white-space: unset !important;   ;
+}
+
   .\[\&\>span\]\:line-clamp-1>span {
     overflow: hidden;
     display: -webkit-box;
@@ -3291,3 +3296,28 @@
   }
   
   
+
+  a.text-primary svg path{
+    fill: #0d6efd !important;
+  }
+
+  .fixed-bottom a.svg {
+    width:24px;
+  }
+
+  span.small {
+    margin: 5px 0 0 0;
+  }
+
+  .fullMenu{
+    /* min-width: 400px; */
+    overflow: auto;
+    width: 100%;
+  }
+
+  .fullMenu ul.nav.nav-tabs {
+    display: flex;
+    flex-wrap: unset;
+    white-space: nowrap;
+    margin: 0 0 10px 0;
+}

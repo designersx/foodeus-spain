@@ -150,8 +150,8 @@ export default function FullMenuPage() {
       <h1 className="fs-3 fw-bold mb-4">
         {restaurant.name} - {language === "en" ? "Full Menu" : "Menú Completo"}
       </h1>
-
-      <ul className="nav nav-tabs mb-4">
+<div className="fullMenu">
+      <ul className=" nav nav-tabs ">
       {restaurant.fullMenu?.menuOfTheDay && (
         <li className="nav-item">
           <button
@@ -191,6 +191,7 @@ export default function FullMenuPage() {
           </button>
         </li>
       </ul>
+      </div>
       {}
       <div className="tab-content">
         {restaurant.fullMenu?.menuOfTheDay && (
