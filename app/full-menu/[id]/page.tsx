@@ -21,6 +21,7 @@ interface FullMenu {
   alaCarte: MenuItem[];
   comboMeals: MenuItem[];
   menuOfTheDay: MenuItem | null;
+  other: MenuItem[];
 }
 
 interface RawMenu {
@@ -47,6 +48,7 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
     alaCarte: [],
     comboMeals: [],
     menuOfTheDay: null,
+    other:[]
   };
 
   // Iterate over menus and categorize
@@ -81,10 +83,9 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
             fullMenu.menuOfTheDay = formattedMenu;
           }
         }
+        break;
+      default:fullMenu.other.push(formattedMenu)
       
-        break;
-      default:
-        break;
     }
   });
 
@@ -94,7 +95,6 @@ const formatMenuData = (restaurantData: RestaurantData | null): { id: string; na
     fullMenu,
   };
 };
-
 const isValidUrl = (url:string) => {
   const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
   return pattern.test(url);
@@ -190,6 +190,14 @@ export default function FullMenuPage() {
             {language === "en" ? "Combo Meals" : "Combos"}
           </button>
         </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "Other" ? "active" : ""}`}
+            onClick={() => setActiveTab("Other")}
+          >
+            {language === "en" ? "Other" : "Otros"}
+          </button>
+        </li>
       </ul>
       </div>
       {}
@@ -278,6 +286,31 @@ export default function FullMenuPage() {
           </div>
         ) : (
           restaurant.fullMenu.comboMeals.map((item: any, index: number) => (
+            <div key={index} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
+                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                </div>
+                <p className="text-primary fw-medium">{item.price[language]}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+
+    <div className={`tab-pane fade ${activeTab === "Other" ? "show active" : ""}`}>
+      <div className="list-group">
+        {restaurant.fullMenu?.other.length === 0 ? (
+          <div className="list-group-item text-center text-muted py-4">
+                {language === "es"
+        ? "Actualmente no hay otros platos disponibles."
+        : "No other meals available at the moment."}
+
+          </div>
+        ) : (
+          restaurant.fullMenu?.other.map((item: any, index: number) => (
             <div key={index} className="list-group-item">
               <div className="d-flex justify-content-between align-items-start">
                 <div>

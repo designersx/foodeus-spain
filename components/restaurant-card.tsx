@@ -99,7 +99,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                     </span>
                   </span>
                   
-                  {restaurant?.location.length}
                   <p className="card-text small text-secondary d-flex align-items-center mb-0">
                     <i className="bi bi-geo-alt me-1 small"></i>
                     <span className="text-truncate">

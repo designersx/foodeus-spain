@@ -85,6 +85,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem> */}
+
+                  <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/admin/capture-menu"}>
+                  <a href="/admin/upload-menu">
+                    <Clipboard className="h-4 w-4" />
+                    <span>Upload Menu</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/admin/capture-menu"}>
+                  <a href="/admin/upload-menu">
+                    <Clipboard className="h-4 w-4" />
+                    <span>Upload Restaurants</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>

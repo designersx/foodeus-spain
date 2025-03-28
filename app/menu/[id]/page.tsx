@@ -76,7 +76,7 @@ export default function MenuDetailPage() {
             const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
               title: { en: menu.item_name || "", es:  menu.item_name ||"" },
               description: { en: menu.description || "", es:menu.description || "" },
-              image: menu.image_url || "/placeholder.svg?height=120&width=120",
+              image: menu.image_url || "",
               items: menu.item_list
                 ? menu.item_list.split(", ").map((item:any) => ({ en: item, es:item }))
                 : [],
@@ -187,7 +187,7 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
-  // console.log('menuItem',menuItems);
+  console.log('menuItem',menuItem);
   return (
     <>
       {/* Content wrapper with padding to prevent content from being hidden behind buttons */}
@@ -210,9 +210,13 @@ export default function MenuDetailPage() {
                 ? src :"none"
           }
           alt={menuItem?.title[language]}
-          onError={() => setSrc("/Images/fallback.jpg")}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null; // prevent infinite loop if fallback also fails
+            target.src = '/Images/fallback.jpg';
+          }}
           fill
-          className="object-fit-cover"
+          className="object-cover"
           style={{ filter: "brightness(75%)" }}
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
