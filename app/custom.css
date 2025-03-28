@@ -3365,6 +3365,9 @@
 .DishImages{
   width:100%
 }
+.DishImages img{
+  width:100%
+}
 
 .DishMain{
   position: relative;

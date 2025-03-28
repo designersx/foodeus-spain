@@ -10,7 +10,7 @@ export default function ComingSoonPage() {
   const router = useRouter();
   const { language } = useLanguage();
 
-  const title = language === "es" ? "🚧 ¡Próximamente!" : "🚧 Coming Soon!";
+  const title = language === "es" ? "¡Próximamente!" : "Coming Soon!";
   const description =
     language === "es"
       ? "Esta función está en desarrollo y estará disponible pronto. ¡Mantente atento!"
