@@ -18,9 +18,15 @@ export default function ComingSoonPage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-center px-4">
-        <h1 className="text-4xl font-bold mb-4">{title}</h1>
-        <p className="text-lg text-gray-600 max-w-md mb-6">{description}</p>
+      <div className=" DishMain">
+<div className="DishImages">
+<img src="/Images/Dish-ViewComing.png"/>
+
+</div>
+
+
+        <span className="commingDish">{title}</span>
+        {/* <p className="text-lg text-gray-600 max-w-md mb-6">ferfefefefefdef{description}</p> */}
         {/* <button onClick={() => router.back()} className="bg-black text-white px-4 py-2 rounded">Go Back</button> */}
       </div>
       <Footer />
