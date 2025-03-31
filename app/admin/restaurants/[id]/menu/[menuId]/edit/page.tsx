@@ -30,7 +30,7 @@ export default function EditMenuItemPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
+  const [selectedcategory, setSelectedCategory] = useState<string | "">("");
   const restaurantId = params.id as string;
   const menuItemId = params.menuId as string;
 
@@ -47,7 +47,8 @@ export default function EditMenuItemPage() {
     const data = sessionStorage.getItem("editMenuItem");
     if (data) {
       const parsed = JSON.parse(data);
-      console.log('ds',parsed);
+      setSelectedCategory(parsed.category)
+      console.log('ds', parsed, selectedcategory);
       setFormData({
         item_name: parsed.name || "",
         description: parsed.description || "",
@@ -56,8 +57,8 @@ export default function EditMenuItemPage() {
         item_list: parsed.item_list || "",
         image: null,
       });
-      const normalized = getMenuImagePath(parsed.cover_image || parsed.image) 
-      console.log('normalized',normalized)
+      const normalized = getMenuImagePath(parsed.cover_image || parsed.image)
+      console.log('normalized', normalized)
       setImagePreview(normalized);
       // sessionStorage.removeItem("editMenuItem");
     }
@@ -128,45 +129,45 @@ export default function EditMenuItemPage() {
           <CardContent className="space-y-6">
             <div>
               <div className="space-y-2">
-            <Label>Item Image ( click Image to select new )</Label>
-            <div
-  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-center"
-  style={{ height: '250px' }}
-  onClick={() => fileInputRef.current?.click()}
->
-  {imagePreview ? (
-    <div className="relative h-full w-full flex items-center justify-center overflow-hidden rounded-md">
-      <img
-        src={imagePreview}
-        alt="Click to upload Image"
-        className="max-h-full max-w-full object-fill "
-      />
-      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-        <p className="text-white font-medium">Change Image</p>
-      </div>
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center text-center">
-      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-      <p className="text-sm font-medium">Click to upload item image</p>
-    </div>
-  )}
+                <Label>Item Image ( click Image to select new )</Label>
+                <div
+                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-center"
+                  style={{ height: '250px' }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {imagePreview ? (
+                    <div className="relative h-full w-full flex items-center justify-center overflow-hidden rounded-md">
+                      <img
+                        src={imagePreview}
+                        alt="Click to upload Image"
+                        className="max-h-full max-w-full object-fill "
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
+                        <p className="text-white font-medium">Change Image</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+                      <p className="text-sm font-medium">Click to upload item image</p>
+                    </div>
+                  )}
 
-  <Input
-    ref={fileInputRef}
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={handleFileChange}
-  />
-</div>
-          </div>
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </div>
+              </div>
             </div>
             <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required />
             <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required />
             <Input name="price" value={formData.price} placeholder="Price" onChange={handleChange} maxLength={5} pattern="^\d{1,3}(\.\d{0,2})?$" required />
-
-            <Select value={formData.menu_type} onValueChange={(value) => setFormData(prev => ({ ...prev, menu_type: value }))} required>
+            { }
+            <Select value={selectedcategory} onValueChange={(value) => setFormData(prev => ({ ...prev, menu_type: value }))} required>
               <SelectTrigger>
                 <SelectValue placeholder={formData.menu_type || "Select Menu Type"} />
               </SelectTrigger>
