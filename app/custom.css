@@ -3362,3 +3362,25 @@
   background-color: white; /* Optional: to avoid content underneath showing */
 }
 
+.DishImages{
+  width:100%
+}
+.DishImages img{
+  width:100%
+}
+
+.DishMain{
+  position: relative;
+}
+
+.commingDish {
+  font-size: clamp(20px, 5vh, 30px);
+  font-weight: 800;
+  position: absolute;
+  z-index: 10;
+  top: 31% !important;
+  left: 0 !important;
+  right: 0 !important;
+    text-align: center;
+}
+

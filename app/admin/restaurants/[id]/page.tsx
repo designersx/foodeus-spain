@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { formatDistanceToNow } from "date-fns";
+import { Input } from "@/components/ui/input"
+
 import {
   Dialog,
   DialogContent,
@@ -32,6 +35,7 @@ interface MenuItem {
   image: string;
   category: string;
   popular?: boolean; // Optional if applicable
+  updated_at:any
 }
 
 interface Restaurant {
@@ -60,6 +64,9 @@ export default function RestaurantDetailPage() {
   const restaurantId = parseInt(params.id as string, 10) 
   const [relod,setreload] = useState(false)
   const [fallback, setFallback] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [menus, setMenus] = useState<MenuItem[]>([]);
+
   useEffect(() => {
     const fetchRestaurants = async () => {
       setLoading(true);
@@ -67,6 +74,10 @@ export default function RestaurantDetailPage() {
         const response = await getRestaurantByIdforAdmin(restaurantId);
         const restaurants = await response;
         setRestaurant(restaurants.data);
+        if (Array.isArray(restaurants?.data?.menus)) {
+          const menusWithId = restaurants.data.menus.filter((menu:any) => menu.id != null);
+          setMenus(menusWithId);
+        }
       } catch (error) {
         console.error("Error fetching restaurant:", error);
       } finally {
@@ -136,8 +147,14 @@ export default function RestaurantDetailPage() {
     const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
     return pattern.test(url);
   };
+
+  const filteredMenus = menus?.filter(
+    (menu) =>
+      menu?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+      menu?.category?.toLowerCase().includes(searchQuery?.toLowerCase())
+  );
+
  const src= restaurant?.cover_image?`${API_BASE_URL}/${restaurant?.cover_image}`: '/Images/restaurent-fall.jpg'
-  console.log('sdsdsd',restaurant )
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -156,7 +173,7 @@ export default function RestaurantDetailPage() {
               src={src}
               alt={restaurant?.name}
               onError={() => setFallback("/Images/restaurent-fall.jpg")}  
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
                         </div>
             <CardHeader>
@@ -268,12 +285,27 @@ export default function RestaurantDetailPage() {
             </div>
 
             <TabsContent value="menu" className="space-y-4">
+            <div className="flex items-center gap-2 w-full">
+
+              <div className="relative flex-1">
+                <Input
+                  type="search"
+                  placeholder="Search Menu or category"
+                  className="pl-8 w-full"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                  }}
+                />
+              </div>
+            </div>
               
-              {restaurant && restaurant.menus.length>=1 && restaurant?.menus?.map((item) =>{
+              {filteredMenus && filteredMenus?.length>0 && filteredMenus?.map((item) =>{
                 let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
                 return (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
+                   
                     <div className="sm:w-1/4">
                       <div className="aspect-square w-full overflow-hidden">
                         <img
@@ -287,6 +319,9 @@ export default function RestaurantDetailPage() {
                       </div>
                     </div>
                     <div className="flex-1 p-4">
+                    <div className="flex justify-end mb-2">
+                    {item.updated_at && <span className="text-sm text-end"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}</span>}
+                      </div>
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="font-semibold">{item.name}</h3>
@@ -294,8 +329,9 @@ export default function RestaurantDetailPage() {
                         </div>
                         <div className="text-right">
                           <div className="font-medium">${item?.price}</div>
-                          <Badge variant="outline">{item.category}</Badge>
-                          {item.popular && <Badge className="ml-2">Popular</Badge>}
+                         <Badge variant="outline">{item.category}</Badge>
+                         {/* {item.updated_at && <Badge className="ml-2"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}
+                            </Badge>} */}
                         </div>
                       </div>
                       <div className="mt-4 flex justify-end gap-2">
@@ -337,7 +373,7 @@ export default function RestaurantDetailPage() {
                   </div>
                 </Card>
               )})}
-              {restaurant && restaurant.menus.length<1 &&
+              {restaurant && restaurant.menus?.length<=0 &&
               <>
               <div className="flex justify-center items-center py-12">
                 <p>No menu items found.</p>

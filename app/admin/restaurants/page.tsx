@@ -97,14 +97,16 @@ export default function RestaurantsPage() {
                     e.currentTarget.src = "/Images/restaurent-fall.jpg"
                   }}
                   alt={restaurant?.name}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
               </div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
+                   
                     <h3 className="font-semibold text-lg">{restaurant.name}</h3>
                     <p className="text-sm text-muted-foreground">{restaurant.address}</p>
+                    <p className="text-sm text-muted-background">Restaurent ID : {restaurant.id}</p>
                   </div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
