@@ -73,16 +73,30 @@ export default function AddMenuItemPage() {
     try {
       const token = localStorage.getItem("token");
       const data = new FormData();
-
+     if(!formData.menu_type){
+      toast({
+        title: "Error",
+        description: "Please select menu category",
+        variant: "destructive",
+      });
+      return ;
+     }
       data.append("restaurant_id", restaurantId);
       data.append("item_name", formData.item_name);
       data.append("price", formData.price);
-      data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "General");
+      data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "");
       data.append("item_list", formData.item_list);
       data.append("description", formData.description);
 
       if (formData.image) {
         data.append("image_urls", formData.image);
+      }else{
+        toast({
+          title: "Error",
+          description: "Please upload Dish Image",
+          variant: "destructive",
+        });
+        return ;
       }
 
       const response = await apiClient.post("/menus/add", data, {
@@ -233,12 +247,6 @@ export default function AddMenuItemPage() {
                     <SelectItem value="Buffet">Buffet</SelectItem>
                     <SelectItem value="A La Carte">A La Carte</SelectItem>
                     <SelectItem value="Combo Meals">Combo Meals</SelectItem>
-                    {/* {/* <SelectItem value="Breakfast">Breakfast</SelectItem>
-                    <SelectItem value="Lunch">Lunch</SelectItem>
-                    <SelectItem value="Dinner">Dinner</SelectItem>
-                    <SelectItem value="Dessert">Dessert</SelectItem>
-                    <SelectItem value="Drinks">Drinks</SelectItem> */}
-                    {/* <SelectItem value="Other">Other</SelectItem>  */}
                   </SelectContent>
                 </Select>
               </div>
