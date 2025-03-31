@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getMenuImagePath } from "@/utils/getImagePath";
 import { apiClient } from "@/services/apiService";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function EditRestaurantPage() {
   const router = useRouter();
@@ -166,7 +167,7 @@ export default function EditRestaurantPage() {
       </div>
     );
   }
-console.log('dsdsdsd',coverImagePreview);
+// console.log('dsdsdsd',coverImagePreview);
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -242,17 +243,33 @@ console.log('dsdsdsd',coverImagePreview);
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  maxLength={100}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Input
+                <Select value={formData.category}  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, category: value }))
+                  }>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cuisine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Italian">Italian</SelectItem>
+                    <SelectItem value="Mexican">Mexican</SelectItem>
+                    <SelectItem value="Indian">Indian</SelectItem>
+                    <SelectItem value="Asian">Asian</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                {/* <Input
                   id="category"
                   name="category"
                   placeholder="e.g. Fast Food, Café"
                   value={formData.category}
                   onChange={handleChange}
-                />
+                /> */}
               </div>
             </div>
 
@@ -266,6 +283,7 @@ console.log('dsdsdsd',coverImagePreview);
                 onChange={handleChange}
                 rows={3}
                 required
+                maxLength={200}
               />
             </div>
 
@@ -284,6 +302,7 @@ console.log('dsdsdsd',coverImagePreview);
                   value={formData.address}
                   onChange={handleChange}
                   required
+                  maxLength={100}
                 />
               </div>
 
@@ -296,6 +315,12 @@ console.log('dsdsdsd',coverImagePreview);
                     placeholder="e.g. 40.7128"
                     value={formData.latitude}
                     onChange={handleChange}
+                    maxLength={20}
+                    onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                      const input = e.currentTarget;
+                      input.value = input.value.replace(/[^0-9.-]/g, ""); // allow numbers, dot, minus
+                      
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -305,7 +330,12 @@ console.log('dsdsdsd',coverImagePreview);
                     name="longitude"
                     placeholder="e.g. -74.0060"
                     value={formData.longitude}
+                    maxLength={20}
                     onChange={handleChange}
+                    onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                      const input = e.currentTarget;
+                      input.value = input.value.replace(/[^0-9.-]/g, ""); // allow numbers, dot, minus
+                    }}
                   />
                 </div>
               </div>
@@ -321,6 +351,12 @@ console.log('dsdsdsd',coverImagePreview);
                   value={formData.phone}
                   onChange={handleChange}
                   required
+                  maxLength={15}
+                  minLength={9}
+                  onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                    const input = e.currentTarget;
+                    input.value = input.value.replace(/[^0-9]/g, ""); // allow numbers
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -331,6 +367,7 @@ console.log('dsdsdsd',coverImagePreview);
                   placeholder="www.example.com"
                   value={formData.website}
                   onChange={handleChange}
+                  maxLength={60}
                 />
               </div>
             </div>
@@ -344,6 +381,7 @@ console.log('dsdsdsd',coverImagePreview);
                 value={formData.open_hours}
                 onChange={handleChange}
                 required
+                maxLength={100}
               />
             </div>
           </CardContent>

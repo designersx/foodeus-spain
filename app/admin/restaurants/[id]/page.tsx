@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input"
-
+import {getMenuImagePath} from "@/utils/getImagePath"
 import {
   Dialog,
   DialogContent,
@@ -114,7 +114,7 @@ export default function RestaurantDetailPage() {
 
   const handleDeleteMenuItem = async(itemId: string) => {
     try {
-      console.log(itemId)
+      // console.log(itemId)
       const token = localStorage.getItem("token");
   
       const response = await apiClient.delete(`/menus/delete/${itemId}`, {
@@ -153,8 +153,9 @@ export default function RestaurantDetailPage() {
       menu?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
       menu?.category?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
-
- const src= restaurant?.cover_image?`${API_BASE_URL}/${restaurant?.cover_image}`: '/Images/restaurent-fall.jpg'
+const normalized = getMenuImagePath(restaurant?.cover_image)
+// console.log('normalize',normalized)
+ const src= normalized?`${API_BASE_URL}/${normalized}`: '/Images/restaurent-fall.jpg'
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -172,7 +173,9 @@ export default function RestaurantDetailPage() {
             <img
               src={src}
               alt={restaurant?.name}
-              onError={() => setFallback("/Images/restaurent-fall.jpg")}  
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src ="/Images/restaurent-fall.jpg"}}
               className="h-full w-full object-contain"
             />
                         </div>
@@ -301,7 +304,9 @@ export default function RestaurantDetailPage() {
             </div>
               
               {filteredMenus && filteredMenus?.length>0 && filteredMenus?.map((item) =>{
-                let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
+                const normalized = getMenuImagePath(item.image)
+                // console.log('normalized1', normalized)
+                // let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
                 return (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
@@ -309,7 +314,7 @@ export default function RestaurantDetailPage() {
                     <div className="sm:w-1/4">
                       <div className="aspect-square w-full overflow-hidden">
                         <img
-                          src={src}
+                          src={normalized}
                           alt={item.name}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
