@@ -333,7 +333,7 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
                           <p className="text-sm text-muted-foreground">{item?.description}</p>
                         </div>
                         <div className="text-right">
-                          <div className="font-medium">${item?.price}</div>
+                          <div className="font-medium">€{item?.price}</div>
                          <Badge variant="outline">{item.category}</Badge>
                          {/* {item.updated_at && <Badge className="ml-2"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}
                             </Badge>} */}

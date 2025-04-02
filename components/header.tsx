@@ -11,13 +11,13 @@ export default function Header() {
       <div className="container">
         <Link href="/" className="navbar-brand d-flex align-items-center">
           <Image
-            src="/Images/Logo.jpg?height=32&width=32"
+            src="/Images/menudistaLogo.png?width=100"
             alt="Foodeus Logo"
-            width={32}
-            height={32}
-            className="rounded-circle me-2"
+            width={120}
+            height={40}
+            className=""
           />
-          <span className="fw-bold">Foodeus</span>
+          {/* <span className="fw-bold"></span> */}
         </Link>
 
         <div className="d-flex align-items-center">

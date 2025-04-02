@@ -12,9 +12,9 @@ export const translations = {
   },
   es: {
     aboutUs:"Sobre Nosotros",
-    dishView:"Vista del plato",
-    listView: "Vista de Lista",
-    mapView: "Vista de Mapa",
+    dishView:"Plato",
+    listView: "Lista",
+    mapView: "Mapa",
     menuOfTheDay: "Menú del Día",
     location: "Ubicación",
     changeLanguage: "Cambiar Idioma",

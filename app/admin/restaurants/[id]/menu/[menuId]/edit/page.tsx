@@ -163,10 +163,28 @@ export default function EditMenuItemPage() {
                 </div>
               </div>
             </div>
+            <div className="space-y-2">
+            <Label htmlFor="item_name">Item Name <span className="text-danger">*</span></Label>
             <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required />
+            </div>
+            <div className="space-y-2">
+            <Label htmlFor="description">Description <span className="text-danger">*</span></Label>
             <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required />
-            <Input name="price" value={formData.price} placeholder="Price" onChange={handleChange} maxLength={5} pattern="^\d{1,3}(\.\d{0,2})?$" required />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+            <Label htmlFor="price">Price € <span className="text-danger">*</span></Label>
+            <Input name="price" value={formData.price} placeholder="Price" onChange={handleChange}  onInput={(e) => {
+                const input = e.currentTarget;
+                input.value = input.value
+                .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
+              }}
+              required
+              maxLength={7}/>
+              </div>
             { }
+            <div className="space-y-2">
+            <Label htmlFor="menu_type">Menu Type <span className="text-danger">*</span></Label>
             <Select value={selectedcategory} onValueChange={(value) => setFormData(prev => ({ ...prev, menu_type: value }))} required>
               <SelectTrigger>
                 <SelectValue placeholder={formData.menu_type || "Select Menu Type"} />
@@ -183,11 +201,20 @@ export default function EditMenuItemPage() {
                 <SelectItem value="Drinks">Drinks</SelectItem> */}
               </SelectContent>
             </Select>
-
-            <Input name="item_list" value={formData.item_list} placeholder="Item List (comma-separated)" onChange={handleChange} maxLength={100} />
+            </div>
+            </div>
+            <div className="space-y-2">
+            <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
+            <Input name="item_list" value={formData.item_list} placeholder="Item List (comma-separated)" onChange={handleChange} maxLength={100} required/>
+            </div>
           </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={isLoading}>{isLoading ? "Updating..." : "Update"}</Button>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" asChild>
+              <Link href={`/admin/restaurants/${restaurantId}`}>Cancel</Link>
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Update..." : "Update Menu Item"}
+            </Button>
           </CardFooter>
         </Card>
       </form>

@@ -74,9 +74,9 @@ export function ListView() {
   const [filterBy, setFilterBy] = useState("all");
 
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
-
+  const [visibleCount, setVisibleCount] = useState(20);
   useEffect(() => {
-    if (!hasFetched) {
+    if (!hasFetched || restaurants.length == 0) {
     getRestaurantsWithMenus()
       .then((data) => {
         console.log("API Response:", data);
@@ -117,6 +117,7 @@ export function ListView() {
                 lng: Number(restaurant.location?.longitude) || 0,
               },
               rating: restaurant.ratings?.toString() || "",
+              category: restaurant.category,
               menu:
                 sortedMenus.length > 0
                   ? {
@@ -153,6 +154,61 @@ export function ListView() {
     }
   }, [hasFetched, setRestaurants, setHasFetched]);
 
+// useEffect(() => {
+//   if (!restaurants.length) return;
+
+//   if (navigator.geolocation) {
+//     navigator.geolocation.getCurrentPosition(
+//       (position) => {
+//         const userPos = {
+//           lat: position.coords.latitude,
+//           lng: position.coords.longitude,
+//         };
+//         setUserLocation(userPos);
+
+//         const today = new Date().toISOString().split("T")[0];
+
+//         const withDistance = restaurants.map((restaurant) => {
+//           const distance = calculateDistance(
+//             userPos.lat,
+//             userPos.lng,
+//             restaurant.coordinates.lat,
+//             restaurant.coordinates.lng
+//           );
+
+//           const latestUpdate = restaurant.menu?.updated_at || "";
+//           const updatedDate = latestUpdate?.split(" ")[0];
+
+//           const updatedToday =
+//             updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
+
+//           return {
+//             ...restaurant,
+//             distance,
+//             updatedToday,
+//             rating: restaurant.rating || 3,
+//           };
+//         });
+
+//         // Sort: today's special updated today first, then by distance
+//         withDistance.sort((a, b) => {
+//           if (a.updatedToday && !b.updatedToday) return -1;
+//           if (!a.updatedToday && b.updatedToday) return 1;
+//           return (a.distance || 0) - (b.distance || 0);
+//         });
+
+//         setRestaurantsWithDistance(withDistance);
+//         setFilteredRestaurants(withDistance);
+//         setLoading(false);
+//       },
+//       (error) => {
+//         console.error("Error getting location:", error);
+//         setLoading(false);
+//       }
+//     );
+//   }
+// }, [restaurants]);
+
 useEffect(() => {
   if (!restaurants.length) return;
 
@@ -168,31 +224,35 @@ useEffect(() => {
         const today = new Date().toISOString().split("T")[0];
 
         const withDistance = restaurants.map((restaurant) => {
-          const distance = calculateDistance(
-            userPos.lat,
-            userPos.lng,
-            restaurant.coordinates.lat,
-            restaurant.coordinates.lng
-          );
-
+          const hasMenu = !!restaurant.menu?.updated_at;
           const latestUpdate = restaurant.menu?.updated_at || "";
           const updatedDate = latestUpdate?.split(" ")[0];
 
           const updatedToday =
-            updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
+            updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
 
           return {
             ...restaurant,
-            distance,
+            distance: calculateDistance(
+              userPos.lat,
+              userPos.lng,
+              restaurant.coordinates.lat,
+              restaurant.coordinates.lng
+            ),
             updatedToday,
+            hasMenu,
             rating: restaurant.rating || 3,
           };
         });
 
-        // Sort: today's special updated today first, then by distance
+        // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
         withDistance.sort((a, b) => {
           if (a.updatedToday && !b.updatedToday) return -1;
           if (!a.updatedToday && b.updatedToday) return 1;
+
+          if (a.hasMenu && !b.hasMenu) return -1;
+          if (!a.hasMenu && b.hasMenu) return 1;
+
           return (a.distance || 0) - (b.distance || 0);
         });
 
@@ -289,7 +349,25 @@ useEffect(() => {
   window.addEventListener('scroll', handleScroll);
   return () => window.removeEventListener('scroll', handleScroll);
 }, [lastScrollY, focused]);
-  return (
+
+useEffect(() => {
+  const handleScroll = () => {
+    const scrollThreshold = 300; // px from bottom
+
+    if (
+      window.innerHeight + window.scrollY >=
+      document.body.offsetHeight - scrollThreshold
+    ) {
+      // Load 10 more restaurants
+      setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [filteredRestaurants.length]);
+
+    return (
     <div className="pb-5">
       <HeroSlideshow />
       <div className=" SearchFixed container my-3">
@@ -326,7 +404,8 @@ useEffect(() => {
         ) : (
           <>
             {filteredRestaurants.length > 0 ? (
-              filteredRestaurants.map((restaurant) => (
+             filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
+              // filteredRestaurants.map((restaurant) => (
                 <RestaurantCard
                   key={restaurant?.id}
                   restaurant={restaurant}

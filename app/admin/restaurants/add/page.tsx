@@ -462,12 +462,12 @@ export default function AddRestaurantPage() {
             {/* Name & Cuisine */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Restaurant Name</Label>
+                <Label>Restaurant Name<span className="text-danger"> *</span></Label>
                 <Input {...formik.getFieldProps("name")} />
                 {formik.touched.name && formik.errors.name && <p className="text-sm text-danger">{formik.errors.name}</p>}
               </div>
               <div>
-                <Label>Cuisine</Label>
+                <Label>Cuisine <span className="text-danger"> *</span></Label>
                 <Select value={formik.values.category} onValueChange={(val) => formik.setFieldValue("category", val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select cuisine" />
@@ -487,7 +487,7 @@ export default function AddRestaurantPage() {
 
             {/* Address w/ autocomplete */}
             <div className="relative space-y-2">
-              <Label>Address</Label>
+              <Label>Address<span className="text-danger"> *</span></Label>
               <Input
                 name="address"
                 value={formik.values.address}
@@ -526,7 +526,7 @@ export default function AddRestaurantPage() {
             {/* Contact & Details */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Phone</Label>
+                <Label>Phone<span className="text-danger"> *</span></Label>
                 <Input
                   name="phone"
                   value={formik.values.phone}
@@ -545,13 +545,13 @@ export default function AddRestaurantPage() {
             </div>
 
             <div>
-              <Label>Business Hours</Label>
+              <Label>Business Hours<span className="text-danger"> *</span></Label>
               <Input {...formik.getFieldProps("open_hours")} />
               {formik.touched.open_hours && formik.errors.open_hours && <p className="text-sm text-danger">{formik.errors.open_hours}</p>}
             </div>
 
             <div>
-              <Label>Description</Label>
+              <Label>Description<span className="text-danger"> *</span></Label>
               <Textarea {...formik.getFieldProps("description")} rows={3} />
               {formik.touched.description && formik.errors.description && <p className="text-sm text-danger">{formik.errors.description}</p>}
             </div>

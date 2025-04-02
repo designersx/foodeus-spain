@@ -150,7 +150,7 @@ export default function AddMenuItemPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Item Image</Label>
+              <Label>Item Image <span className="text-danger">*</span></Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
@@ -185,7 +185,7 @@ export default function AddMenuItemPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="item_name">Item Name</Label>
+              <Label htmlFor="item_name">Item Name <span className="text-danger">*</span></Label>
               <Input
                 id="item_name"
                 name="item_name"
@@ -198,7 +198,7 @@ export default function AddMenuItemPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description <span className="text-danger">*</span></Label>
               <Textarea
                 id="description"
                 name="description"
@@ -213,7 +213,7 @@ export default function AddMenuItemPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="price">Price €</Label>
+                <Label htmlFor="price">Price € <span className="text-danger">*</span></Label>
                 <Input
               id="price"
               name="price"
@@ -224,17 +224,17 @@ export default function AddMenuItemPage() {
               onChange={handleChange}
               onInput={(e) => {
                 const input = e.currentTarget;
-                input.value = input.value.replace(/[^0-9.]/g, ""); // remove any letter
+                input.value = input.value
+                .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
               }}
               required
-              maxLength={5}
-              pattern="^\d{1,5}(\.\d{0,2})?$"
+              maxLength={7}
               title="Enter a valid price (e.g. 9.99)"
             />
-                          </div>
+              </div>
 
               <div className="space-y-2">
-                <Label htmlFor="menu_type">Menu Type</Label>
+                <Label htmlFor="menu_type">Menu Type <span className="text-danger">*</span></Label>
                 <Select
                   value={formData.menu_type}
                   onValueChange={handleSelectChange}
@@ -266,7 +266,7 @@ export default function AddMenuItemPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="item_list">Item List (optional)</Label>
+              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
               <Input
                 id="item_list"
                 name="item_list"
@@ -274,6 +274,7 @@ export default function AddMenuItemPage() {
                 value={formData.item_list}
                 maxLength={100}
                 onChange={handleChange}
+                required
               />
             </div>
           </CardContent>

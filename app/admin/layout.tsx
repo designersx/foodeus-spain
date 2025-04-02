@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { FC } from "react";
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { BarChart3, Clipboard, LogOut, MenuIcon as Restaurant, Utensils } from "lucide-react"
@@ -20,12 +20,33 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog"
+import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+interface SidebarToggleProps {
+  isOpen: boolean;
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
   const pathname = usePathname()
   const [isMounted, setIsMounted] = useState(false)
-
+  const [isOpen, setIsOpen] = useState<boolean>(true);
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -37,7 +58,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!user) {
     return null
   }
+  const toggleSidebar = () => {
+    setIsOpen((prev) => !prev);
+  };
 
+  const SidebarToggle: FC<SidebarToggleProps> = ({ isOpen }) => {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button>
+            <SidebarTrigger />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          {isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
+
+  const handleLogout=()=>{
+
+  }
+  
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -49,10 +92,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <div className="flex items-center gap-2">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg  text-primary-foreground">
                       {/* <Utensils className="size-4" /> */}
-                      <img alt="Foodeus Logo" loading="lazy" width="32" height="32" decoding="async" data-nimg="1" className="rounded-circle me-2"  src="/Images/Logo.jpg?height=32&amp;width=32"/>
+                      <img alt="Foodeus Logo" loading="lazy" width="32" height="32" decoding="async" data-nimg="1" className="rounded-circle me-2"  src="/Images/faviconMenu.png?height=32&amp;width=32"/>
                     </div>
                     <div className="flex flex-col gap-0.5 leading-none">
-                      <span className="font-semibold">Foodeus</span>
+                      <span className="font-semibold">Menudista</span>
                       <span className="text-xs text-muted-foreground">Admin Panel</span>
                     </div>
                   </div>
@@ -61,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </SidebarMenu>
           </SidebarHeader>
           <SidebarContent>
-            <SidebarMenu>
+            <SidebarMenu >
               {/*<SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/dashboard"}>
                   <a href="/admin/dashboard">
@@ -72,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SidebarMenuItem>*/}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/restaurants"}>
-                  <Link href="/admin/restaurants">
+                  <Link href="/admin/restaurants" className="nav-link-admin">
                     <Restaurant className="h-4 w-4" />
                     <span>Restaurants</span>
                   </Link>
@@ -89,7 +132,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                   <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/upload-menu"}>
-                  <Link href="/admin/upload-menu">
+                  <Link href="/admin/upload-menu" className="nav-link-admin">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Menu</span>
                   </Link>
@@ -97,7 +140,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SidebarMenuItem>
                <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin/upload-restaurant"}>
-                  <Link href="/admin/upload-restaurant">
+                  <Link href="/admin/upload-restaurant" className="nav-link-admin">
                     <Clipboard className="h-4 w-4" />
                     <span>Upload Restaurants</span>
                   </Link>
@@ -108,9 +151,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout}>
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
+                <SidebarMenuButton onClick={handleLogout}>
+                  {/* <LogOut className="h-4 w-4" /> */}
+                 <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                    <LogOut className="h-4 w-4" /> Logout
+                    </Button >
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Logout !</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to Logout? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                      <Button variant="destructive" onClick={logout}>
+                      Logout
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -118,8 +183,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarRail />
         </Sidebar>
         <SidebarInset className="admin-layout">
-          <header className="flex h-16 items-center gap-4 border-b bg-background px-6 sticky top-0 z-10 w-full">
-            <SidebarTrigger />
+          <header className="flex h-16 items-center gap-4 border-b bg-background  sticky top-0 z-10 w-full">
+              <Tooltip>
+            <TooltipTrigger asChild>
+             <SidebarTrigger onClick={toggleSidebar} />
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+            </TooltipContent>
+          </Tooltip>
             <div className="flex-1" />
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">{user?.email}</span>

@@ -46,7 +46,7 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Failed to log in:", error)
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Something went wrong!");
+        // setError(error.response?.data?.message || "Something went wrong!");
       } else {
         setError("Unexpected error occurred");
       }
@@ -67,7 +67,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-2">
             <div className="flex items-center gap-2 text-primary">
               <Utensils className="h-6 w-6" />
-              <span className="text-xl font-bold">Foodeus</span>
+              <span className="text-xl font-bold">Menudista</span>
             </div>
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>

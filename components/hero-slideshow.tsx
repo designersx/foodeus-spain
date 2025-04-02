@@ -63,7 +63,7 @@ export function HeroSlideshow() {
               />
               <div className="carousel-caption  pb-4">
                 
-                <h2 className="fs-4 fw-bold text-white mb-0"  style={{ textShadow: '0px 0px 3px #000000' }}>
+                <h2 className="lobsterFont"  style={{ textShadow: '0px 0px 3px #000000' }}>
                  {slide.title[language]}</h2>
 
               </div>
