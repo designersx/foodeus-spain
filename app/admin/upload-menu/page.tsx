@@ -299,7 +299,8 @@ export default function ImportMenuCSV() {
   const invalidRowsCount = csvData.filter((row) => !validateRow(row).isValid).length
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+        <div className="flex-1 overflow-y-auto">
       <Card className="shadow-lg border-0 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground p-6 text-black">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
@@ -513,8 +514,8 @@ export default function ImportMenuCSV() {
                     </Button>
                   </div>
 
-                  <div className="overflow-x-auto">
-                    <Table>
+                  <div className="w-full overflow-x-auto">
+                    <Table className="min-w-[1000px]">
                       <TableHeader className="bg-muted/50 sticky top-0">
                         <TableRow>
                           <TableHead className="font-semibold w-10">#</TableHead>
@@ -607,6 +608,7 @@ export default function ImportMenuCSV() {
           </Tabs>
         </CardContent>
       </Card>
+    </div>
     </div>
   )
 }

@@ -190,10 +190,28 @@ const expectedHeaders = [
           Authorization: `Bearer ${token}`,
         },
       });
-
+      console.log(response);
       if (response.status !== 201) throw new Error("Upload failed");
-
-      toast({ title: "Success", description: "Restaurants imported successfully!" });
+      const { inserted, skippedRestaurants= [] } = response.data;
+      console.log(inserted, skippedRestaurants);
+      if (inserted > 0 || skippedRestaurants.length > 0) {
+        let message = "";
+        
+        if (inserted > 0) {
+          message += `✅ ${inserted} restaurant(s) imported successfully.\n`;
+        }
+  
+        if (skippedRestaurants.length > 0) {
+          const skippedNames = skippedRestaurants.map((item: any) => `• ${item.name}`).join("\n");
+          message += `⚠️ ${skippedRestaurants.length} skipped:\n${skippedNames}`;
+        }
+        console.log(inserted, skippedRestaurants,message);
+        toast({
+          title: "Import Summary",
+          description: message,
+          variant: skippedRestaurants.length > 0 ? "destructive" : "default",
+        });
+      }
       setCsvData([]);
       setSelectedFile(null);
       setFileName(null);
@@ -209,7 +227,8 @@ const expectedHeaders = [
   const invalidRowsCount = csvData.filter((row) => !validateRow(row).isValid).length;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+        <div className="flex-1 overflow-y-auto">
       <Card className="shadow-lg border-0 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground p-6 text-black">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
@@ -277,18 +296,19 @@ const expectedHeaders = [
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="preview" className="p-6">
+            {/* <TabsContent value="preview" className="p-6">
               {csvData.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">Upload a CSV file to preview data</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="w-full overflow-x-auto">
                     <Button onClick={handleUpload} disabled={isLoading || csvData.length === 0} className="gap-2">
                       {isLoading ? <span>Uploading...</span> : <><Upload className="h-4 w-4" />Upload Now</>}
                     </Button>
-                  <Table>
+                
+                    <Table className="min-w-[1000px]">
                     <TableHeader>
                       <TableRow>
                         {Object.keys(csvData[0]).map((header) => (
@@ -319,10 +339,74 @@ const expectedHeaders = [
                   </Table>
                 </div>
               )}
-            </TabsContent>
+            </TabsContent> */}
+          <TabsContent
+            value="preview"
+            className="flex flex-col flex-1 p-0 overflow-hidden h-[calc(100vh-180px)]"
+          >
+            {csvData.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center text-center py-12">
+                <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Upload a CSV file to preview data</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+                  <h3 className="text-lg font-medium">Preview</h3>
+                  <Button onClick={handleUpload} disabled={isLoading} className="gap-2">
+                    {isLoading ? "Uploading..." : <> <Upload className="h-4 w-4" /> Upload Now </>}
+                  </Button>
+                </div>
+
+                <div className="flex-1 overflow-auto px-4 pb-4">
+                  <div className="min-w-[1000px] w-full overflow-x-auto">
+                    <Table className="w-full">
+                      <TableHeader>
+                        <TableRow>
+                          {Object.keys(csvData[0]).map((header) => (
+                            <TableHead key={header}>{header}</TableHead>
+                          ))}
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {csvData.map((row, index) => {
+                          const { isValid } = validateRow(row);
+                          return (
+                            <TableRow key={index} className={!isValid ? "bg-destructive/10" : ""}>
+                              {Object.values(row).map((val, i) => (
+                                <TableCell key={i} className="max-w-[200px] truncate">
+                                  {val || "-"}
+                                </TableCell>
+                              ))}
+                              <TableCell>
+                                {isValid ? (
+                                  <Badge className="bg-green-100 text-green-800 border-green-200">Valid</Badge>
+                                ) : (
+                                  <Badge variant="destructive">Missing Fields</Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 md:hidden">
+                    👆 Swipe left/right to view all columns.
+                  </p>
+                </div>
+              </>
+            )}
+          </TabsContent>
+            
+
+
+
           </Tabs>
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 }

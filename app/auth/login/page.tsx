@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useAuth } from "@/context/auth-context";
-import { useState } from "react"
+import { useState ,useEffect} from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Utensils , Eye, EyeOff,} from "lucide-react"
@@ -13,16 +13,34 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { login ,API_BASE_URL} from "@/services/apiService"
 import axios from "axios"
+import { encrypt, decrypt } from "@/utils/crypto";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
   const { toast } = useToast()
   const { login } = useAuth(); 
+  const [rememberMe, setRememberMe] = useState(false); 
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const savedRemember = localStorage.getItem("rememberMe") === "true";
+    setRememberMe(savedRemember);
+
+    if (savedRemember) {
+      const savedEmail = localStorage.getItem("rememberMeEmail") || "";
+      const savedPasswordEncrypted = localStorage.getItem("rememberMePassword") || "";
+      const savedPassword = savedPasswordEncrypted ? decrypt(savedPasswordEncrypted) : "";
+
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+    }
+  }
+}, []);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +52,15 @@ export default function LoginPage() {
       const response=await axios.post(`${API_BASE_URL}/admin/login`,{email,password});
       console.log('llds',response);
       if(response.data.success){
+        if(rememberMe){
+          localStorage.setItem('rememberMe', 'true');
+          localStorage.setItem('rememberMeEmail', email);
+          localStorage.setItem("rememberMePassword", encrypt(password));
+        }else{
+          localStorage.removeItem("rememberMeEmail");
+          localStorage.removeItem("rememberMePassword");
+          localStorage.setItem("rememberMe", "false");
+        }
         localStorage.setItem('token',response.data.data.token);
         localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
         await login(email, password)
@@ -59,7 +86,10 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
-
+  const handleRememberMe = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.checked)
+    setRememberMe(e.target.checked);
+  }
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
@@ -80,7 +110,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@foodeus.com"
+                placeholder="enter your email address"
                 value={email}
                 maxLength={50}
                 onChange={(e) => setEmail(e.target.value)}
@@ -90,15 +120,16 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                {/* <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline" >
                   Forgot password?
-                </Link> */}
+                </Link>
               </div>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
+                  placeholder="enter your password"
                   maxLength={40}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -112,9 +143,21 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>
+            </div>  
+             <div className="space-y-2">
+              <div className="flex items-center justify-end">
+                <input
+                  id="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => handleRememberMe(e)}
+                  className="me-2"
+                /><Label htmlFor="remember-me">Remember me</Label>
+              </div>
+              </div>
             <span className="text-danger d-block text-center">{error&& error}
             </span>
+            
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>

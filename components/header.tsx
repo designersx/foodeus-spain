@@ -45,6 +45,33 @@ export default function Header() {
             </ul>
           </div>
 
+          {/* <div className="dropdown">
+          <button
+            className="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i className="bi bi-person-circle"></i>
+            User
+          </button>
+          <ul className="dropdown-menu dropdown-menu-end">
+            <li>
+              <a className="dropdown-item" href="/profile">
+                <i className="bi bi-person me-2"></i> Profile
+              </a>
+            </li>
+            <li>
+              <hr className="dropdown-divider" />
+            </li>
+            <li>
+              <button className="dropdown-item text-danger" onClick={handleLogout}>
+                <i className="bi bi-box-arrow-right me-2"></i> Logout
+              </button>
+            </li>
+          </ul>
+        </div> */}
+        
           {/* Hamburger Menu */}
           {/* <button
             className="navbar-toggler"

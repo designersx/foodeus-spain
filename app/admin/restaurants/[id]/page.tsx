@@ -75,7 +75,10 @@ export default function RestaurantDetailPage() {
         const restaurants = await response;
         setRestaurant(restaurants.data);
         if (Array.isArray(restaurants?.data?.menus)) {
-          const menusWithId = restaurants.data.menus.filter((menu:any) => menu.id != null);
+          const menusWithId = restaurants.data.menus
+            .filter((menu: any) => menu.id != null)
+            .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+        
           setMenus(menusWithId);
         }
       } catch (error) {
@@ -110,7 +113,33 @@ export default function RestaurantDetailPage() {
       </div>
     )
   }
-
+  const handleDeleteRestaurant=async(restaurantId:number) =>{
+    try {
+      const token = localStorage.getItem("token");
+      const response = await apiClient.delete(`/restaurants/remove/${restaurantId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        toast({
+          title: "Restaurant deleted",
+          description: "The restaurant has been deleted successfully",
+        });
+        router.push("/admin/restaurants");
+      } else {
+        throw new Error(response.data.message || "Failed to delete restaurant");
+    
+        }
+    } catch (error) { 
+      toast({
+        title: "Error",
+        description: "There was an error deleting the restaurant.",
+        variant: "destructive",
+      });
+      console.error("Delete error:", error);
+    }
+  }
 
   const handleDeleteMenuItem = async(itemId: string) => {
     try {
@@ -241,9 +270,9 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
               </Button>
               <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <DialogTrigger asChild>
-                  {/* <Button variant="destructive">
+                  <Button variant="destructive">
                     <Trash2 className="h-4 w-4 mr-2" /> Delete
-                  </Button> */}
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -256,9 +285,9 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
                     <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
                       Cancel
                     </Button>
-                    {/* <Button variant="destructive" onClick={handleDeleteRestaurant}>
+                    <Button variant="destructive" onClick={() => handleDeleteRestaurant(restaurant!.id)}>
                       Delete
-                    </Button> */}
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

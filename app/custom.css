@@ -1812,7 +1812,7 @@
     flex: 1;
     width: 100%;
     max-width: 100%;
-    padding: 1rem;
+    padding: 1rem 0 1rem 0;
   }
   
   /* Fix for dashboard and other pages */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef  } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/context/language-context";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { HeroSlideshow } from "@/components/hero-slideshow";
@@ -19,7 +19,7 @@ interface Menu {
   image: string;
   items?: string;
   updated_at?: any
-  menu_id?: string|number;
+  menu_id?: string | number;
   menu_type?: any;
 }
 
@@ -49,9 +49,9 @@ const calculateDistance = (
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
@@ -72,55 +72,55 @@ export function ListView() {
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [filterBy, setFilterBy] = useState("all");
-
+  const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(20);
   useEffect(() => {
     if (!hasFetched || restaurants.length == 0) {
-    getRestaurantsWithMenus()
-      .then((data) => {
-        console.log("API Response:", data);
-        if (!Array.isArray(data.data)) {
-          console.error("API response is not an array:", data);
-          return;
-        }
+      getRestaurantsWithMenus()
+        .then((data) => {
+          console.log("API Response:", data);
+          if (!Array.isArray(data.data)) {
+            console.error("API response is not an array:", data);
+            return;
+          }
 
-        const formattedRestaurants: Restaurant[] = data.data.map(
-          (restaurant: any) => {
-            // Ensure menus exist before sorting
-            const sortedMenus = restaurant.menus
-            ? [...restaurant.menus].sort((a, b) => {
-                const today = new Date().toDateString(); // Strip time
+          const formattedRestaurants: Restaurant[] = data.data.map(
+            (restaurant: any) => {
+              // Ensure menus exist before sorting
+              const sortedMenus = restaurant.menus
+                ? [...restaurant.menus].sort((a, b) => {
+                  const today = new Date().toDateString(); // Strip time
 
-                const isATodaySpecial =
-                  a.menu_type === "Today's Special" &&
-                  new Date(a.updated_at).toDateString() === today;
+                  const isATodaySpecial =
+                    a.menu_type === "Today's Special" &&
+                    new Date(a.updated_at).toDateString() === today;
 
-                const isBTodaySpecial =
-                  b.menu_type === "Today's Special" &&
-                  new Date(b.updated_at).toDateString() === today;
+                  const isBTodaySpecial =
+                    b.menu_type === "Today's Special" &&
+                    new Date(b.updated_at).toDateString() === today;
 
-                if (isATodaySpecial && !isBTodaySpecial) return -1;
-                if (!isATodaySpecial && isBTodaySpecial) return 1;
+                  if (isATodaySpecial && !isBTodaySpecial) return -1;
+                  if (!isATodaySpecial && isBTodaySpecial) return 1;
 
-                // Otherwise, sort by updated_at descending
-                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-              })
-            : [];
+                  // Otherwise, sort by updated_at descending
+                  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+                })
+                : [];
 
-            return {
-              id: restaurant.restaurant_id?.toString() || "",
-              name: restaurant.name || "",
-              location: restaurant.address || "",
-              coordinates: {
-                lat: Number(restaurant.location?.latitude) || 0,
-                lng: Number(restaurant.location?.longitude) || 0,
-              },
-              rating: restaurant.ratings?.toString() || "",
-              category: restaurant.category,
-              menu:
-                sortedMenus.length > 0
-                  ? {
+              return {
+                id: restaurant.restaurant_id?.toString() || "",
+                name: restaurant.name || "",
+                location: restaurant.address || "",
+                coordinates: {
+                  lat: Number(restaurant.location?.latitude) || 0,
+                  lng: Number(restaurant.location?.longitude) || 0,
+                },
+                rating: restaurant.ratings?.toString() || "",
+                category: restaurant.category,
+                menu:
+                  sortedMenus.length > 0
+                    ? {
                       title: {
                         en: sortedMenus[0].item_name || "",
                         es: sortedMenus[0].item_name || "",
@@ -135,138 +135,146 @@ export function ListView() {
                       menu_type: sortedMenus[0]?.menu_type,
                       menu_id: sortedMenus[0]?.menu_id,
                     }
-                  : {
+                    : {
                       title: { en: "", es: "" },
                       description: { en: "", es: "" },
                       image: "",
                     },
-            };
-          }
-        );
-        // console.log("formattedRestaurants", formattedRestaurants);
-        setRestaurants(formattedRestaurants);
-        setHasFetched(true); 
-      })
-      .catch((err) => {
-        console.error("Error fetching restaurants:", err);
-        setLoading(false);
-      });
+              };
+            }
+          );
+          // console.log("formattedRestaurants", formattedRestaurants);
+          setRestaurants(formattedRestaurants);
+          setHasFetched(true);
+        })
+        .catch((err) => {
+          console.error("Error fetching restaurants:", err);
+          setLoading(false);
+        });
     }
   }, [hasFetched, setRestaurants, setHasFetched]);
 
-// useEffect(() => {
-//   if (!restaurants.length) return;
+  // useEffect(() => {
+  //   if (!restaurants.length) return;
 
-//   if (navigator.geolocation) {
-//     navigator.geolocation.getCurrentPosition(
-//       (position) => {
-//         const userPos = {
-//           lat: position.coords.latitude,
-//           lng: position.coords.longitude,
-//         };
-//         setUserLocation(userPos);
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const userPos = {
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude,
+  //         };
+  //         setUserLocation(userPos);
 
-//         const today = new Date().toISOString().split("T")[0];
+  //         const today = new Date().toISOString().split("T")[0];
 
-//         const withDistance = restaurants.map((restaurant) => {
-//           const distance = calculateDistance(
-//             userPos.lat,
-//             userPos.lng,
-//             restaurant.coordinates.lat,
-//             restaurant.coordinates.lng
-//           );
+  //         const withDistance = restaurants.map((restaurant) => {
+  //           const distance = calculateDistance(
+  //             userPos.lat,
+  //             userPos.lng,
+  //             restaurant.coordinates.lat,
+  //             restaurant.coordinates.lng
+  //           );
 
-//           const latestUpdate = restaurant.menu?.updated_at || "";
-//           const updatedDate = latestUpdate?.split(" ")[0];
+  //           const latestUpdate = restaurant.menu?.updated_at || "";
+  //           const updatedDate = latestUpdate?.split(" ")[0];
 
-//           const updatedToday =
-//             updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
+  //           const updatedToday =
+  //             updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
 
-//           return {
-//             ...restaurant,
-//             distance,
-//             updatedToday,
-//             rating: restaurant.rating || 3,
-//           };
-//         });
+  //           return {
+  //             ...restaurant,
+  //             distance,
+  //             updatedToday,
+  //             rating: restaurant.rating || 3,
+  //           };
+  //         });
 
-//         // Sort: today's special updated today first, then by distance
-//         withDistance.sort((a, b) => {
-//           if (a.updatedToday && !b.updatedToday) return -1;
-//           if (!a.updatedToday && b.updatedToday) return 1;
-//           return (a.distance || 0) - (b.distance || 0);
-//         });
+  //         // Sort: today's special updated today first, then by distance
+  //         withDistance.sort((a, b) => {
+  //           if (a.updatedToday && !b.updatedToday) return -1;
+  //           if (!a.updatedToday && b.updatedToday) return 1;
+  //           return (a.distance || 0) - (b.distance || 0);
+  //         });
 
-//         setRestaurantsWithDistance(withDistance);
-//         setFilteredRestaurants(withDistance);
-//         setLoading(false);
-//       },
-//       (error) => {
-//         console.error("Error getting location:", error);
-//         setLoading(false);
-//       }
-//     );
-//   }
-// }, [restaurants]);
+  //         setRestaurantsWithDistance(withDistance);
+  //         setFilteredRestaurants(withDistance);
+  //         setLoading(false);
+  //       },
+  //       (error) => {
+  //         console.error("Error getting location:", error);
+  //         setLoading(false);
+  //       }
+  //     );
+  //   }
+  // }, [restaurants]);
 
-useEffect(() => {
-  if (!restaurants.length) return;
+  useEffect(() => {
+    if (!restaurants.length) return;
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userPos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        setUserLocation(userPos);
-
-        const today = new Date().toISOString().split("T")[0];
-
-        const withDistance = restaurants.map((restaurant) => {
-          const hasMenu = !!restaurant.menu?.updated_at;
-          const latestUpdate = restaurant.menu?.updated_at || "";
-          const updatedDate = latestUpdate?.split(" ")[0];
-
-          const updatedToday =
-            updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
-
-          return {
-            ...restaurant,
-            distance: calculateDistance(
-              userPos.lat,
-              userPos.lng,
-              restaurant.coordinates.lat,
-              restaurant.coordinates.lng
-            ),
-            updatedToday,
-            hasMenu,
-            rating: restaurant.rating || 3,
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
           };
-        });
+          setUserLocation(userPos);
 
-        // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
-        withDistance.sort((a, b) => {
-          if (a.updatedToday && !b.updatedToday) return -1;
-          if (!a.updatedToday && b.updatedToday) return 1;
+          const today = new Date().toISOString().split("T")[0];
 
-          if (a.hasMenu && !b.hasMenu) return -1;
-          if (!a.hasMenu && b.hasMenu) return 1;
+          const withDistance = restaurants.map((restaurant) => {
+            const hasMenu = !!restaurant.menu?.updated_at;
+            const latestUpdate = restaurant.menu?.updated_at || "";
+            const updatedDate = latestUpdate?.split(" ")[0];
 
-          return (a.distance || 0) - (b.distance || 0);
-        });
+            const updatedToday =
+              updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
 
-        setRestaurantsWithDistance(withDistance);
-        setFilteredRestaurants(withDistance);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        setLoading(false);
-      }
-    );
-  }
-}, [restaurants]);
+            return {
+              ...restaurant,
+              distance: calculateDistance(
+                userPos.lat,
+                userPos.lng,
+                restaurant.coordinates.lat,
+                restaurant.coordinates.lng
+              ),
+              updatedToday,
+              hasMenu,
+              rating: restaurant.rating || 3,
+            };
+          });
+
+          // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
+          withDistance.sort((a, b) => {
+            if (a.updatedToday && !b.updatedToday) return -1;
+            if (!a.updatedToday && b.updatedToday) return 1;
+
+            if (a.hasMenu && !b.hasMenu) return -1;
+            if (!a.hasMenu && b.hasMenu) return 1;
+
+            return (a.distance || 0) - (b.distance || 0);
+          });
+
+          setRestaurantsWithDistance(withDistance);
+          setFilteredRestaurants(withDistance);
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+
+          if (error.code === error.PERMISSION_DENIED) {
+            setLocationError(
+              "Location access was denied. Please enable it in your browser settings."
+            );
+          } else {
+            setLocationError("Unable to access your location.");
+          }
+          setLoading(false);
+        }
+      );
+    }
+  }, [restaurants]);
 
 
   const deg2rad = (deg: number) => {
@@ -304,77 +312,105 @@ useEffect(() => {
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
 
-// serachbar go on top
-const searchRef = useRef(null);
-const [isSticky, setIsSticky] = useState(false);
-const [lastScrollY, setLastScrollY] = useState(0);
-const [focused, setFocused] = useState(false);
+  // serachbar go on top
+  const searchRef = useRef(null);
+  const [isSticky, setIsSticky] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [focused, setFocused] = useState(false);
 
-// Scroll to top with offset on focus
-const handleFocus = () => {
-  const element = searchRef.current;
-  const offset = 10;
+  // Scroll to top with offset on focus
+  const handleFocus = () => {
+    const element = searchRef.current;
+    const offset = 10;
 
-  if (element) {
-    const y = element.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  }
+    if (element) {
+      const y = element.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
 
-  setFocused(true);
-};
+    setFocused(true);
+  };
 
-const handleBlur = () => {
-  setFocused(false);
-  setIsSticky(false);
-};
+  const handleBlur = () => {
+    setFocused(false);
+    setIsSticky(false);
+  };
 
-// Scroll direction detection
-useEffect(() => {
-  const handleScroll = () => {
-    const currentScrollY = window.scrollY;
+  // Scroll direction detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
 
-    if (focused) {
-      if (currentScrollY < lastScrollY) {
-        // Scrolling up
-        setIsSticky(true);
-      } else {
-        // Scrolling down
-        setIsSticky(false);
+      if (focused) {
+        if (currentScrollY < lastScrollY) {
+          // Scrolling up
+          setIsSticky(true);
+        } else {
+          // Scrolling down
+          setIsSticky(false);
+        }
       }
-    }
 
-    setLastScrollY(currentScrollY);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, focused]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollThreshold = 300; // px from bottom
+
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - scrollThreshold
+      ) {
+        // Load 10 more restaurants
+        setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [filteredRestaurants.length]);
+
+  const retryGeolocation = () => {
+    setLoading(true);
+    setLocationError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userPos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(userPos);
+        // re-run your restaurant logic here...
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Retry location error:", error);
+
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError("Location access is still denied. Please enable it in your browser settings.");
+        } else {
+          setLocationError("Unable to access your location.");
+        }
+
+        setLoading(false);
+      }
+    );
   };
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, [lastScrollY, focused]);
-
-useEffect(() => {
-  const handleScroll = () => {
-    const scrollThreshold = 300; // px from bottom
-
-    if (
-      window.innerHeight + window.scrollY >=
-      document.body.offsetHeight - scrollThreshold
-    ) {
-      // Load 10 more restaurants
-      setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
-    }
-  };
-
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [filteredRestaurants.length]);
-
-    return (
+  return (
     <div className="pb-5">
       <HeroSlideshow />
       <div className=" SearchFixed container my-3">
         <div className="row g-2 align-items-center">
           {/* Search Input */}
           <div className="col-12 col-md-9">
-          <input
+            <input
               ref={searchRef}
               type="text"
               placeholder={
@@ -382,9 +418,8 @@ useEffect(() => {
                   ? "Buscar restaurantes, cocina o ubicación"
                   : "Search restaurants, cuisine, or location"
               }
-              className={`form-control w-full p-3 border rounded-md transition-all duration-300 ${
-                isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
-              }`}
+              className={`form-control w-full p-3 border rounded-md transition-all duration-300 ${isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
+                }`}
               onFocus={handleFocus}
               onBlur={handleBlur}
               value={searchTerm}
@@ -404,8 +439,8 @@ useEffect(() => {
         ) : (
           <>
             {filteredRestaurants.length > 0 ? (
-             filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
-              // filteredRestaurants.map((restaurant) => (
+              filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
+                // filteredRestaurants.map((restaurant) => (
                 <RestaurantCard
                   key={restaurant?.id}
                   restaurant={restaurant}
@@ -418,6 +453,20 @@ useEffect(() => {
           </>
         )}
       </div>
+
+      {locationError && (
+        <div className="alert alert-warning mt-3">
+          {locationError} <br />
+          <small className="text-muted">
+            You can click the lock icon in your browser’s address bar to enable location access manually.
+          </small>
+          <div className="mt-2">
+            <button className="btn btn-sm btn-outline-primary" onClick={retryGeolocation}>
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
