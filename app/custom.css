@@ -1,6 +1,9 @@
 /*!*************************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./app/globals.css ***!
   \*************************************************************************************************************************************************************************************************************************************************************/
+  /* @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap'); */
+  
+  
   *, ::before, ::after {
     --tw-border-spacing-x: 0;
     --tw-border-spacing-y: 0;
@@ -1809,7 +1812,7 @@
     flex: 1;
     width: 100%;
     max-width: 100%;
-    padding: 1rem;
+    padding: 1rem 0 1rem 0;
   }
   
   /* Fix for dashboard and other pages */
@@ -3297,8 +3300,14 @@
   
   
 
+
   a.text-primary svg path{
-    fill: #0d6efd !important;
+    fill: #F1582E !important;
+  }
+
+  .fixed-bottom a.text-primary
+  {
+    color:#F1582E !important;
   }
 
   .fixed-bottom a.svg {
@@ -3308,7 +3317,8 @@
   span.small {
     margin: 5px 0 0 0;
     font-size: 16px;
-    font-size: clamp(12px, 2vh, 16px);
+    font-size: clamp(12px, 1.7vh, 16px);
+    white-space: nowrap;
   }
 
   .fullMenu{
@@ -3384,3 +3394,84 @@
     text-align: center;
 }
 
+.starWidth{
+width: 40px !important;
+}
+
+.restaurantMenu{
+  /* white-space:nowrap; */
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  
+;
+}
+
+.resName{
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+.restDistance{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+.restDistance a{
+  text-decoration: none;
+  color:#F1582E;
+}
+.mainClass{
+  border: 0.5px solid #e3e3e3 !important;
+
+}
+.dishImage{
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 130px !important;
+  max-height: 130px !important;
+}
+
+.dishImage img{
+  position: unset !important;
+  width: 100%;
+  height: 100%;
+  max-width: 130px;
+  max-height: 100px;
+  border-radius: 5px;
+  object-fit: cover;
+  object-position: center;
+}
+.dishControl{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+}
+
+
+.lobsterFont{
+  font-family: "Lobster", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color:#F1582E;
+
+  
+}
+
+.nextjs-static-indicator-toast-icon
+{
+  display:none !important;
+  visibility: hidden !important;
+}
+
+.nextjs-static-indicator-toast-wrapper{
+  display: none;
+}
+
+.nav-link-admin{
+text-decoration: none !important;
+}

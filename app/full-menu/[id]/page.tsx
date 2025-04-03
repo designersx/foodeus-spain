@@ -112,7 +112,7 @@ export default function FullMenuPage() {
       .then((data) => {
         if (data.success && data.data) {
           const formattedData = formatMenuData(data.data);
-          console.log('kk',data.data);
+          // console.log('kk',data.data);
           setRestaurant(formattedData);
         }
       })
@@ -211,7 +211,11 @@ export default function FullMenuPage() {
                   <Image
                     src={src}
                     alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
-                    onError={() => setSrc("/Images/fallback.jpg")}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // prevent infinite loop
+                      target.src = "/Images/fallback.jpg";
+                    }}
                     fill
                     className="object-fit-cover rounded"
                   />
@@ -238,7 +242,20 @@ export default function FullMenuPage() {
           ) : (
             restaurant.fullMenu.alaCarte.map((item: any, index: number) => (
               <div key={index} className="list-group-item">
-                <div className="d-flex justify-content-between align-items-start">
+                <div className="d-flex gap-3">
+                <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
+                  <Image
+                    src={getMenuImagePath(item.image)}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // prevent infinite loop
+                      target.src = "/Images/fallback.jpg";
+                    }}
+                    fill
+                    className="object-fit-cover rounded"
+                  />
+                </div>
                   <div>
                     <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
                     <p className="small text-secondary mb-0">{item.description[language]}</p>
@@ -262,7 +279,20 @@ export default function FullMenuPage() {
         ) : (
           restaurant.fullMenu.buffet.map((item: any, index: number) => (
             <div key={index} className="list-group-item">
-              <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex gap-3">
+                <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
+                  <Image
+                    src={getMenuImagePath(item.image)}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // prevent infinite loop
+                      target.src = "/Images/fallback.jpg";
+                    }}
+                    fill
+                    className="object-fit-cover rounded"
+                  />
+                </div>
                 <div>
                   <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
                   <p className="small text-secondary mb-0">{item.description[language]}</p>
@@ -287,7 +317,20 @@ export default function FullMenuPage() {
         ) : (
           restaurant.fullMenu.comboMeals.map((item: any, index: number) => (
             <div key={index} className="list-group-item">
-              <div className="d-flex justify-content-between align-items-start">
+             <div className="d-flex gap-3">
+                <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
+                  <Image
+                    src={getMenuImagePath(item.image)}
+                    alt={item.title[language]}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // prevent infinite loop
+                      target.src = "/Images/fallback.jpg";
+                    }}
+                    fill
+                    className="object-fit-cover rounded"
+                  />
+                </div>
                 <div>
                   <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
                   <p className="small text-secondary mb-0">{item.description[language]}</p>
@@ -312,7 +355,20 @@ export default function FullMenuPage() {
         ) : (
           restaurant.fullMenu?.other.map((item: any, index: number) => (
             <div key={index} className="list-group-item">
-              <div className="d-flex justify-content-between align-items-start">
+               <div className="d-flex gap-3">
+                <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
+                  <Image
+                    src={getMenuImagePath(item.image)}
+                    alt={item.title[language]}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // prevent infinite loop
+                      target.src = "/Images/fallback.jpg";
+                    }}
+                    fill
+                    className="object-fit-cover rounded"
+                  />
+                </div>
                 <div>
                   <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
                   <p className="small text-secondary mb-0">{item.description[language]}</p>

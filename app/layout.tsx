@@ -12,8 +12,8 @@ import { Toaster  } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Foodeus - Daily Restaurant Menus",
-  description: "Find the best menu of the day near you",
+  title: "Menudista-Menú del día cerca de ti en Madrid.",
+  description: "Descubre el mejor menú del día cerca de ti en Madrid",
     generator: 'v0.dev'
 }
 
@@ -25,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+      <link rel="icon" href="/Images/faviconMenu.png" />
         <link
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet"
@@ -32,6 +33,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+          </style>
       </head>
       <body className={inter.className}>
         <LanguageProvider>

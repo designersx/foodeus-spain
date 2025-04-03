@@ -19,10 +19,14 @@ interface MenuItem {
   updated_at?: any
 }
 
+interface location{ 
+  lat: number;
+  lng: number;
+}
 interface Restaurant {
   id: string;
   name: string;
-  location: string;
+  location: location |any;
   coordinates: { lat: number; lng: number };
   menu: MenuItem[];
   ratings?: string | number;
@@ -187,7 +191,7 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
-  console.log('menuItem',menuItem);
+  // console.log('menuItem',menuItem);
   return (
     <>
       {/* Content wrapper with padding to prevent content from being hidden behind buttons */}
@@ -207,7 +211,7 @@ export default function MenuDetailPage() {
               : src.includes("/public")
                 ? `${API_BASE_URL}/${src.split("/public")[1]}`
                 : `${API_BASE_URL}/${src}`
-                ? src :"none"
+                ? src :""
           }
           alt={menuItem?.title[language]}
           onError={(e) => {
@@ -220,7 +224,12 @@ export default function MenuDetailPage() {
           style={{ filter: "brightness(75%)" }}
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
-            <h1 className="text-white fs-3 fw-bold mb-0">{menuItem?.title[language]}</h1>
+            <h1 className="text-white fs-3 fw-bold mb-0 text-capitalize">{menuItem?.title[language]
+                    ? menuItem?.title[language]
+                    : language === "en"
+                      ? "Menu not Available"
+                      : "Menú no disponible"}
+            </h1>
             <div className="d-flex align-items-center text-white-50 small mt-1">
               <i className="bi bi-geo-alt me-1"></i>
               {menuItems?.name} - {menuItems?.location}
@@ -231,13 +240,14 @@ export default function MenuDetailPage() {
         {/* Price */}
         <div className="flex justify-between align-items-center mb-1">
         <div className="fs-3 fw-bold text-primary">
-          {menuItem?.price[language]}
+          {}
+          {menuItem?.price[language]?menuItem?.price[language]: language === "en" ? "Not Available":"No Disponible"}
         </div>
 
         {distanceToRestaurant !== null && (
           <div className="text-muted text-sm">
             <i className="bi bi-geo-alt me-1"></i>
-            {language === "es" ? "Distancia" : "Distance"}: {distanceToRestaurant.toFixed(1)} km
+            {language === "es" ? "Distancia" : "Distance"}: {distanceToRestaurant?.toFixed(1)} km
           </div>
         )}
       </div>
@@ -252,19 +262,28 @@ export default function MenuDetailPage() {
           })`}
         </span>
           <h2 className="fs-4 fw-semibold mb-2">{language === "en" ? "Description" : "Descripción"}</h2>
-          <p className="text-secondary">{menuItem.description[language]}</p>
+          <p className="text-secondary">{menuItem.description[language]?menuItem.description[language]:language === "en" ? "Not Available":"No Disponible"}</p>
         </div>
 
         {/* Menu items */}
         <div className="mb-4">
           <h2 className="fs-4 fw-semibold mb-2">{language === "en" ? "Includes" : "Incluye"}</h2>
           <ul className="list-unstyled">
-            {menuItem.items.map((item: any, index: number) => (
+          {menuItem.items.length > 0 ? (
+            menuItem.items.map((item: any, index: number) => (
               <li key={index} className="d-flex align-items-center mb-2">
-                <div className="bg-primary rounded-circle me-2" style={{ width: "8px", height: "8px" }}></div>
+                <div
+                  className="bg-primary rounded-circle me-2"
+                  style={{ width: "8px", height: "8px" }}
+                ></div>
                 {item[language]}
               </li>
-            ))}
+            ))
+          ) : (
+            <li className="text-muted">
+              {language === "en" ? "Not Available" : "No Disponible"}
+            </li>
+          )}
           </ul>
         </div>
       </div>
@@ -275,13 +294,23 @@ export default function MenuDetailPage() {
           <div className="row g-2">
             <div className="col-6">
             {mapUrl && (
-          <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
+                 <Link
+                 href={{
+                   pathname: '/map',
+                   query: {
+                     id: data?.id,
+                     name: data?.name,
+                     lat: data?.location?.latitude,
+                     lng: data?.location?.longitude,
+                     mark: true,
+                   },
+                 }}
                className="btn btn-primary w-100">
                 {language === "en" ? "Take Me There" : "Llévame Allí"}
-                </a>
-          )}
+                </Link>
+                )}
             </div>
-            <div className="col-6">
+            <div className="col-6" >
               <Link href={`/full-menu/${menuItems?.id}`} className="btn btn-outline-primary w-100">
                 {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}
               </Link>

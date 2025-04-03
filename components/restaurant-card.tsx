@@ -6,7 +6,7 @@ import { useLanguage } from "@/context/language-context"
 import { API_BASE_URL } from "@/services/apiService"
 import { Badge } from "@/components/ui/badge"
 import { Edit, Plus, Search, Star } from "lucide-react"
-import {getMenuImagePath} from "@/utils/getImagePath"
+import { getMenuImagePath } from "@/utils/getImagePath"
 interface Restaurant {
   id: string
   name: string
@@ -27,7 +27,7 @@ interface Restaurant {
       es: string
     }
     image: string,
-    menu_id?: string|number;
+    menu_id?: string | number;
     menu_type?: any;
     updated_at?: any
   }
@@ -50,34 +50,37 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
       return `${distance.toFixed(1)}km`
     }
   }
-  const isValidUrl = (url:string) => {
+  const isValidUrl = (url: string) => {
     const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
     return pattern.test(url);
   };
-  
+
 
   return (
     <Link href={`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`} className="text-decoration-none text-dark">
-      <div className="card mb-3 shadow-sm hover-shadow">
-        <div className="row g-0" style={{ height: "" }}>
-          <div className="col-4 position-relative">
+      <div className="card mb-3 mainClass">
+        <div className="dishControl" style={{ height: "" }}>
+          <div className="dishImage ">
             <Image
-              // src={isValidUrl(restaurant?.menu.image) 
-              //   ? restaurant?.menu.image  // If it's a valid URL, use it directly
-              //   :`${API_BASE_URL}${restaurant.menu.image.split("/public")[1]}` || "/Images/fallback.jpg"}
               src={src}
               alt={restaurant?.menu.title[language]}
               onError={() => setSrc("/Images/fallback.jpg")}
               fill
-              className="object-fit-cover rounded-start"
+              className=""
             />
           </div>
-          <div className="col-8">
-            
-            <div className="card-body h-100 d-flex flex-column justify-content-between p-3 text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
+          <div className="dishContent">
+
+            <div className="card-body h-100  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
               <div>
-                <h5 className="card-title fs-6 fw-bold text-truncate mb-1">{restaurant?.menu.title[language]}</h5>
-                <p
+                <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
+                  {restaurant?.menu.title[language]
+                    ? restaurant.menu.title[language]
+                    : language === "en"
+                      ? "Menu not Available"
+                      : "Menú no disponible"}
+                </h5>
+                {/* <p
                   className="card-text small text-secondary mb-0 line-clamp-2"
                   style={{
                     display: "-webkit-box",
@@ -87,30 +90,46 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                   }}
                 >
                   {restaurant.menu.description[language]}
-                </p>
+                </p> */}
               </div>
               <div className="resturantLoc  w-100">
                 <div>
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <span>{restaurant?.name}</span>
-                    <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-2 text-sm font-medium restaurantMenu">
+                    <span className="resName">{restaurant?.name}</span>
+                    <span className="flex items-center gap-1 starWidth" >
                       <Star className="h-3 w-3" style={{ color: "#FFD700", fill: "#FFD700" }} />
                       {restaurant?.rating}
                     </span>
                   </span>
-                  
-                  <p className="card-text small text-secondary d-flex align-items-center mb-0">
-                    <i className="bi bi-geo-alt me-1 small"></i>
-                    <span className="text-truncate">
-                    {restaurant?.location.length > 20
-                      ? restaurant.location.slice(0, 20) + "..."
-                      : restaurant?.location}
-                  </span>
-                  </p>
+                  <div className="restDistance">
+                    <p className="card-text small text-secondary d-flex align-items-center mb-0">
+                      <i className="bi bi-geo-alt me-1 small"></i>
+                      <span className="resName">
+                        {restaurant?.location}
+                      </span>
+                    </p>
+                    {distance !== undefined && (
+                      <div className="small fw-medium text-primary restDistance">
+                        <Link
+                          href={{
+                            pathname: '/map',
+                            query: {
+                              id: restaurant.id,
+                              name: restaurant.name,
+                              lat: restaurant.coordinates.lat,
+                              lng: restaurant.coordinates.lng,
+                              mark: true,
+                            },
+                          }}
+                        >
+                          {formatDistance(distance)}
+                        </Link>
+                        </div>
+                    )}
+                  </div>
+
                 </div>
-                {distance !== undefined && (
-                  <div className="small fw-medium text-primary">{formatDistance(distance)}</div>
-                )}
+
               </div>
             </div>
           </div>
