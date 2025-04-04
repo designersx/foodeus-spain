@@ -89,6 +89,7 @@ export default function RestaurantsPage() {
         let img=normalized?`${API_BASE_URL}/${normalized}`:'/Images/restaurent-fall.jpg'
         // let img = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${restaurant?.g_image}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
           return (
+            <Link href={`/admin/restaurants/${restaurant.id}`} className="text-decoration-none text-dark" key={restaurant.id}>
             <Card key={restaurant.id} className="overflow-hidden">
               <div className="aspect-video w-full overflow-hidden">
                 <img
@@ -115,12 +116,13 @@ export default function RestaurantsPage() {
                   <Badge variant="outline">{restaurant.menu_count} menu items</Badge>
                 </div>
               </CardContent>
-              <CardFooter className="p-4 pt-0 flex justify-between">
+              {/* <CardFooter className="p-4 pt-0 flex justify-between">
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/admin/restaurants/${restaurant.id}`}>View Details</Link>
                 </Button>
-              </CardFooter>
+              </CardFooter> */}
             </Card>
+            </Link>
           )
         })}
       </div>

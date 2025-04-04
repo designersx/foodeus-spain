@@ -66,6 +66,7 @@ export default function RestaurantDetailPage() {
   const [fallback, setFallback] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [menus, setMenus] = useState<MenuItem[]>([]);
+  const [activeTab, setActiveTab] = useState("menu");
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -296,22 +297,23 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
         </div>
 
         <div className="w-full lg:w-2/3">
-          <Tabs defaultValue="menu" className="w-full">
+          <Tabs defaultValue="menu" className="w-full" value={activeTab} onValueChange={setActiveTab}>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              {/* <span></span> */}
               <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="menu" className="flex-1 sm:flex-initial">
-                  Menu Items
+                  Menu List
                 </TabsTrigger>
-                {/* <TabsTrigger value="reviews" className="flex-1 sm:flex-initial">
-                  Reviews
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">
+                {/* <TabsTrigger value="itemsList" className="flex-1 sm:flex-initial">
+                  Item List
+                </TabsTrigger> */}
+                {/* <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">
                   Analytics
                 </TabsTrigger> */}
               </TabsList>
               <Button asChild>
                 <Link href={`/admin/restaurants/${restaurant?.id}/add-menu-item`}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Menu Item
+                  <Plus className="h-4 w-4 mr-2" /> Add Menu
                 </Link>
               </Button>
             </div>
@@ -416,10 +418,10 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
               }
             </TabsContent>
 
-            <TabsContent value="reviews">
+            <TabsContent value="itemsList">
               <Card>
                 <CardHeader>
-                  <CardTitle>Reviews</CardTitle>
+                  <CardTitle>Item List</CardTitle>
                   <CardDescription>Customer reviews for this restaurant</CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -325,6 +325,8 @@ export default function AddRestaurantPage() {
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedplace, setSelectedPlace] = useState<boolean>(false)
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const formik = useFormik({
     initialValues: {
@@ -380,37 +382,97 @@ export default function AddRestaurantPage() {
       }
     },
   })
+  // console.log(formik.values)
+  // useEffect(() => {
+  //   if (!formik.values.address || typeof window === 'undefined' || !window.google) return
+  //   if (formik.values.address.length < 5 || !/[a-zA-Z0-9]/.test(formik.values.address)) return
 
+  //   const service = new window.google.maps.places.AutocompleteService()
+  //   service.getPlacePredictions({ input: formik.values.address, types: ["geocode"] }, (predictions) => {
+  //     setSuggestions(predictions || [])
+  //   })
+  // }, [formik.values.address])
+
+  // const handleSelectPlace = (placeId: string) => {
+  //   const service = new window.google.maps.places.PlacesService(document.createElement("div"))
+  //   service.getDetails({ placeId, fields: ["formatted_address", "geometry"] }, (place, status) => {
+  //     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+  //       const lat = place?.geometry?.location?.lat()?.toString() || ""
+  //       const lng = place?.geometry?.location?.lng()?.toString() || ""
+  //       const formatted = place?.formatted_address || ""
+
+  //       formik.setValues((prev) => ({
+  //         ...prev,
+  //         address: formatted,
+  //         latitude: lat,
+  //         longitude: lng,
+  //         placeId,
+  //       }))
+  //       setSuggestions([])
+  //     }
+  //   })
+  // }
+  if(formik.values.address.length === 0  && selectedplace)
+  {
+    setSelectedPlace(false)
+  }
   useEffect(() => {
-    if (!formik.values.address || typeof window === 'undefined' || !window.google) return
-    if (formik.values.address.length < 5 || !/[a-zA-Z0-9]/.test(formik.values.address)) return
+    if (
+      !formik.values.address ||
+      typeof window === "undefined" ||
+      !window.google ||
+      formik.values.address.length < 4 || selectedplace
+    ) return;
 
-    const service = new window.google.maps.places.AutocompleteService()
-    service.getPlacePredictions({ input: formik.values.address, types: ["geocode"] }, (predictions) => {
-      setSuggestions(predictions || [])
-    })
-  }, [formik.values.address])
 
-  const handleSelectPlace = (placeId: string) => {
-    const service = new window.google.maps.places.PlacesService(document.createElement("div"))
-    service.getDetails({ placeId, fields: ["formatted_address", "geometry"] }, (place, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        const lat = place?.geometry?.location?.lat()?.toString() || ""
-        const lng = place?.geometry?.location?.lng()?.toString() || ""
-        const formatted = place?.formatted_address || ""
-
-        formik.setValues((prev) => ({
-          ...prev,
-          address: formatted,
-          latitude: lat,
-          longitude: lng,
-          placeId,
-        }))
-        setSuggestions([])
+    const legacyAutocomplete = new window.google.maps.places.AutocompleteService();
+    legacyAutocomplete.getPlacePredictions(
+      {
+        input: formik.values.address,
+        types: ["establishment"],
+        componentRestrictions: { country: ["in", "es"] },
+      },
+      (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setSuggestions(predictions || []);
+        } else {
+          setSuggestions([]);
+        }
       }
-    })
+    );
+  }, [formik.values.address]);
+
+  const handleSelectPlace = (placeId: string, description: string) => {
+    setSuggestions([]);
+    const service = new window.google.maps.places.PlacesService(document.createElement("div"));
+    console.log("place out", placeId);
+    setSelectedPlace(true)
+    service.getDetails(
+      {
+        placeId,
+        fields: ["formatted_address", "geometry", "name", "place_id"],
+      },
+      (place, status) => {
+        console.log("place inside", place, status);
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          const lat = place?.geometry?.location?.lat()?.toString() || "";
+          const lng = place?.geometry?.location?.lng()?.toString() || "";
+          const formatted = place?.formatted_address || description;
+
+          formik.setValues((prev) => ({
+            ...prev,
+            address: formatted,
+            latitude: lat,
+            longitude: lng,
+            placeId,
+          }));
+          setSuggestions([]);
+        }
+      }
+    );
   }
 
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -501,7 +563,7 @@ export default function AddRestaurantPage() {
                     <div
                       key={s.place_id}
                       className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
-                      onClick={() => handleSelectPlace(s.place_id)}
+                      onClick={() => handleSelectPlace(s.place_id, s.description)}
                     >
                       {s.description}
                     </div>
