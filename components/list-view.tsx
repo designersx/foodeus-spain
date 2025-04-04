@@ -7,8 +7,6 @@ import { HeroSlideshow } from "@/components/hero-slideshow";
 import { Input } from "@/components/ui/input"; // Radix UI Input
 import { Search } from "lucide-react";
 import { getRestaurantsWithMenus } from "@/services/apiService";
-import Lottie from "lottie-react";
-import hotFoodAnimation from "@/components/ui/hot-food.json";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useRestaurantStore } from "@/store/restaurantStore";
@@ -74,12 +72,12 @@ export function ListView() {
   const [filterBy, setFilterBy] = useState("all");
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(5);
   useEffect(() => {
     if (!hasFetched || restaurants.length == 0) {
       getRestaurantsWithMenus()
         .then((data) => {
-          console.log("API Response:", data);
+          // console.log("API Response:", data);
           if (!Array.isArray(data.data)) {
             console.error("API response is not an array:", data);
             return;

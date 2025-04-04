@@ -47,10 +47,10 @@ useEffect(() => {
     setIsLoading(true)
 
     try {
-      console.log("Logging in with email:", email, "and password:", password);
+      // console.log("Logging in with email:", email, "and password:", password);
       // Call the login function from the auth service
       const response=await axios.post(`${API_BASE_URL}/admin/login`,{email,password});
-      console.log('llds',response);
+      // console.log('llds',response);
       if(response.data.success){
         if(rememberMe){
           localStorage.setItem('rememberMe', 'true');
@@ -87,7 +87,7 @@ useEffect(() => {
     }
   }
   const handleRememberMe = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.checked)
+    // console.log(e.target.checked)
     setRememberMe(e.target.checked);
   }
   return (

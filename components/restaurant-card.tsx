@@ -65,6 +65,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               src={src}
               alt={restaurant?.menu.title[language]}
               onError={() => setSrc("/Images/fallback.jpg")}
+              loading="lazy"
               fill
               className=""
             />

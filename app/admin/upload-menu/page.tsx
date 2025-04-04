@@ -267,7 +267,7 @@ export default function ImportMenuCSV() {
                 Authorization: `Bearer ${token}`,
               },
         }, )
-      console.log(response)
+      // console.log(response)
         if (response.status!=201) {
           throw new Error("Server responded with an error.")
         }

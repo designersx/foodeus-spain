@@ -48,7 +48,7 @@ export default function EditMenuItemPage() {
     if (data) {
       const parsed = JSON.parse(data);
       setSelectedCategory(parsed.category)
-      console.log('ds', parsed, selectedcategory);
+      // console.log('ds', parsed, selectedcategory);
       setFormData({
         item_name: parsed.name || "",
         description: parsed.description || "",
@@ -58,7 +58,7 @@ export default function EditMenuItemPage() {
         image: null,
       });
       const normalized = getMenuImagePath(parsed.cover_image || parsed.image)
-      console.log('normalized', normalized)
+      // console.log('normalized', normalized)
       setImagePreview(normalized);
       // sessionStorage.removeItem("editMenuItem");
     }

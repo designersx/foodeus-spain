@@ -150,7 +150,7 @@ export default function AddMenuItemPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Item Image <span className="text-danger">*</span></Label>
+              <Label>Menu Image <span className="text-danger">*</span></Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
@@ -185,7 +185,7 @@ export default function AddMenuItemPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="item_name">Item Name <span className="text-danger">*</span></Label>
+              <Label htmlFor="item_name">Menu Name <span className="text-danger">*</span></Label>
               <Input
                 id="item_name"
                 name="item_name"

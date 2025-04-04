@@ -26,6 +26,17 @@ import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService"
 
 
+// types/item.ts
+export interface RestaurantItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: "Starters" | "Main dishes" | "Desserts" | "Beverages";
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface MenuItem {
   id: string;
@@ -66,6 +77,43 @@ export default function RestaurantDetailPage() {
   const [fallback, setFallback] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [menus, setMenus] = useState<MenuItem[]>([]);
+  const [activeTab, setActiveTab] = useState("menu");
+  // const [items, setItems] = useState<RestaurantItem[]>([]);
+  const [items, setItems] = useState([
+    {
+      id: "item1",
+      name: "Grilled Chicken",
+      price: 12.99,
+      image: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
+      category: "Main dishes",
+      description: "Tender grilled chicken served with herbs and rice.",
+    },
+    {
+      id: "item2",
+      name: "Caesar Salad",
+      price: 7.5,
+      image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90",
+      category: "Starters",
+      description: "Classic caesar salad with parmesan and croutons.",
+    },
+    {
+      id: "item3",
+      name: "Chocolate Lava Cake",
+      price: 5.25,
+      image: "https://images.unsplash.com/photo-1605478031513-0547e82c1e3a",
+      category: "Desserts",
+      description: "Molten chocolate cake served warm with vanilla ice cream.",
+    },
+    {
+      id: "item4",
+      name: "Lemon Iced Tea",
+      price: 3.0,
+      image: "https://images.unsplash.com/photo-1625942124215-5935a9c5fa6d",
+      category: "Beverages",
+      description: "Refreshing lemon iced tea with mint.",
+    },
+  ]);
+  
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -254,66 +302,73 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (restaurant) {
-                  sessionStorage.setItem('editRestaurant', JSON.stringify(restaurant))
-                  router.push(`/admin/restaurants/${restaurant.id}/edit`)
-                }
-              }}
-            >
-                {/* <Link href={`/admin/restaurants/${restaurant?.id}/edit`}> */}
-                  <Edit className="h-4 w-4 mr-2" /> Edit Restaurant
-                {/* </Link> */}
-              </Button>
-              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+            <CardFooter className="flex flex-col items-start gap-2">
+                  <Button
+      variant="outline"
+      className="w-full sm:w-[48%]"
+      onClick={() => {
+        if (restaurant) {
+          sessionStorage.setItem('editRestaurant', JSON.stringify(restaurant))
+          router.push(`/admin/restaurants/${restaurant.id}/edit`)
+        }
+      }}
+    >
+      <Edit className="h-4 w-4 mr-2" /> Edit
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Delete Restaurant</DialogTitle>
-                    <DialogDescription>
-                      Are you sure you want to delete {restaurant?.name}? This action cannot be undone.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button variant="destructive" onClick={() => handleDeleteRestaurant(restaurant!.id)}>
-                      Delete
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+
+                  <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" className="w-full sm:w-[48%]">
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete Restaurant</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete {restaurant?.name}? This action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={() => handleDeleteRestaurant(restaurant!.id)}>
+                          Delete
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
             </CardFooter>
+
           </Card>
         </div>
 
         <div className="w-full lg:w-2/3">
-          <Tabs defaultValue="menu" className="w-full">
+          <Tabs defaultValue="menu" className="w-full" value={activeTab} onValueChange={setActiveTab}>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-              <TabsList className="w-full sm:w-auto">
+              {/* <span></span> */}
+              {/* <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="menu" className="flex-1 sm:flex-initial">
-                  Menu Items
+                  Menu List
                 </TabsTrigger>
-                {/* <TabsTrigger value="reviews" className="flex-1 sm:flex-initial">
-                  Reviews
+                <TabsTrigger value="itemsList" className="flex-1 sm:flex-initial">
+                  Item List
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">
                   Analytics
-                </TabsTrigger> */}
-              </TabsList>
+                </TabsTrigger>
+              </TabsList> */}
               <Button asChild>
-                <Link href={`/admin/restaurants/${restaurant?.id}/add-menu-item`}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Menu Item
-                </Link>
-              </Button>
+              <Link href={
+                activeTab === "menu"
+                  ? `/admin/restaurants/${restaurant?.id}/add-menu-item`
+                  : `/admin/restaurants/${restaurant?.id}/add-item`
+              }>
+                <Plus className="h-4 w-4 mr-2" />
+                {activeTab === "menu" ? "Add Menu" : "Add Item"}
+              </Link>
+            </Button>
             </div>
 
             <TabsContent value="menu" className="space-y-4">
@@ -415,18 +470,54 @@ const normalized = getMenuImagePath(restaurant?.cover_image)
               </>
               }
             </TabsContent>
+            <TabsContent value="itemsList" className="space-y-4">
+              {items.length > 0 ? items.map((item) => (
+                <Card key={item.id}>
+                <div className="flex flex-col sm:flex-row">
+                  <div className="sm:w-1/4">
+                    <div className="aspect-square w-full overflow-hidden">
+                      <img
+                        src={item.image}// replace with your API image URL later
+                        alt="Paneer Tikka"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/Images/fallback.jpg";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-1 p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold">{item.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Delicious spicy Indian starter with marinated paneer and veggies grilled to perfection.
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium">€9.99</div>
+                        <Badge variant="outline">Starters</Badge>
+                      </div>
+                    </div>
 
-            <TabsContent value="reviews">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Reviews</CardTitle>
-                  <CardDescription>Customer reviews for this restaurant</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p>Review functionality will be implemented in the next phase.</p>
-                </CardContent>
+                    <div className="mt-4 flex justify-end gap-2">
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600">
+                        <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </Card>
+
+              )) : (
+                <p className="text-center text-muted-foreground py-8">No items found.</p>
+              )}
             </TabsContent>
+
 
             <TabsContent value="analytics">
               <Card>
