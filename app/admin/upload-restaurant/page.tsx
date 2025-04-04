@@ -190,10 +190,10 @@ const expectedHeaders = [
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response);
+      // console.log(response);
       if (response.status !== 201) throw new Error("Upload failed");
       const { inserted, skippedRestaurants= [] } = response.data;
-      console.log(inserted, skippedRestaurants);
+      // console.log(inserted, skippedRestaurants);
       if (inserted > 0 || skippedRestaurants.length > 0) {
         let message = "";
         
@@ -205,7 +205,7 @@ const expectedHeaders = [
           const skippedNames = skippedRestaurants.map((item: any) => `• ${item.name}`).join("\n");
           message += `⚠️ ${skippedRestaurants.length} skipped:\n${skippedNames}`;
         }
-        console.log(inserted, skippedRestaurants,message);
+        // console.log(inserted, skippedRestaurants,message);
         toast({
           title: "Import Summary",
           description: message,

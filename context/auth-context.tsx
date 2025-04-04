@@ -23,15 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  // console.log("AuthProvider Rendered - User:", user)
 
   useEffect(() => {
-    // console.log("Checking localStorage for user data...")
 
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("foodeus-admin-auth")
       if (storedUser) {
-        console.log("User found in localStorage:", storedUser)
         setUser(JSON.parse(storedUser))
       }
     }
@@ -45,15 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isAuthRoute = pathname?.startsWith("/auth");
     const isAdminRoute = pathname?.startsWith("/admin");
   
-    // console.log(`Auth check - Path: ${pathname}, isAuthRoute: ${isAuthRoute}, isAdminRoute: ${isAdminRoute}, User:`, user);
   
-    // If user is not logged in and trying to access an admin route, redirect to /auth/login
     if (!user && isAdminRoute) {
-      console.log("User not logged in - Redirecting to /auth/login");
       router.push("/auth/login");
     }
   
-    // If user is logged in and trying to access auth route, redirect to /admin/restaurants
     else if (user && isAuthRoute) {
       console.log("User logged in - Redirecting to /admin/restaurants");
       router.push("/admin/restaurants");
