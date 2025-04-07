@@ -15,6 +15,7 @@ import { getMenuImagePath } from "@/utils/getImagePath";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, MapPin, Upload } from "lucide-react";
+
 import Link from "next/link";
 export default function EditItemPage() {
   const router = useRouter();
@@ -25,13 +26,13 @@ export default function EditItemPage() {
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const formik = useFormik({
     initialValues: {
       item_name: "",
       description: "",
       price: "",
-      menu_type: "",
+      item_type: "",
       image: null as File | null,
     },
     validationSchema: Yup.object({
@@ -40,7 +41,7 @@ export default function EditItemPage() {
       price: Yup.string()
         .matches(/^\d+(\.\d{1,2})?$/, "Price must be a valid number")
         .required("Price is required"),
-      menu_type: Yup.string().required("Menu type is required"),
+      item_type: Yup.string().required("Menu type is required"),
     }),
     onSubmit: async (values) => {
       setIsLoading(true);
@@ -48,16 +49,22 @@ export default function EditItemPage() {
       try {
         const token = localStorage.getItem("token");
         const data = new FormData();
-        
+        if(!values.image){
+          toast({
+            title: "Required !",
+            description: "Item Image is Required",
+            variant: "destructive",
+          });
+        }
         data.append("item_name", values.item_name);
         data.append("description", values.description);
         data.append("price", values.price);
-        data.append("menu_type", values.menu_type);
+        data.append("item_type", values.item_type);
         if (values.image) {
-          data.append("image", values.image);
+          data.append("menuItemImg", values.image);
         }
 
-        const response = await apiClient.put(`/menus/update/${menuItemId}`, data, {
+        const response = await apiClient.put(`/menuitems/updateRestaurantMenuItem/${menuItemId}`, data, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
@@ -91,14 +98,14 @@ export default function EditItemPage() {
     if (data) {
       const parsed = JSON.parse(data);
       formik.setValues({
-        item_name: parsed.name,
+        item_name: parsed.item_name,
         description: parsed.description,
         price: parsed.price,
-        menu_type: parsed.category,
+        item_type: parsed.item_type,
         image: null,
       });
-      
-      setCoverImagePreview(getMenuImagePath(parsed.cover_image || parsed.image || "/placeholder.svg"));
+      setIsDataLoaded(true);  
+      setCoverImagePreview(getMenuImagePath(parsed.image_url || parsed.image || "/placeholder.svg"));
     }
   }, []);
 
@@ -113,7 +120,9 @@ export default function EditItemPage() {
       reader.readAsDataURL(file);
     }
   };
-
+  if (!isDataLoaded) {
+    return <div>Loading...</div>;  // Show a loading state until data is loaded
+  }
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -138,7 +147,7 @@ export default function EditItemPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <Label>Item Image (Click to select a new image)</Label>
+              <Label>Item Image (Click to select a new image)</Label><span className="text-danger"> *</span>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
@@ -171,7 +180,7 @@ export default function EditItemPage() {
             </div>
 
             <div>
-              <Label>Item Name</Label>
+              <Label>Item Name</Label><span className="text-danger"> *</span>
               <Input
                 name="item_name"
                 value={formik.values.item_name}
@@ -179,6 +188,7 @@ export default function EditItemPage() {
                 onBlur={formik.handleBlur}
                 placeholder="Enter item name"
                 required
+                maxLength={60}
               />
               {formik.touched.item_name && formik.errors.item_name && (
                 <p className="text-sm text-danger">{formik.errors.item_name}</p>
@@ -186,7 +196,7 @@ export default function EditItemPage() {
             </div>
 
             <div>
-              <Label>Description</Label>
+              <Label>Description</Label><span className="text-danger"> *</span>
               <Textarea
                 name="description"
                 value={formik.values.description}
@@ -194,6 +204,7 @@ export default function EditItemPage() {
                 onBlur={formik.handleBlur}
                 placeholder="Enter description"
                 required
+                maxLength={200}
               />
               {formik.touched.description && formik.errors.description && (
                 <p className="text-sm text-danger">{formik.errors.description}</p>
@@ -202,7 +213,7 @@ export default function EditItemPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label>Price</Label>
+                <Label>Price</Label><span className="text-danger"> *</span>
                 <Input
                   name="price"
                   value={formik.values.price}
@@ -210,6 +221,11 @@ export default function EditItemPage() {
                   onBlur={formik.handleBlur}
                   placeholder="Price"
                   required
+                  onInput={(e) => {
+                    const input = e.currentTarget;
+                    input.value = input.value
+                    .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
+                  }}
                 />
                 {formik.touched.price && formik.errors.price && (
                   <p className="text-sm text-danger">{formik.errors.price}</p>
@@ -217,10 +233,11 @@ export default function EditItemPage() {
               </div>
 
               <div>
-                <Label>Category</Label>
+                <Label>Item Category</Label><span className="text-danger"> *</span>
+                {formik.values.item_type}
                 <Select
-                  value={formik.values.menu_type}
-                  onValueChange={(value) => formik.setFieldValue("menu_type", value)}
+                  value={formik.values.item_type}
+                  onValueChange={(value) => formik.setFieldValue("item_type", value)}
                   required
                 >
                   <SelectTrigger>

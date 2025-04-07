@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef ,useEffect} from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Upload } from "lucide-react";
@@ -28,6 +28,8 @@ export default function AddMenuItemPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedItems, setSelectedItems] = useState<any[]>([]); // Store selected items
+  const [items, setItems] = useState<any[]>([]); // Store selected items
 
   const restaurantId = params.id as string;
 
@@ -127,6 +129,25 @@ export default function AddMenuItemPage() {
     }
   };
 
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await apiClient.get(`/restaurants/${restaurantId}/items`);
+        if (response.data.success) {
+          setItems(response.data.data); // Populate items
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch items",
+          variant: "destructive",
+        });
+      }
+    };
+  
+    fetchItems();
+  }, []);
+
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -192,7 +213,7 @@ export default function AddMenuItemPage() {
                 placeholder="Enter item name"
                 value={formData.item_name}
                 onChange={handleChange}
-                maxLength={50}
+                maxLength={60}
                 required
               />
             </div>

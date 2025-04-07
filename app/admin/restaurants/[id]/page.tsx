@@ -30,15 +30,16 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService";
+import { API_BASE_URL, getRestaurantByIdforAdmin} from "@/services/apiService";
 
 // types/item.ts
 export interface RestaurantItem {
   id: string;
-  name: string;
+  restaurant_id:string;
+  item_name: string;
   price: number;
-  image: string;
-  category: "Starters" | "Main dishes" | "Desserts" | "Beverages";
+  image_url: string;
+  item_type: "Starters" | "Main dishes" | "Desserts" | "Beverages";
   description?: string;
   created_at?: string;
   updated_at?: string;
@@ -83,41 +84,26 @@ export default function RestaurantDetailPage() {
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [activeTab, setActiveTab] = useState("menu");
   // const [items, setItems] = useState<RestaurantItem[]>([]);
-  const [items, setItems] = useState([
-    {
-      id: "item1",
-      name: "Grilled Chicken",
-      price: 12.99,
-      image: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-      category: "Main dishes",
-      description: "Tender grilled chicken served with herbs and rice.",
-    },
-    {
-      id: "item2",
-      name: "Caesar Salad",
-      price: 7.5,
-      image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90",
-      category: "Starters",
-      description: "Classic caesar salad with parmesan and croutons.",
-    },
-    {
-      id: "item3",
-      name: "Chocolate Lava Cake",
-      price: 5.25,
-      image: "https://images.unsplash.com/photo-1605478031513-0547e82c1e3a",
-      category: "Desserts",
-      description: "Molten chocolate cake served warm with vanilla ice cream.",
-    },
-    {
-      id: "item4",
-      name: "Lemon Iced Tea",
-      price: 3.0,
-      image: "https://images.unsplash.com/photo-1625942124215-5935a9c5fa6d",
-      category: "Beverages",
-      description: "Refreshing lemon iced tea with mint.",
-    },
-  ]);
+  const [items, setItems] = useState<RestaurantItem[]>([]);
 
+  const fetchItemList = async () => {
+    setLoading(true);
+    try {
+          const token = localStorage.getItem("token");
+          const response = await apiClient.get(`/menuitems/getRestaurantMenuItemList/${restaurantId}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      setItems(response.data.data);
+    } catch (error) {
+      console.error("Error fetching restaurant:", error);
+      setItems([])
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const fetchRestaurants = async () => {
       setLoading(true);
@@ -142,9 +128,20 @@ export default function RestaurantDetailPage() {
         setLoading(false);
       }
     };
+   
 
     fetchRestaurants();
+    fetchItemList()
   }, [relod]);
+
+  useEffect(() => {
+    // Check if the active tab is stored in sessionStorage
+    const storedTab = sessionStorage.getItem("activeTab");
+    
+    if (storedTab) {
+      setActiveTab(storedTab); // Set the active tab based on the stored value
+    }
+  }, []);
 
   // const restaurantId = params.id as string
   // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
@@ -236,18 +233,19 @@ export default function RestaurantDetailPage() {
       // console.log(itemId)
       const token = localStorage.getItem("token");
 
-      const response = await apiClient.delete(`/menus/delete/${itemId}`, {
+      const response = await apiClient.delete(`/menuitems/deleteRestaurantMenuItem/${itemId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.data.success) {
+        await fetchItemList();
         toast({
           title: "Menu item deleted",
           description: "The menu item has been deleted successfully",
         });
-        setreload((prev) => !prev);
+      
         // Optionally refresh the menu list or remove the item from local state
       } else {
         throw new Error(response.data.message || "Failed to delete item");
@@ -428,7 +426,7 @@ export default function RestaurantDetailPage() {
               {/* <span></span> */}
               <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="menu" className="flex-1 sm:flex-initial">
-                  Menu List
+                  Today's Special
                 </TabsTrigger>
                 <TabsTrigger
                   value="itemsList"
@@ -447,6 +445,9 @@ export default function RestaurantDetailPage() {
                       ? `/admin/restaurants/${restaurant?.id}/add-menu-item`
                       : `/admin/restaurants/${restaurant?.id}/add-item`
                   }
+                  onClick={() => {
+                    sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
+                  }}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {activeTab === "menu" ? "Add Menu" : "Add Item"}
@@ -522,6 +523,7 @@ export default function RestaurantDetailPage() {
                             <Button
                               variant="outline"
                               size="sm"
+                          
                               onClick={() => {
                                 sessionStorage.setItem(
                                   "editMenuItem",
@@ -530,6 +532,7 @@ export default function RestaurantDetailPage() {
                                 router.push(
                                   `/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`
                                 );
+                                sessionStorage.setItem("activeTab", activeTab);
                               }}
                             >
                               <Edit className="h-3.5 w-3.5 mr-1" /> Edit
@@ -567,6 +570,7 @@ export default function RestaurantDetailPage() {
                     </Card>
                   );
                 })}
+                
               {restaurant && restaurant.menus?.length <= 0 && (
                 <>
                   <div className="flex justify-center items-center py-12">
@@ -583,7 +587,7 @@ export default function RestaurantDetailPage() {
                       <div className="sm:w-1/4">
                         <div className="aspect-square w-full overflow-hidden">
                           <img
-                            src={item.image} // replace with your API image URL later
+                            src={getMenuImagePath(item?.image_url)} // replace with your API image URL later
                             alt="Paneer Tikka"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -596,15 +600,14 @@ export default function RestaurantDetailPage() {
                       <div className="flex-1 p-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold">{item.name}</h3>
+                            <h3 className="font-semibold">{item.item_name}</h3>
                             <p className="text-sm text-muted-foreground">
-                              Delicious spicy Indian starter with marinated
-                              paneer and veggies grilled to perfection.
+                            {item.description}
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">€9.99</div>
-                            <Badge variant="outline">Starters</Badge>
+                            <div className="font-medium">{item.price}</div>
+                            <Badge variant="outline">{item.item_type}</Badge>
                           </div>
                         </div>
 
@@ -620,6 +623,8 @@ export default function RestaurantDetailPage() {
                               router.push(
                                 `/admin/restaurants/${restaurant?.id}/item/${item?.id}/edit`
                               );
+                              sessionStorage.setItem("activeTab", activeTab);
+
                             }}
                           >
                             <Edit className="h-3.5 w-3.5 mr-1" /> Edit
@@ -634,7 +639,7 @@ export default function RestaurantDetailPage() {
                               <DialogHeader>
                                 <DialogTitle>Delete Menu Item</DialogTitle>
                                 <DialogDescription>
-                                  Are you sure you want to delete {item.name}?
+                                  Are you sure you want to delete {item.item_name}?
                                   This action cannot be undone.
                                 </DialogDescription>
                               </DialogHeader>

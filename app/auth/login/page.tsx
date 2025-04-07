@@ -110,7 +110,7 @@ useEffect(() => {
               <Input
                 id="email"
                 type="email"
-                placeholder="enter your email address"
+                placeholder="Enter your email address"
                 value={email}
                 maxLength={50}
                 onChange={(e) => setEmail(e.target.value)}
@@ -129,7 +129,7 @@ useEffect(() => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  placeholder="enter your password"
+                  placeholder="Enter your password"
                   maxLength={40}
                   onChange={(e) => setPassword(e.target.value)}
                   required

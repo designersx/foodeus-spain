@@ -280,7 +280,7 @@ export function ListView() {
   };
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
-
+    console.log(term);
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;
 
