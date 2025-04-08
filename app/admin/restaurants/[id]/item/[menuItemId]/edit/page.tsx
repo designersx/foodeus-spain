@@ -49,13 +49,7 @@ export default function EditItemPage() {
       try {
         const token = localStorage.getItem("token");
         const data = new FormData();
-        if(!values.image){
-          toast({
-            title: "Required !",
-            description: "Item Image is Required",
-            variant: "destructive",
-          });
-        }
+      
         data.append("item_name", values.item_name);
         data.append("description", values.description);
         data.append("price", values.price);
@@ -245,7 +239,7 @@ export default function EditItemPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Starters">Starters</SelectItem>
-                    <SelectItem value="Main Dishes">Main Dishes</SelectItem>
+                    <SelectItem value="Main Course">Main Course</SelectItem>
                     <SelectItem value="Desserts">Desserts</SelectItem>
                     <SelectItem value="Beverages">Beverages</SelectItem>
                   </SelectContent>

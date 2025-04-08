@@ -43,6 +43,14 @@ export interface RestaurantItem {
   description?: string;
   created_at?: string;
   updated_at?: string;
+  
+}
+interface ItemList {
+  image: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
 }
 
 interface MenuItem {
@@ -54,6 +62,8 @@ interface MenuItem {
   category: string;
   popular?: boolean; // Optional if applicable
   updated_at: any;
+  item_list?: ItemList[]; // Ensure this is an array of ItemList
+ 
 }
 
 interface Restaurant {
@@ -109,6 +119,7 @@ export default function RestaurantDetailPage() {
       setLoading(true);
       try {
         const response = await getRestaurantByIdforAdmin(restaurantId);
+        console.log("responsesdds", response.data?.menus);
         const restaurants = await response;
         setRestaurant(restaurants.data);
         if (Array.isArray(restaurants?.data?.menus)) {
@@ -119,7 +130,7 @@ export default function RestaurantDetailPage() {
                 new Date(b.updated_at).getTime() -
                 new Date(a.updated_at).getTime()
             );
-          console.log("menusWithId", menusWithId);
+          console.log("menusWithId", menusWithId,restaurants?.data?.menus);
           setMenus(menusWithId);
         }
       } catch (error) {
@@ -519,6 +530,29 @@ export default function RestaurantDetailPage() {
                             </Badge>} */}
                             </div>
                           </div>
+                           {/* Display item list */}
+                        {item.item_list && item.item_list?.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="font-semibold text-lg">Item List</h4>
+                            <ul className="space-y-2 mt-2" style={{paddingLeft: "0rem"}}>
+                              {item.item_list.map((menuItem, index) => (
+                                <li key={index} className="flex justify-between items-center">
+                                  <div className="flex items-center gap-2">
+                                    {menuItem.image && (
+                                      <img
+                                        src={getMenuImagePath(menuItem.image)}
+                                        alt={menuItem.name}
+                                        className="w-8 h-8 rounded-full object-cover"
+                                      />
+                                    )}
+                                    <span className="text-sm text-gray-800">{menuItem.name}</span>
+                                  </div>
+                                  <div className="font-medium">€{menuItem.price}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                           <div className="mt-4 flex justify-end gap-2">
                             <Button
                               variant="outline"

@@ -152,61 +152,6 @@ export function ListView() {
     }
   }, [hasFetched, setRestaurants, setHasFetched]);
 
-  // useEffect(() => {
-  //   if (!restaurants.length) return;
-
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const userPos = {
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         };
-  //         setUserLocation(userPos);
-
-  //         const today = new Date().toISOString().split("T")[0];
-
-  //         const withDistance = restaurants.map((restaurant) => {
-  //           const distance = calculateDistance(
-  //             userPos.lat,
-  //             userPos.lng,
-  //             restaurant.coordinates.lat,
-  //             restaurant.coordinates.lng
-  //           );
-
-  //           const latestUpdate = restaurant.menu?.updated_at || "";
-  //           const updatedDate = latestUpdate?.split(" ")[0];
-
-  //           const updatedToday =
-  //             updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
-
-  //           return {
-  //             ...restaurant,
-  //             distance,
-  //             updatedToday,
-  //             rating: restaurant.rating || 3,
-  //           };
-  //         });
-
-  //         // Sort: today's special updated today first, then by distance
-  //         withDistance.sort((a, b) => {
-  //           if (a.updatedToday && !b.updatedToday) return -1;
-  //           if (!a.updatedToday && b.updatedToday) return 1;
-  //           return (a.distance || 0) - (b.distance || 0);
-  //         });
-
-  //         setRestaurantsWithDistance(withDistance);
-  //         setFilteredRestaurants(withDistance);
-  //         setLoading(false);
-  //       },
-  //       (error) => {
-  //         console.error("Error getting location:", error);
-  //         setLoading(false);
-  //       }
-  //     );
-  //   }
-  // }, [restaurants]);
-
   useEffect(() => {
     if (!restaurants.length) return;
 
