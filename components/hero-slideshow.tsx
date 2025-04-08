@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/language-context"
 const slides = [
   {
     id: 1,
-    image: "Images/Daily Specials.png?height=300&width=800",
+    image: "Images/Daily Specials.png",
     title: {
       en: "Discover Today's Special Menus",
       es: "Descubre los Menús Especiales de Hoy",
@@ -15,7 +15,7 @@ const slides = [
   },
   {
     id: 2,
-    image: "Images/Special Menus.png?height=300&width=800",
+    image: "Images/Special Menus.png",
     title: {
       en: "Fresh and Delicious Daily Specials",
       es: "Especiales Diarios Frescos y Deliciosos",
@@ -23,7 +23,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "Images//Restaurants Near You.png?height=300&width=800",
+    image: "Images//Restaurants Near You.png",
     title: {
       en: "Explore Local Restaurants Near You",
       es: "Explora Restaurantes Locales Cerca de Ti",
@@ -52,7 +52,7 @@ export function HeroSlideshow() {
             style={{ height: "200px" }}
           >
             <div className="position-relative h-100">
-              <Image
+              <Image style={{ maxWidth:"300px" ,height:"800px"}}
                 src={slide.image || "/placeholder.svg"}
                 alt={slide.title[language]}
                 fill
