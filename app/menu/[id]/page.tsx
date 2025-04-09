@@ -85,15 +85,14 @@ export default function MenuDetailPage() {
               updated_at: menu.updated_at,
               menu_type: menu.menu_type,
             }));
-    
             setdata(restaurant)
             setMenuItems({
               id: restaurant.restaurant_id || "",
               name: restaurant.name || "",
               location: restaurant.address || "",
               coordinates: {
-                lat: restaurant.location?.latitude || "",
-                lng: restaurant.location?.longitude || "",
+                lat: restaurant?.latitude || "",
+                lng: restaurant?.longitude || "",
               },
               menu: formattedMenus,
             });
@@ -183,7 +182,6 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
-  // console.log('menuItem', menuItem.items);
   return (
     <>
       <div className="pb-5 mb-5">

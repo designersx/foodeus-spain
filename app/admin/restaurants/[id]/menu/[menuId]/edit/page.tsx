@@ -306,7 +306,7 @@ useEffect(() => {
                 </div>
                 {/* Display the checkmark if item is selected */}
                 {selectedItems.has(item.id.toString()) && (
-                  <span className="text-green-500 text-sm">✓</span>
+                  <span className="text-green-500 text-lg fs-2 fw-bold">✓</span>
                 )}
               </div>
             ))
