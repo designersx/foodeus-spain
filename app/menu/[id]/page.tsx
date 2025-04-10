@@ -304,7 +304,7 @@ export default function MenuDetailPage() {
       <div className="fixed-bottom bg-white border-top p-3">
         <div className="container">
           <div className="row g-2">
-            <div className="col-sm-6 col-12" >
+            {/* <div className="col-sm-6 col-12" >
                <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
                  className="btn btn-primary w-100">
                 {language === "en" ? "Take Me There" : "Llévame Allí"}
@@ -313,6 +313,22 @@ export default function MenuDetailPage() {
             <div className="col-sm-6 col-12" >
               <Link href={`/full-menu/${menuItems?.id}`} className="btn btn-outline-primary w-100">
                 {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}
+              </Link>
+            </div> */}
+            <div className="col-sm-6 col-12">
+              <button
+                type="button"
+                onClick={() => window.open(mapUrl, "_blank")}
+                className="btn btn-primary w-100"
+              >
+                {language === "en" ? "Take Me There" : "Llévame Allí"}
+              </button>
+            </div>
+            <div className="col-sm-6 col-12">
+              <Link href={`/full-menu/${menuItems?.id}`}>
+                <button className="btn btn-outline-primary w-100">
+                  {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}
+                </button>
               </Link>
             </div>
           </div>
