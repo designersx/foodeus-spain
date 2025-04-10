@@ -57,7 +57,7 @@ export default function MenuDetailPage() {
   const [distanceToRestaurant, setDistanceToRestaurant] = useState<number | null>(null);
   const [mapUrl, setMapUrl] = useState<string>("")
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
-
+   
   useEffect(() => {
     if (id) {
 
@@ -149,9 +149,11 @@ export default function MenuDetailPage() {
       );
 
     }
+    
   }, []);
 
   useEffect(() => {
+    const userloc = JSON.parse(localStorage.getItem("userLocation") || "{}");
     if (menuItems && userLocation) {
       const distance = calculateDistance(
         userLocation.lat,
@@ -159,7 +161,7 @@ export default function MenuDetailPage() {
         menuItems.coordinates.lat,
         menuItems.coordinates.lng
       );
-      const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation?.lat},${userLocation?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`
+      const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userloc?.lat},${userloc?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`
       setMapUrl(directionsUrl)
       setDistanceToRestaurant(distance);
     }
@@ -182,6 +184,7 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
+  console.log('sss',mapUrl)
   return (
     <>
       <div className="pb-5 mb-5">
