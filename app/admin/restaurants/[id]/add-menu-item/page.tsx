@@ -1,9 +1,17 @@
-"use client";
 
-import { useState, useRef } from "react";
+"use client";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload,ChevronDownIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient } from "@/services/apiService";
-
+import { getMenuImagePath } from "@/utils/getImagePath";
 export default function AddMenuItemPage() {
   const router = useRouter();
   const params = useParams();
@@ -28,6 +36,11 @@ export default function AddMenuItemPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set()); // Use Set for unique items
+  const [items, setItems] = useState<any[]>([]); // API-fetched items
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for item selection
+  const [isEmptyItemPromptOpen, setIsEmptyItemPromptOpen] = useState(false); // Empty item list modal state
+  const [loadingItems, setLoadingItems] = useState(true); // Add loading state for item fetch
 
   const restaurantId = params.id as string;
 
@@ -35,9 +48,9 @@ export default function AddMenuItemPage() {
     item_name: "",
     description: "",
     price: "",
-    menu_type: "",
-    item_list: "",
+    menu_type: "Today's Special",
     image: null as File | null,
+    item_list: [] as string[], // Change to array
   });
 
   const [customMenuType, setCustomMenuType] = useState("");
@@ -54,9 +67,18 @@ export default function AddMenuItemPage() {
     }
   };
 
+  console.log("Selected Items:", formData, selectedItems); // Debugging line
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -73,30 +95,39 @@ export default function AddMenuItemPage() {
     try {
       const token = localStorage.getItem("token");
       const data = new FormData();
-     if(!formData.menu_type){
-      toast({
-        title: "Error",
-        description: "Please select menu category",
-        variant: "destructive",
-      });
-      return ;
-     }
-      data.append("restaurant_id", restaurantId);
-      data.append("item_name", formData.item_name);
-      data.append("price", formData.price);
-      data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "");
-      data.append("item_list", formData.item_list);
-      data.append("description", formData.description);
-
-      if (formData.image) {
-        data.append("image_urls", formData.image);
-      }else{
+      if (!formData.menu_type) {
         toast({
-          title: "Error",
+          title: "Warning !",
+          description: "Please select menu category",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!formData.image) {
+        toast({
+          title: "Warning !",
           description: "Please upload Dish Image",
           variant: "destructive",
         });
-        return ;
+        return;
+      }
+      if (formData.item_list.length === 0) {
+        toast({
+          title: "Warning !",
+          description: "Please Add at least one item to the menu",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      data.append("restaurant_id", restaurantId);
+      data.append("item_name", formData.item_name.trim());
+      data.append("price", formData.price);
+      data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "");
+      formData.item_list.forEach((item) => data.append("item_list[]", item)); // Append as array
+      data.append("description", formData.description.trim());
+      if (formData.image) {
+        data.append("image_urls", formData.image);
       }
 
       const response = await apiClient.post("/menus/add", data, {
@@ -108,23 +139,57 @@ export default function AddMenuItemPage() {
 
       if (response.data.success) {
         toast({
-          title: "Menu item added",
-          description: "The menu item has been added successfully",
+          title: "Menu added",
+          description: "The menu has been added successfully",
         });
         router.push(`/admin/restaurants/${restaurantId}`);
       } else {
-        throw new Error("Failed to add menu item");
+        throw new Error("Failed to add menu ");
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was an error adding the menu item",
+        description: "There was an error adding the menu",
         variant: "destructive",
       });
-      console.error("Add Menu Item Error:", error);
+      console.error("Add Menu Error:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await apiClient.get(`/menuitems/getRestaurantMenuItemList/${restaurantId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("API Response:", response.data); // Debug here
+        if (response.data.success) {
+          setItems(response.data.data);
+        }
+        if (response.data.data.length === 0) {
+          setIsEmptyItemPromptOpen(true);
+        }
+      } catch (error) {
+        console.error("Fetch Items Error:", error);
+        setIsEmptyItemPromptOpen(true);
+      } finally {
+        setLoadingItems(false);
+      }
+    };
+    fetchItems();
+  }, [restaurantId]);
+  const toggleItemSelection = (itemId: string) => {
+    const newSelectedItems = new Set(selectedItems);
+    if (newSelectedItems.has(itemId)) {
+      newSelectedItems.delete(itemId);
+    } else {
+      newSelectedItems.add(itemId);
+    }
+    setSelectedItems(newSelectedItems);
+    setFormData((prev) => ({ ...prev, item_list: Array.from(newSelectedItems) }));
   };
 
   return (
@@ -138,17 +203,18 @@ export default function AddMenuItemPage() {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add Menu Item</h1>
-        <p className="text-muted-foreground">Add a new menu item to this restaurant</p>
+        <h1 className="text-3xl font-bold tracking-tight">Add Menu</h1>
+        <p className="text-muted-foreground">Add a new menu to this restaurant</p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Menu Item Details</CardTitle>
-            <CardDescription>Enter the details of the new menu item</CardDescription>
+            <CardDescription>Enter the details of the new menu</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Menu Image */}
             <div className="space-y-2">
               <Label>Menu Image <span className="text-danger">*</span></Label>
               <div
@@ -184,6 +250,7 @@ export default function AddMenuItemPage() {
               </div>
             </div>
 
+            {/* Menu Name */}
             <div className="space-y-2">
               <Label htmlFor="item_name">Menu Name <span className="text-danger">*</span></Label>
               <Input
@@ -192,11 +259,18 @@ export default function AddMenuItemPage() {
                 placeholder="Enter item name"
                 value={formData.item_name}
                 onChange={handleChange}
-                maxLength={50}
+                maxLength={60}
                 required
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
             </div>
 
+            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Description <span className="text-danger">*</span></Label>
               <Textarea
@@ -208,37 +282,42 @@ export default function AddMenuItemPage() {
                 rows={3}
                 maxLength={200}
                 required
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
             </div>
 
+            {/* Price and Menu Type */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price">Price € <span className="text-danger">*</span></Label>
                 <Input
-              id="price"
-              name="price"
-              type="text"
-              inputMode="decimal"
-              placeholder="e.g. 12.99"
-              value={formData.price}
-              onChange={handleChange}
-              onInput={(e) => {
-                const input = e.currentTarget;
-                input.value = input.value
-                .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
-              }}
-              required
-              maxLength={7}
-              title="Enter a valid price (e.g. 9.99)"
-            />
+                  id="price"
+                  name="price"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="e.g. 12.99"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  maxLength={7}
+                  onInput={(e) => {
+                    const input = e.currentTarget;
+                    input.value = input.value
+                    .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
+                    
+                  }}
+                  title="Enter a valid price (e.g. 9.99)"
+                />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="menu_type">Menu Type <span className="text-danger">*</span></Label>
-                <Select
-                  value={formData.menu_type}
-                  onValueChange={handleSelectChange}
-                >
+                <Select value={formData.menu_type} onValueChange={handleSelectChange}>
                   <SelectTrigger id="menu_type">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -249,9 +328,29 @@ export default function AddMenuItemPage() {
                     <SelectItem value="Combo Meals">Combo Meals</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
+              <div className="space-y-2">
+              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="w-full justify-start"
+              >
+                {selectedItems.size > 0
+                  ? `${selectedItems.size} item(s) selected`
+                  : "Select Items from List"}
+                    <ChevronDownIcon className="w-5 h-5 ml-2" />
+              </Button>
+              {selectedItems.size > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {/* Selected: {Array.from(selectedItems).join(", ")} */}
+                  Selected Items Count: {selectedItems.size}
+                </div>
+              )}
+            </div>
             </div>
 
+            {/* Custom Menu Type */}
             {formData.menu_type === "Other" && (
               <div className="space-y-2">
                 <Label htmlFor="custom_menu_type">Custom Menu Type</Label>
@@ -265,29 +364,138 @@ export default function AddMenuItemPage() {
               </div>
             )}
 
-            <div className="space-y-2">
+            {/* Select Items */}
+            {/* <div className="space-y-2">
               <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
-              <Input
-                id="item_list"
-                name="item_list"
-                placeholder="Comma-separated items"
-                value={formData.item_list}
-                maxLength={100}
-                onChange={handleChange}
-                required
-              />
-            </div>
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="w-full justify-start"
+              >
+                {selectedItems.size > 0
+                  ? `${selectedItems.size} item(s) selected`
+                  : "Select Items from List"}
+              </Button>
+              {selectedItems.size > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  Selected: {Array.from(selectedItems).join(", ")}
+                </div>
+              )}
+            </div> */}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>
               <Link href={`/admin/restaurants/${restaurantId}`}>Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Menu Item"}
+              {isLoading ? "Adding..." : "Add Menu"}
             </Button>
           </CardFooter>
         </Card>
       </form>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white shadow-lg rounded-lg">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gray-900">Select Items</DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Choose items from the list or add new ones.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Available Items</Label>
+                <div className="max-h-[200px] overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
+                  {items.length > 0 ? (
+                    items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-md cursor-pointer transition-all"
+                        onClick={() => toggleItemSelection(item.id.toString())}
+                      >
+                        <div className="flex items-center gap-2">
+                          {item.image_url && (
+                            <img
+                              src={getMenuImagePath(item.image_url)}
+                              alt={item.item_name}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          )}
+                          <span className="text-sm text-gray-800">{item.item_name || "Unnamed Item"}</span>
+                          <span className="text-sm text-gray-500">€{item.price || "N/A"}</span>
+                        </div>
+                        {selectedItems.has(item.id.toString()) && (
+                          <span className="text-green-500 text-lg fs-2 fw-bold">✓</span>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-sm text-gray-500">No items available</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="flex justify-between space-x-4 w-full">
+              {/* <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1">
+                Cancel
+              </Button> */}
+              {items.length > 0 ? (
+
+                // <Button variant="outline"
+                //   onClick={() => {
+                //     setFormData((prev) => ({ ...prev, item_list: Array.from(selectedItems) }));
+                //     setIsModalOpen(false);
+                //   }}
+                //   className="flex-1"
+                // >
+                //   Save Selection
+                // </Button>
+                <></>
+              ) : (
+                <Button variant="outline"
+                  onClick={() => {
+                    setIsEmptyItemPromptOpen(false);
+                    router.push(`/admin/restaurants/${restaurantId}/add-item`);
+                  }}
+                  className="flex-1"
+                >
+                  Add Item
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Empty Item Prompt Modal */}
+      {isEmptyItemPromptOpen && (
+        <Dialog open={isEmptyItemPromptOpen} onOpenChange={setIsEmptyItemPromptOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white shadow-lg rounded-lg">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gray-900">Empty Item List</DialogTitle>
+              <DialogDescription className="text-gray-600">
+                You need to add at least one item. Would you like to add a new item?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-between space-x-4 w-full">
+              <Button variant="outline" onClick={() => setIsEmptyItemPromptOpen(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button variant="outline"
+                onClick={() => {
+                  setIsEmptyItemPromptOpen(false);
+                  router.push(`/admin/restaurants/${restaurantId}/add-item`);
+                }}
+                className="flex-1"
+              >
+                Add Item
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

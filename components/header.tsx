@@ -33,12 +33,12 @@ export default function Header() {
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
-                <button className="dropdown-item" onClick={() => setLanguage("en")}>
+                <button className="dropdown-item" onClick={() =>{ setLanguage("en");localStorage.setItem("language","en")}}>
                   English {language === "en" && "✓"}
                 </button>
               </li>
               <li>
-                <button className="dropdown-item" onClick={() => setLanguage("es")}>
+                <button className="dropdown-item" onClick={() =>{ setLanguage("es");localStorage.setItem("language","es")}}>
                   Español {language === "es" && "✓"}
                 </button>
               </li>

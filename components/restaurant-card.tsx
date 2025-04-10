@@ -37,7 +37,8 @@ interface Restaurant {
 export function RestaurantCard({ restaurant, distance }: { restaurant: Restaurant; distance?: number }) {
   const { language } = useLanguage()
   const [src, setSrc] = useState<string>(getMenuImagePath(restaurant?.menu.image));
-
+  const [mapUrl, setMapUrl] = useState<string>("")
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   // Format distance to show in km or m
   const formatDistance = (distance?: number) => {
     if (distance === undefined) return ""
@@ -55,6 +56,35 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
     return pattern.test(url);
   };
 
+  const navigateMeThere = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+  
+          // Set user location state if needed
+          setUserLocation({
+            lat: lat,
+            lng: lng,
+          });
+  
+          // Now you have the user’s location, build the directions URL
+          const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}&travelmode=driving`;
+  
+          // Open Google Maps in a new tab
+          window.open(directionsUrl, "_blank");
+  
+          console.log("User location:", lat, lng); // This will now log the correct coordinates
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  };
 
   return (
     <Link href={`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`} className="text-decoration-none text-dark">
@@ -96,7 +126,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               <div className="resturantLoc  w-100">
                 <div>
                   <span className="flex items-center gap-2 text-sm font-medium restaurantMenu">
-                    <span className="resName">{restaurant?.name}</span>
+                    <span className="resName">{restaurant?.name.slice(0,20)}</span>
                     <span className="flex items-center gap-1 starWidth" >
                       <Star className="h-3 w-3" style={{ color: "#FFD700", fill: "#FFD700" }} />
                       {restaurant?.rating}
@@ -111,7 +141,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                     </p>
                     {distance !== undefined && (
                       <div className="small fw-medium text-primary restDistance">
-                        <Link
+                        {/* <Link
                           href={{
                             pathname: '/map',
                             query: {
@@ -124,7 +154,8 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                           }}
                         >
                           {formatDistance(distance)}
-                        </Link>
+                        </Link> */}
+                        <span onClick={navigateMeThere}>{formatDistance(distance)}</span>
                         </div>
                     )}
                   </div>

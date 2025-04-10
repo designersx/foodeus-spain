@@ -73,140 +73,166 @@ export function ListView() {
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
-  useEffect(() => {
-    if (!hasFetched || restaurants.length == 0) {
-      getRestaurantsWithMenus()
-        .then((data) => {
-          // console.log("API Response:", data);
-          if (!Array.isArray(data.data)) {
-            console.error("API response is not an array:", data);
-            return;
-          }
-
-          const formattedRestaurants: Restaurant[] = data.data.map(
-            (restaurant: any) => {
-              // Ensure menus exist before sorting
-              const sortedMenus = restaurant.menus
-                ? [...restaurant.menus].sort((a, b) => {
-                  const today = new Date().toDateString(); // Strip time
-
-                  const isATodaySpecial =
-                    a.menu_type === "Today's Special" &&
-                    new Date(a.updated_at).toDateString() === today;
-
-                  const isBTodaySpecial =
-                    b.menu_type === "Today's Special" &&
-                    new Date(b.updated_at).toDateString() === today;
-
-                  if (isATodaySpecial && !isBTodaySpecial) return -1;
-                  if (!isATodaySpecial && isBTodaySpecial) return 1;
-
-                  // Otherwise, sort by updated_at descending
-                  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-                })
-                : [];
-
-              return {
-                id: restaurant.restaurant_id?.toString() || "",
-                name: restaurant.name || "",
-                location: restaurant.address || "",
-                coordinates: {
-                  lat: Number(restaurant.location?.latitude) || 0,
-                  lng: Number(restaurant.location?.longitude) || 0,
-                },
-                rating: restaurant.ratings?.toString() || "",
-                category: restaurant.category,
-                menu:
-                  sortedMenus.length > 0
-                    ? {
-                      title: {
-                        en: sortedMenus[0].item_name || "",
-                        es: sortedMenus[0].item_name || "",
-                      },
-                      description: {
-                        en: sortedMenus[0].description || "",
-                        es: sortedMenus[0].description || "",
-                      },
-                      image: sortedMenus[0]?.image_url || "",
-                      items: sortedMenus[0]?.item_list,
-                      updated_at: sortedMenus[0]?.updated_at,
-                      menu_type: sortedMenus[0]?.menu_type,
-                      menu_id: sortedMenus[0]?.menu_id,
-                    }
-                    : {
-                      title: { en: "", es: "" },
-                      description: { en: "", es: "" },
-                      image: "",
-                    },
-              };
-            }
-          );
-          // console.log("formattedRestaurants", formattedRestaurants);
-          setRestaurants(formattedRestaurants);
-          setHasFetched(true);
-        })
-        .catch((err) => {
-          console.error("Error fetching restaurants:", err);
-          setLoading(false);
-        });
-    }
-  }, [hasFetched, setRestaurants, setHasFetched]);
-
   // useEffect(() => {
-  //   if (!restaurants.length) return;
+   
+  //     getRestaurantsWithMenus()
+  //       .then((data) => {
+  //         // console.log("API Response:", data);
+  //         if (!Array.isArray(data.data)) {
+  //           console.error("API response is not an array:", data);
+  //           return;
+  //         }
 
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const userPos = {
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         };
-  //         setUserLocation(userPos);
+  //         const formattedRestaurants: Restaurant[] = data.data.map(
+  //           (restaurant: any) => {
+  //             // Ensure menus exist before sorting
+  //             const sortedMenus = restaurant.menus
+  //               ? [...restaurant.menus].sort((a, b) => {
+  //                 const today = new Date().toDateString(); // Strip time
 
-  //         const today = new Date().toISOString().split("T")[0];
+  //                 const isATodaySpecial =
+  //                   a.menu_type === "Today's Special" &&
+  //                   new Date(a.updated_at).toDateString() === today;
 
-  //         const withDistance = restaurants.map((restaurant) => {
-  //           const distance = calculateDistance(
-  //             userPos.lat,
-  //             userPos.lng,
-  //             restaurant.coordinates.lat,
-  //             restaurant.coordinates.lng
-  //           );
+  //                 const isBTodaySpecial =
+  //                   b.menu_type === "Today's Special" &&
+  //                   new Date(b.updated_at).toDateString() === today;
 
-  //           const latestUpdate = restaurant.menu?.updated_at || "";
-  //           const updatedDate = latestUpdate?.split(" ")[0];
+  //                 if (isATodaySpecial && !isBTodaySpecial) return -1;
+  //                 if (!isATodaySpecial && isBTodaySpecial) return 1;
 
-  //           const updatedToday =
-  //             updatedDate === today &&restaurant?.menu?.menu_type === "Today's Special";
+  //                 // Otherwise, sort by updated_at descending
+  //                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  //               })
+  //               : [];
 
-  //           return {
-  //             ...restaurant,
-  //             distance,
-  //             updatedToday,
-  //             rating: restaurant.rating || 3,
-  //           };
-  //         });
-
-  //         // Sort: today's special updated today first, then by distance
-  //         withDistance.sort((a, b) => {
-  //           if (a.updatedToday && !b.updatedToday) return -1;
-  //           if (!a.updatedToday && b.updatedToday) return 1;
-  //           return (a.distance || 0) - (b.distance || 0);
-  //         });
-
-  //         setRestaurantsWithDistance(withDistance);
-  //         setFilteredRestaurants(withDistance);
+  //             return {
+  //               id: restaurant.restaurant_id?.toString() || "",
+  //               name: restaurant.name || "",
+  //               location: restaurant.address || "",
+  //               coordinates: {
+  //                 lat: Number(restaurant.location?.latitude) || 0,
+  //                 lng: Number(restaurant.location?.longitude) || 0,
+  //               },
+  //               rating: restaurant.ratings?.toString() || "",
+  //               category: restaurant.category,
+  //               menu:
+  //                 sortedMenus.length > 0
+  //                   ? {
+  //                     title: {
+  //                       en: sortedMenus[0].item_name || "",
+  //                       es: sortedMenus[0].item_name || "",
+  //                     },
+  //                     description: {
+  //                       en: sortedMenus[0].description || "",
+  //                       es: sortedMenus[0].description || "",
+  //                     },
+  //                     image: sortedMenus[0]?.image_url || "",
+  //                     items: sortedMenus[0]?.item_list,
+  //                     updated_at: sortedMenus[0]?.updated_at,
+  //                     menu_type: sortedMenus[0]?.menu_type,
+  //                     menu_id: sortedMenus[0]?.menu_id,
+  //                   }
+  //                   : {
+  //                     title: { en: "", es: "" },
+  //                     description: { en: "", es: "" },
+  //                     image: "",
+  //                   },
+  //             };
+  //           }
+  //         );
+  //         // console.log("formattedRestaurants", formattedRestaurants);
+  //         setRestaurants(formattedRestaurants);
+  //         setHasFetched(true);
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error fetching restaurants:", err);
   //         setLoading(false);
-  //       },
-  //       (error) => {
-  //         console.error("Error getting location:", error);
-  //         setLoading(false);
-  //       }
-  //     );
-  //   }
-  // }, [restaurants]);
+  //       });
+   
+  // }, [hasFetched, setRestaurants, setHasFetched]);
 
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const data = await getRestaurantsWithMenus();
+        if (!Array.isArray(data.data)) {
+          console.error("API response is not an array:", data);
+          return;
+        }
+  
+        const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
+          const sortedMenus = restaurant.menus
+            ? [...restaurant.menus].sort((a, b) => {
+                const today = new Date().toDateString();
+  
+                const isATodaySpecial =
+                  a.menu_type === "Today's Special" &&
+                  new Date(a.updated_at).toDateString() === today;
+  
+                const isBTodaySpecial =
+                  b.menu_type === "Today's Special" &&
+                  new Date(b.updated_at).toDateString() === today;
+  
+                if (isATodaySpecial && !isBTodaySpecial) return -1;
+                if (!isATodaySpecial && isBTodaySpecial) return 1;
+  
+                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+              })
+            : [];
+  
+          return {
+            id: restaurant.restaurant_id?.toString() || "",
+            name: restaurant.name || "",
+            location: restaurant.address || "",
+            coordinates: {
+              lat: Number(restaurant.location?.latitude) || 0,
+              lng: Number(restaurant.location?.longitude) || 0,
+            },
+            rating: restaurant.ratings?.toString() || "",
+            category: restaurant.category,
+            menu:
+              sortedMenus.length > 0
+                ? {
+                    title: {
+                      en: sortedMenus[0].item_name || "",
+                      es: sortedMenus[0].item_name || "",
+                    },
+                    description: {
+                      en: sortedMenus[0].description || "",
+                      es: sortedMenus[0].description || "",
+                    },
+                    image: sortedMenus[0]?.image_url || "",
+                    items: sortedMenus[0]?.item_list,
+                    updated_at: sortedMenus[0]?.updated_at,
+                    menu_type: sortedMenus[0]?.menu_type,
+                    menu_id: sortedMenus[0]?.menu_id,
+                  }
+                : {
+                    title: { en: "", es: "" },
+                    description: { en: "", es: "" },
+                    image: "",
+                  },
+          };
+        });
+  
+        setRestaurants(formattedRestaurants);
+        setHasFetched(true);
+      } catch (err) {
+        console.error("Error fetching restaurants:", err);
+        setLoading(false);
+      }
+    };
+  
+    // Only run the fetch once when data is not fetched
+    if (!hasFetched) {
+      fetchRestaurants();
+    }
+  
+  }, [hasFetched]);
+  
+  
   useEffect(() => {
     if (!restaurants.length) return;
 
@@ -278,8 +304,14 @@ export function ListView() {
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
   };
+
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
+
+    if (!term) {
+      setFilteredRestaurants(restaurantsWithDistance);
+      return;
+    }
 
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;

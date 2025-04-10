@@ -10,6 +10,7 @@ import axios from "axios"
 import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL } from "@/services/apiService"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 export default function ForgotPasswordPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -98,7 +99,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
+    <>    
+ 
+   
     <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
+    
       <Card className="w-full max-w-md">
       <CardHeader className="text-center space-y-2">
       <div className="flex justify-center mb-2">
@@ -140,7 +145,7 @@ export default function ForgotPasswordPage() {
       <Input
         id="otp"
         type="text"
-        placeholder="Enter 6-digit code"
+        placeholder="Enter 4-digit code"
         value={otp}
         onChange={(e) => setOtp(e.target.value)}
         required
@@ -176,5 +181,6 @@ export default function ForgotPasswordPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

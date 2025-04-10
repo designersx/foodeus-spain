@@ -49,7 +49,7 @@ export const searchRestaurants = async (query: string) => {
     console.error("❌ Error searching restaurants:", error);
     return { success: false, data: [] };
   }
-};
+};  
 
 
 export const getRestaurantListforAdmin=async()=>{
@@ -91,3 +91,4 @@ export const login = async (email: string, password: string) => {
     return { success: false, data: [] };
   }
 };
+

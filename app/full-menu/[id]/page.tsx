@@ -10,18 +10,15 @@ import {getMenuImagePath} from "@/utils/getImagePath"
 
 
 interface MenuItem {
-  title: { en: string; es: string };
-  price: { en: string; es: string };
-  description: { en: string; es: string };
-  image: string;
+  title: string;
+  price: string;
+  description: string;
+  image: string | undefined;
 }
 
 interface FullMenu {
-  buffet: MenuItem[];
-  alaCarte: MenuItem[];
-  comboMeals: MenuItem[];
-  menuOfTheDay: MenuItem | null;
-  other: MenuItem[];
+  [key: string]: MenuItem[]; // Dynamically handle different menu types
+  menuOfTheDay: MenuItem[] | null;  // Allow null or an array of MenuItems
 }
 
 interface RawMenu {
@@ -42,51 +39,30 @@ interface RestaurantData {
 const formatMenuData = (restaurantData: RestaurantData | null): { id: string; name: string; fullMenu: FullMenu } | null => {
   if (!restaurantData || !restaurantData.menus) return null;
 
-  // Initialize structure
   const fullMenu: FullMenu = {
-    buffet: [],
-    alaCarte: [],
-    comboMeals: [],
     menuOfTheDay: null,
-    other:[]
   };
-
   // Iterate over menus and categorize
-  restaurantData.menus.forEach((menu) => {
-    const formattedMenu: MenuItem = {
-      title: { en: menu.item_name || "", es: menu.item_name ||"" }, // Add Spanish translation if needed
-      price: { en: `€${menu.price ?? 0}`, es: `€${((menu.price ?? 0)).toFixed(2)}` }, // Example conversion
-      description: { en: menu.description || "", es: menu.description ||"" }, // Add Spanish description
-      image: menu.image_url || "/placeholder.svg?height=120&width=120",
-    };
+  restaurantData?.menus?.forEach((menu) => {
 
-    const menuType = menu.menu_type?.normalize("NFD") || ""; // Handle undefined
-    const today = new Date().toISOString().split("T")[0];
-    switch (menuType) {
-      case "Buffet":
-        fullMenu.buffet.push(formattedMenu);
-        break;
-      case "À La Carte":
-      case "À La Carte": // Handle different Unicode variations
-      case "A La Carte": // Handle missing accents
-      case "La Carte":
-      case "� La Carte":
-        fullMenu.alaCarte.push(formattedMenu);
-        break;
-      case "Combo Meals":
-        fullMenu.comboMeals.push(formattedMenu);
-        break;
-      case "Today's Special":
-        if (menu.updated_at) {
-          const updatedDate = new Date(menu.updated_at).toISOString().split("T")[0];
-          if (updatedDate === today) {
-            fullMenu.menuOfTheDay = formattedMenu;
-          }
+
+    menu?.item_list?.forEach((item: any) => {
+      const formattedMenu: MenuItem = {
+        title:  item.name || "", 
+        price: `€${item.price ?? 0}`, 
+        description:item.description || "",
+        image: item.image,
+      };
+      const menuType = item.item_type?.normalize("NFD") || ""; // Handle undefined
+      const today = new Date().toISOString().split("T")[0];
+        if (!fullMenu[menuType]) {
+          fullMenu[menuType] = [];
         }
-        break;
-      default:fullMenu.other.push(formattedMenu)
+        fullMenu[menuType].push(formattedMenu);
       
-    }
+    });
+ 
+    
   });
 
   return {
@@ -119,17 +95,23 @@ export default function FullMenuPage() {
       .catch((err) => console.error("Error fetching restaurant:", err));
   }, [id]);
 
-
   useEffect(() => {
-    if(!restaurant) return;
-    if (restaurant?.fullMenu && !restaurant?.fullMenu?.menuOfTheDay) {
-      setActiveTab("alaCarte");
-    }else{
-      setSrc(getMenuImagePath(restaurant.fullMenu?.menuOfTheDay?.image));
+    if (!restaurant) return;
+
+    // Check if "menuOfTheDay" is available and set activeTab accordingly
+    if (restaurant?.fullMenu?.menuOfTheDay) {
+      setActiveTab("menuOfTheDay");
+    } else {
+      // If menuOfTheDay is not available, set the first available menu type
+      const availableMenuTypes = Object.keys(restaurant.fullMenu).filter((key) => key !== "menuOfTheDay" && restaurant.fullMenu[key].length > 0);
+      if (availableMenuTypes.length > 0) {
+        setActiveTab(availableMenuTypes[0]);
+      }
     }
+
+    setSrc(getMenuImagePath(restaurant.fullMenu?.menuOfTheDay?.image));
   }, [restaurant]);
 
-  console.log(restaurant)
   if (!restaurant) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
@@ -138,7 +120,6 @@ export default function FullMenuPage() {
     )
   }
   
-
   return (
     <div className="pb-4">
       {/* Back button */}
@@ -148,57 +129,36 @@ export default function FullMenuPage() {
       </Link>
 
       <h1 className="fs-3 fw-bold mb-4">
-        {restaurant.name} - {language === "en" ? "Full Menu" : "Menú Completo"}
+        {restaurant.name}  {language === "en" ? "Full Menu" : "Menú Completo"}
       </h1>
-<div className="fullMenu">
-      <ul className=" nav nav-tabs ">
-      {restaurant.fullMenu?.menuOfTheDay && (
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "menuOfTheDay" ? "active" : ""}`}
-            onClick={() => setActiveTab("menuOfTheDay")}
-          >
-            {language === "en" ? "Today's Special" : "Especial de Hoy"}
-          </button>
-        </li>
-        
-      )
-      }
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "alaCarte" ? "active" : ""}`}
-            onClick={() => setActiveTab("alaCarte")}
-          >
-            {language === "en" ? "À La Carte" : "À La Carta"}
-          </button>
-        </li>
-        {restaurant.fullMenu.buffet.length > 0 && (
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "buffet" ? "active" : ""}`}
-              onClick={() => setActiveTab("buffet")}
-            >
-              {language === "en" ? "Buffet" : "Buffet"}
-            </button>
-          </li>
-        )}
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "comboMeals" ? "active" : ""}`}
-            onClick={() => setActiveTab("comboMeals")}
-          >
-            {language === "en" ? "Combo Meals" : "Combos"}
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "Other" ? "active" : ""}`}
-            onClick={() => setActiveTab("Other")}
-          >
-            {language === "en" ? "Other" : "Otros"}
-          </button>
-        </li>
-      </ul>
+       <div className="fullMenu">
+        <ul className="nav nav-tabs">
+          {/* Check if "Menu of the Day" exists, if so make it the first tab */}
+          {restaurant.fullMenu.menuOfTheDay && (
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === "menuOfTheDay" ? "active" : ""}`}
+                onClick={() => setActiveTab("menuOfTheDay")}
+              >
+                {language === "en" ? "Today's Special" : "Especial de Hoy"}
+              </button>
+            </li>
+          )}
+
+          {/* Render other menu tabs dynamically */}
+          {Object.keys(restaurant.fullMenu)
+            .filter((menuType) => menuType !== "menuOfTheDay" && restaurant.fullMenu[menuType].length > 0)
+            .map((menuType) => (
+              <li className="nav-item" key={menuType}>
+                <button
+                  className={`nav-link ${activeTab === menuType ? "active" : ""}`}
+                  onClick={() => setActiveTab(menuType)}
+                >
+                  {language === "en" ? menuType : menuType}
+                </button>
+              </li>
+            ))}
+        </ul>
       </div>
       {}
       <div className="tab-content">
@@ -209,8 +169,8 @@ export default function FullMenuPage() {
               <div className="d-flex gap-3">
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
-                    src={src}
-                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    src={getMenuImagePath(restaurant.fullMenu?.menuOfTheDay?.image)}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null; // prevent infinite loop
@@ -221,9 +181,9 @@ export default function FullMenuPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="fs-5 fw-bold">{restaurant.fullMenu?.menuOfTheDay?.title[language]}</h3>
-                  <p className="small text-secondary mb-1">{restaurant?.fullMenu?.menuOfTheDay?.description[language]}</p>
-                  <p className="text-primary fw-medium mb-0">{restaurant?.fullMenu?.menuOfTheDay?.price[language]}</p>
+                  <h3 className="fs-5 fw-bold">{restaurant.fullMenu?.menuOfTheDay?.title}</h3>
+                  <p className="small text-secondary mb-1">{restaurant?.fullMenu?.menuOfTheDay?.description}</p>
+                  <p className="text-primary fw-medium mb-0">{restaurant?.fullMenu?.menuOfTheDay?.price}</p>
                 </div>
               </div>
             </div>
@@ -231,7 +191,40 @@ export default function FullMenuPage() {
         </div>
         )}
 
-      <div className={`tab-pane fade ${activeTab === "alaCarte" ? "show active" : ""}`}>
+        {Object.keys(restaurant.fullMenu).map((menuType) => (
+                  menuType !== "menuOfTheDay" && restaurant.fullMenu[menuType].length > 0 && (
+                    <div key={menuType} className={`tab-pane fade ${activeTab === menuType ? "show active" : ""}`}>
+                      <div className="list-group">
+                        {restaurant.fullMenu[menuType].map((item: any, index: number) => (
+                          <div key={index} className="list-group-item">
+                            <div className="d-flex gap-3">
+                              <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
+                                <Image
+                                  src={getMenuImagePath(item.image)}
+                                  alt={item.title}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.onerror = null; // prevent infinite loop
+                                    target.src = "/Images/fallback.jpg";
+                                  }}
+                                  fill
+                                  className="object-fit-cover rounded"
+                                />
+                              </div>
+                              <div>
+                                <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
+                                <p className="small text-secondary mb-0">{item.description}</p>
+                              </div>
+                              <p className="text-primary fw-medium">{item.price}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+        ))}
+
+      {/* <div className={`tab-pane fade ${activeTab === "alaCarte" ? "show active" : ""}`}>
         <div className="list-group">
           {restaurant.fullMenu.alaCarte.length === 0 ? (
             <div className="list-group-item text-center text-muted py-4">
@@ -246,7 +239,7 @@ export default function FullMenuPage() {
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
                     src={getMenuImagePath(item.image)}
-                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null; // prevent infinite loop
@@ -257,10 +250,10 @@ export default function FullMenuPage() {
                   />
                 </div>
                   <div>
-                    <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                    <p className="small text-secondary mb-0">{item.description[language]}</p>
+                    <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
+                    <p className="small text-secondary mb-0">{item.description}</p>
                   </div>
-                  <p className="text-primary fw-medium">{item.price[language]}</p>
+                  <p className="text-primary fw-medium">{item.price}</p>
                 </div>
               </div>
             ))
@@ -283,7 +276,7 @@ export default function FullMenuPage() {
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
                     src={getMenuImagePath(item.image)}
-                    alt={restaurant.fullMenu?.menuOfTheDay?.title[language]}
+                    alt={restaurant.fullMenu?.menuOfTheDay?.title}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null; // prevent infinite loop
@@ -294,10 +287,10 @@ export default function FullMenuPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
+                  <p className="small text-secondary mb-0">{item.description}</p>
                 </div>
-                <p className="text-primary fw-medium">{item.price[language]}</p>
+                <p className="text-primary fw-medium">{item.price}</p>
               </div>
             </div>
           ))
@@ -321,7 +314,7 @@ export default function FullMenuPage() {
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
                     src={getMenuImagePath(item.image)}
-                    alt={item.title[language]}
+                    alt={item.title}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null; // prevent infinite loop
@@ -332,10 +325,10 @@ export default function FullMenuPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
+                  <p className="small text-secondary mb-0">{item.description}</p>
                 </div>
-                <p className="text-primary fw-medium">{item.price[language]}</p>
+                <p className="text-primary fw-medium">{item.price}</p>
               </div>
             </div>
           ))
@@ -359,7 +352,7 @@ export default function FullMenuPage() {
                 <div className="position-relative" style={{ width: "64px", height: "64px", flexShrink: 0 }}>
                   <Image
                     src={getMenuImagePath(item.image)}
-                    alt={item.title[language]}
+                    alt={item.title}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null; // prevent infinite loop
@@ -370,16 +363,16 @@ export default function FullMenuPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="fs-5 fw-bold mb-1">{item.title[language]}</h3>
-                  <p className="small text-secondary mb-0">{item.description[language]}</p>
+                  <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
+                  <p className="small text-secondary mb-0">{item.description}</p>
                 </div>
-                <p className="text-primary fw-medium">{item.price[language]}</p>
+                <p className="text-primary fw-medium">{item.price}</p>
               </div>
             </div>
           ))
         )}
       </div>
-    </div>
+    </div> */}
 
 
       </div>
