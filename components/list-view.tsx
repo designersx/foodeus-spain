@@ -157,6 +157,7 @@ export function ListView() {
     const fetchRestaurants = async () => {
       try {
         const data = await getRestaurantsWithMenus();
+        // console.log("API Response:", data);
         if (!Array.isArray(data.data)) {
           console.error("API response is not an array:", data);
           return;

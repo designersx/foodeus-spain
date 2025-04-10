@@ -357,8 +357,8 @@ export default function RestaurantDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium">Hours</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h4 className="text-sm font-medium" style={{overflowWrap: "break-word"}}>Hours</h4>
+                  <p className="text-sm text-muted-foreground" style={{overflowWrap: "break-word"}}> 
                     {restaurant?.open_hours
                       ? restaurant.open_hours
                           .replace(/�\?\?�\?\?/g, "-")

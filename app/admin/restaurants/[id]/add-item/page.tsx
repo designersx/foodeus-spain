@@ -181,8 +181,9 @@ export default function AddItemPage() {
                   placeholder="Enter item name"
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/^\s+/, "");
-                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
   
                   }}
                 />
@@ -199,8 +200,9 @@ export default function AddItemPage() {
                   placeholder="Enter item description"
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/^\s+/, "");
-                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
   
                   }}
                 />

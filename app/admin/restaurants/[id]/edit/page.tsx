@@ -264,9 +264,10 @@ export default function EditRestaurantPage() {
                   maxLength={100}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/^\s+/, "");
-                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
-
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
                   }}
                 />
               </div>
@@ -311,9 +312,10 @@ export default function EditRestaurantPage() {
                   maxLength={100}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/^\s+/, "");
-                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
-
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
                   }}
                 />
               </div>
@@ -382,7 +384,10 @@ export default function EditRestaurantPage() {
                   maxLength={60}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/^\s+/, "");
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
                   }}
                 />
               </div>
@@ -400,8 +405,9 @@ export default function EditRestaurantPage() {
                 maxLength={100}
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s-]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
 
                 }}
               />
@@ -419,8 +425,9 @@ export default function EditRestaurantPage() {
                 maxLength={200}
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
 
                 }}
               />
@@ -434,7 +441,7 @@ export default function EditRestaurantPage() {
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Updating..." : "Update Restaurant"}
-            </Button>
+            </Button> 
           </CardFooter>
         </Card>
       </form>

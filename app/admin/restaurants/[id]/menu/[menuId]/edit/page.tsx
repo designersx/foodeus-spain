@@ -169,7 +169,6 @@ useEffect(() => {
   if (!isDataLoaded) {
     return <div>Loading...</div>;  // Show a loading state until data is loaded
   }
-  console.log("selectedItems", selectedItems);
 
   return (
     <div className="full-width-container space-y-6">
@@ -227,20 +226,26 @@ useEffect(() => {
             {/* Menu Name */}
             <div className="space-y-2">
               <Label htmlFor="item_name">Item Name <span className="text-danger">*</span></Label>
-              <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required onInput={(e) => {
+              <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required   
+                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
+
                 }}/>
             </div>
 
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Description <span className="text-danger">*</span></Label>
-              <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required onInput={(e) => {
+              <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required   
+                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
+
                 }}/>
             </div>
 
