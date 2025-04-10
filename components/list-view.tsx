@@ -244,6 +244,7 @@ export function ListView() {
             lng: position.coords.longitude,
           };
           setUserLocation(userPos);
+          localStorage.setItem("userLocation", JSON.stringify(userPos)); 
 
           const today = new Date().toISOString().split("T")[0];
 

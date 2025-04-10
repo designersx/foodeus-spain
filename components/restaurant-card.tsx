@@ -39,6 +39,8 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   const [src, setSrc] = useState<string>(getMenuImagePath(restaurant?.menu.image));
   const [mapUrl, setMapUrl] = useState<string>("")
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+const [isLoading, setIsLoading] = useState(false);
+const [errorMessage, setErrorMessage] = useState<string>("");
   // Format distance to show in km or m
   const formatDistance = (distance?: number) => {
     if (distance === undefined) return ""
@@ -57,35 +59,39 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   };
 
   const navigateMeThere = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-  
-          // Set user location state if needed
-          setUserLocation({
-            lat: lat,
-            lng: lng,
-          });
-  
-          // Now you have the user’s location, build the directions URL
-          const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}&travelmode=driving`;
-  
-          // Open Google Maps in a new tab
-          window.open(directionsUrl, "_blank");
-  
-          console.log("User location:", lat, lng); // This will now log the correct coordinates
-        },
-        (error) => {
-          console.error("Error getting user location:", error);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-  };
+    setIsLoading(true);
+    // if (navigator.geolocation) {
+    //   navigator.geolocation.getCurrentPosition(
+    //     (position) => {
+    //       const lat = position.coords.latitude;
+    //       const lng = position.coords.longitude;
+    //       setUserLocation({ lat, lng });
+    //       const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}&travelmode=driving`;
+    //       window.open(directionsUrl, "_blank");
+    //       setIsLoading(false);
+    //     },
+    //     (error) => {
+    //       setErrorMessage("Error retrieving location. Please try again.");
+    //       setIsLoading(false);
+    //       console.error("Error getting location:", error);
+    //     },
+    //     { timeout: 10000, enableHighAccuracy: true }
+    //   );
+    // } else {
+    //   setErrorMessage("Geolocation is not supported by this browser.");
+    //   setIsLoading(false);
+    // }
+    const setUserLocation = JSON.parse(localStorage.getItem("userLocation") || "{}");
 
+if (setUserLocation && setUserLocation.lat) {
+  console.log("User Location Latitude:", setUserLocation.lat);
+
+    const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${setUserLocation.lat},${setUserLocation.lng}&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}&travelmode=driving`;
+          window.open(directionsUrl, "_blank");
+}else{
+console.log("User Location not found in localStorage.");
+}
+  };
   return (
     <Link href={`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`} className="text-decoration-none text-dark">
       <div className="card mb-3 mainClass">
