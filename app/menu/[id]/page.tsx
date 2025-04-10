@@ -60,7 +60,6 @@ export default function MenuDetailPage() {
 
   useEffect(() => {
     if (id) {
-
       getRestaurantById(`${id}`)
         .then((data) => {
           // console.log("API Response:", data);
