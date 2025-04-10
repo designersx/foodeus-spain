@@ -146,7 +146,10 @@ console.log("User Location not found in localStorage.");
                       </span>
                     </p>
                     {distance !== undefined && (
-                      <div className="small fw-medium text-primary restDistance">
+                      <div className="small fw-medium text-primary restDistance"   onClick={(e) => {
+                        e.stopPropagation(); // Stop the event from propagating to parent elements
+                        navigateMeThere();
+                      }}>
                         {/* <Link
                           href={{
                             pathname: '/map',
@@ -161,7 +164,7 @@ console.log("User Location not found in localStorage.");
                         >
                           {formatDistance(distance)}
                         </Link> */}
-                        <span onClick={navigateMeThere}>{formatDistance(distance)}</span>
+                        <span >{formatDistance(distance)}</span>
                         </div>
                     )}
                   </div>

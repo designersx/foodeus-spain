@@ -226,9 +226,9 @@ export function ListView() {
     };
   
     // Only run the fetch once when data is not fetched
-    if (!hasFetched) {
+    // if (!hasFetched) {
       fetchRestaurants();
-    }
+    // }
   
   }, [hasFetched]);
   
