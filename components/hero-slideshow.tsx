@@ -166,7 +166,9 @@ export function HeroSlideshow() {
   const transformApiResponse = (apiResponse: any) => {
     return apiResponse.map((item: any) => ({
       id: item.id,
-      image: `${API_BASE_URL}/${item.image_path}`, // Format image path
+      image: item.image_path.includes('/public') 
+      ? `${API_BASE_URL}/${item.image_path.split("/public")[1]}`
+      : `${API_BASE_URL}/${item.image_path}`,
       title: {
         en: item.title,
         es: item.title, // Assuming title is same for both languages, change as needed

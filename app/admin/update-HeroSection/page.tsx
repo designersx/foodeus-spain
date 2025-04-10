@@ -296,7 +296,9 @@ const HeroSection = () => {
                 <div className="position-relative h-100">
                 
                   <img
-                    src={slide.image || `${API_BASE_URL}/${slide.image_path}`}
+                    src={slide.image ||  (slide.image_path && slide.image_path.includes('/public') 
+                      ? `${API_BASE_URL}/${slide.image_path.split("/public")[1]}`
+                      : `${API_BASE_URL}/${slide.image_path}`)}
                     alt={slide.title || `hero-${slide.id}`}
                     className="object-cover w-full h-full"
                     style={{ filter: "brightness(65%)" }}

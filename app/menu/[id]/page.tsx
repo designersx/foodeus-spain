@@ -211,6 +211,7 @@ export default function MenuDetailPage() {
             fill
             className="object-cover"
             style={{ filter: "brightness(75%)" }}
+            loading="lazy"
           />
           <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
             <h1 className="text-white fs-3 fw-bold mb-0 text-capitalize">{menuItem?.title[language]
@@ -273,6 +274,7 @@ export default function MenuDetailPage() {
                           }}
                           fill
                           className="object-fit-cover rounded"
+                             loading="lazy"
                         />
                       </div>
                       <div>
@@ -298,31 +300,13 @@ export default function MenuDetailPage() {
       <div className="fixed-bottom bg-white border-top p-3">
         <div className="container">
           <div className="row g-2">
-            <div className="col-6">
-              {/* {mapUrl && (
-                <Link
-                  href={{
-                    pathname: '/map',
-                    query: {
-                      id: data?.id,
-                      name: data?.name,
-                      lat: data?.location?.latitude,
-                      lng: data?.location?.longitude,
-                      mark: true,
-                    },
-                  }}
-                  className="btn btn-primary w-100">
-                  {language === "en" ? "Take Me There" : "Llévame Allí"}
-                </Link> 
-              )} */}
-                   {mapUrl && (
+            <div className="col-sm-6 col-12" >
                <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
                  className="btn btn-primary w-100">
                 {language === "en" ? "Take Me There" : "Llévame Allí"}
                 </a>
-          )}
             </div>
-            <div className="col-6" >
+            <div className="col-sm-6 col-12" >
               <Link href={`/full-menu/${menuItems?.id}`} className="btn btn-outline-primary w-100">
                 {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}
               </Link>

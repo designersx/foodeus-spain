@@ -194,7 +194,7 @@ export default function EditItemPage() {
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+         
 
                 }}
               />
@@ -216,8 +216,7 @@ export default function EditItemPage() {
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
-
+          
                 }}
               />
               {formik.touched.description && formik.errors.description && (
