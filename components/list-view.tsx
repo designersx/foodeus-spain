@@ -73,85 +73,166 @@ export function ListView() {
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
+  // useEffect(() => {
+   
+  //     getRestaurantsWithMenus()
+  //       .then((data) => {
+  //         // console.log("API Response:", data);
+  //         if (!Array.isArray(data.data)) {
+  //           console.error("API response is not an array:", data);
+  //           return;
+  //         }
+
+  //         const formattedRestaurants: Restaurant[] = data.data.map(
+  //           (restaurant: any) => {
+  //             // Ensure menus exist before sorting
+  //             const sortedMenus = restaurant.menus
+  //               ? [...restaurant.menus].sort((a, b) => {
+  //                 const today = new Date().toDateString(); // Strip time
+
+  //                 const isATodaySpecial =
+  //                   a.menu_type === "Today's Special" &&
+  //                   new Date(a.updated_at).toDateString() === today;
+
+  //                 const isBTodaySpecial =
+  //                   b.menu_type === "Today's Special" &&
+  //                   new Date(b.updated_at).toDateString() === today;
+
+  //                 if (isATodaySpecial && !isBTodaySpecial) return -1;
+  //                 if (!isATodaySpecial && isBTodaySpecial) return 1;
+
+  //                 // Otherwise, sort by updated_at descending
+  //                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  //               })
+  //               : [];
+
+  //             return {
+  //               id: restaurant.restaurant_id?.toString() || "",
+  //               name: restaurant.name || "",
+  //               location: restaurant.address || "",
+  //               coordinates: {
+  //                 lat: Number(restaurant.location?.latitude) || 0,
+  //                 lng: Number(restaurant.location?.longitude) || 0,
+  //               },
+  //               rating: restaurant.ratings?.toString() || "",
+  //               category: restaurant.category,
+  //               menu:
+  //                 sortedMenus.length > 0
+  //                   ? {
+  //                     title: {
+  //                       en: sortedMenus[0].item_name || "",
+  //                       es: sortedMenus[0].item_name || "",
+  //                     },
+  //                     description: {
+  //                       en: sortedMenus[0].description || "",
+  //                       es: sortedMenus[0].description || "",
+  //                     },
+  //                     image: sortedMenus[0]?.image_url || "",
+  //                     items: sortedMenus[0]?.item_list,
+  //                     updated_at: sortedMenus[0]?.updated_at,
+  //                     menu_type: sortedMenus[0]?.menu_type,
+  //                     menu_id: sortedMenus[0]?.menu_id,
+  //                   }
+  //                   : {
+  //                     title: { en: "", es: "" },
+  //                     description: { en: "", es: "" },
+  //                     image: "",
+  //                   },
+  //             };
+  //           }
+  //         );
+  //         // console.log("formattedRestaurants", formattedRestaurants);
+  //         setRestaurants(formattedRestaurants);
+  //         setHasFetched(true);
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error fetching restaurants:", err);
+  //         setLoading(false);
+  //       });
+   
+  // }, [hasFetched, setRestaurants, setHasFetched]);
+
+
   useEffect(() => {
-    if (!hasFetched || restaurants.length == 0) {
-      getRestaurantsWithMenus()
-        .then((data) => {
-          // console.log("API Response:", data);
-          if (!Array.isArray(data.data)) {
-            console.error("API response is not an array:", data);
-            return;
-          }
-
-          const formattedRestaurants: Restaurant[] = data.data.map(
-            (restaurant: any) => {
-              // Ensure menus exist before sorting
-              const sortedMenus = restaurant.menus
-                ? [...restaurant.menus].sort((a, b) => {
-                  const today = new Date().toDateString(); // Strip time
-
-                  const isATodaySpecial =
-                    a.menu_type === "Today's Special" &&
-                    new Date(a.updated_at).toDateString() === today;
-
-                  const isBTodaySpecial =
-                    b.menu_type === "Today's Special" &&
-                    new Date(b.updated_at).toDateString() === today;
-
-                  if (isATodaySpecial && !isBTodaySpecial) return -1;
-                  if (!isATodaySpecial && isBTodaySpecial) return 1;
-
-                  // Otherwise, sort by updated_at descending
-                  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-                })
-                : [];
-
-              return {
-                id: restaurant.restaurant_id?.toString() || "",
-                name: restaurant.name || "",
-                location: restaurant.address || "",
-                coordinates: {
-                  lat: Number(restaurant.location?.latitude) || 0,
-                  lng: Number(restaurant.location?.longitude) || 0,
-                },
-                rating: restaurant.ratings?.toString() || "",
-                category: restaurant.category,
-                menu:
-                  sortedMenus.length > 0
-                    ? {
-                      title: {
-                        en: sortedMenus[0].item_name || "",
-                        es: sortedMenus[0].item_name || "",
-                      },
-                      description: {
-                        en: sortedMenus[0].description || "",
-                        es: sortedMenus[0].description || "",
-                      },
-                      image: sortedMenus[0]?.image_url || "",
-                      items: sortedMenus[0]?.item_list,
-                      updated_at: sortedMenus[0]?.updated_at,
-                      menu_type: sortedMenus[0]?.menu_type,
-                      menu_id: sortedMenus[0]?.menu_id,
-                    }
-                    : {
-                      title: { en: "", es: "" },
-                      description: { en: "", es: "" },
-                      image: "",
+    const fetchRestaurants = async () => {
+      try {
+        const data = await getRestaurantsWithMenus();
+        if (!Array.isArray(data.data)) {
+          console.error("API response is not an array:", data);
+          return;
+        }
+  
+        const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
+          const sortedMenus = restaurant.menus
+            ? [...restaurant.menus].sort((a, b) => {
+                const today = new Date().toDateString();
+  
+                const isATodaySpecial =
+                  a.menu_type === "Today's Special" &&
+                  new Date(a.updated_at).toDateString() === today;
+  
+                const isBTodaySpecial =
+                  b.menu_type === "Today's Special" &&
+                  new Date(b.updated_at).toDateString() === today;
+  
+                if (isATodaySpecial && !isBTodaySpecial) return -1;
+                if (!isATodaySpecial && isBTodaySpecial) return 1;
+  
+                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+              })
+            : [];
+  
+          return {
+            id: restaurant.restaurant_id?.toString() || "",
+            name: restaurant.name || "",
+            location: restaurant.address || "",
+            coordinates: {
+              lat: Number(restaurant.location?.latitude) || 0,
+              lng: Number(restaurant.location?.longitude) || 0,
+            },
+            rating: restaurant.ratings?.toString() || "",
+            category: restaurant.category,
+            menu:
+              sortedMenus.length > 0
+                ? {
+                    title: {
+                      en: sortedMenus[0].item_name || "",
+                      es: sortedMenus[0].item_name || "",
                     },
-              };
-            }
-          );
-          // console.log("formattedRestaurants", formattedRestaurants);
-          setRestaurants(formattedRestaurants);
-          setHasFetched(true);
-        })
-        .catch((err) => {
-          console.error("Error fetching restaurants:", err);
-          setLoading(false);
+                    description: {
+                      en: sortedMenus[0].description || "",
+                      es: sortedMenus[0].description || "",
+                    },
+                    image: sortedMenus[0]?.image_url || "",
+                    items: sortedMenus[0]?.item_list,
+                    updated_at: sortedMenus[0]?.updated_at,
+                    menu_type: sortedMenus[0]?.menu_type,
+                    menu_id: sortedMenus[0]?.menu_id,
+                  }
+                : {
+                    title: { en: "", es: "" },
+                    description: { en: "", es: "" },
+                    image: "",
+                  },
+          };
         });
+  
+        setRestaurants(formattedRestaurants);
+        setHasFetched(true);
+      } catch (err) {
+        console.error("Error fetching restaurants:", err);
+        setLoading(false);
+      }
+    };
+  
+    // Only run the fetch once when data is not fetched
+    if (!hasFetched) {
+      fetchRestaurants();
     }
-  }, [hasFetched, setRestaurants, setHasFetched]);
-
+  
+  }, [hasFetched]);
+  
+  
   useEffect(() => {
     if (!restaurants.length) return;
 
@@ -223,9 +304,15 @@ export function ListView() {
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
   };
+
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
-    console.log(term);
+
+    if (!term) {
+      setFilteredRestaurants(restaurantsWithDistance);
+      return;
+    }
+
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;
 

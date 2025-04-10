@@ -260,7 +260,7 @@ export default function MenuDetailPage() {
           <ul className="list-unstyled">
             {menuItem.items.length > 0 ? (
               menuItem.items?.map((item: any, index: number) => (
-                <div className="card mb-3">
+                <div className="card mb-3" key={index}>
                   <div className="card-body">
                     <div className="d-flex gap-3">
                       <div className="position-relative" style={{ width: "60px", height: "60px", flexShrink: 0 }}>
@@ -300,7 +300,7 @@ export default function MenuDetailPage() {
         <div className="container">
           <div className="row g-2">
             <div className="col-6">
-              {mapUrl && (
+              {/* {mapUrl && (
                 <Link
                   href={{
                     pathname: '/map',
@@ -314,8 +314,14 @@ export default function MenuDetailPage() {
                   }}
                   className="btn btn-primary w-100">
                   {language === "en" ? "Take Me There" : "Llévame Allí"}
-                </Link>
-              )}
+                </Link> 
+              )} */}
+                   {mapUrl && (
+               <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
+                 className="btn btn-primary w-100">
+                {language === "en" ? "Take Me There" : "Llévame Allí"}
+                </a>
+          )}
             </div>
             <div className="col-6" >
               <Link href={`/full-menu/${menuItems?.id}`} className="btn btn-outline-primary w-100">

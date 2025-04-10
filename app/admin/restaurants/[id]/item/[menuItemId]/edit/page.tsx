@@ -50,8 +50,8 @@ export default function EditItemPage() {
         const token = localStorage.getItem("token");
         const data = new FormData();
       
-        data.append("item_name", values.item_name);
-        data.append("description", values.description);
+        data.append("item_name", values.item_name.trim());
+        data.append("description", values.description.trim());
         data.append("price", values.price);
         data.append("item_type", values.item_type);
         if (values.image) {
@@ -106,6 +106,14 @@ export default function EditItemPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       formik.setFieldValue("image", file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -183,6 +191,12 @@ export default function EditItemPage() {
                 placeholder="Enter item name"
                 required
                 maxLength={60}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
               {formik.touched.item_name && formik.errors.item_name && (
                 <p className="text-sm text-danger">{formik.errors.item_name}</p>
@@ -199,6 +213,12 @@ export default function EditItemPage() {
                 placeholder="Enter description"
                 required
                 maxLength={200}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
               {formik.touched.description && formik.errors.description && (
                 <p className="text-sm text-danger">{formik.errors.description}</p>

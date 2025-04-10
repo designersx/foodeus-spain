@@ -1,9 +1,9 @@
 // components/layouts/admin/AdminSidebar.tsx
 "use client";
-
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Clipboard, MenuIcon as Restaurant } from "lucide-react";
+import { LogOut, Clipboard, MenuIcon as Restaurant ,Camera } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import {
   Sidebar,
@@ -30,6 +30,14 @@ import { Button } from "@/components/ui/button";
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Only update after hydration
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) return null; // Prevent rendering during SSR
 
   return (
     <Sidebar className="z-20">
@@ -79,6 +87,14 @@ export default function AdminSidebar() {
               <Link href="/admin/upload-restaurant" className="nav-link-admin">
                 <Clipboard className="h-4 w-4" />
                 <span>Upload Restaurants</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/admin/update-HeroSection"}>
+              <Link href="/admin/update-HeroSection" className="nav-link-admin">
+                <Camera  className="h-4 w-4" />
+                <span>Manage Hero Section</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

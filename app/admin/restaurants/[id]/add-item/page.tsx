@@ -40,6 +40,14 @@ export default function AddItemPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       try {
         // Compress and resize the image before setting it
         const compressedImage = await compressAndResizeImage(file);
@@ -171,6 +179,12 @@ export default function AddItemPage() {
                   required
                   maxLength={60}
                   placeholder="Enter item name"
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value.replace(/^\s+/, "");
+                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+  
+                  }}
                 />
               </div>
 
@@ -183,6 +197,12 @@ export default function AddItemPage() {
                   required
                   maxLength={200}
                   placeholder="Enter item description"
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value.replace(/^\s+/, "");
+                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+  
+                  }}
                 />
               </div>
 

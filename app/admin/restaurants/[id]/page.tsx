@@ -119,7 +119,7 @@ export default function RestaurantDetailPage() {
       setLoading(true);
       try {
         const response = await getRestaurantByIdforAdmin(restaurantId);
-        console.log("responsesdds", response.data?.menus);
+        // console.log("responsesdds", response.data?.menus);
         const restaurants = await response;
         setRestaurant(restaurants.data);
         if (Array.isArray(restaurants?.data?.menus)) {
@@ -130,7 +130,7 @@ export default function RestaurantDetailPage() {
                 new Date(b.updated_at).getTime() -
                 new Date(a.updated_at).getTime()
             );
-          console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+          // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
           setMenus(menusWithId);
         }
       } catch (error) {
@@ -320,43 +320,40 @@ export default function RestaurantDetailPage() {
             </div>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>{restaurant?.name}</CardTitle>
+                <div className="truncate w-full">
+                  <CardTitle  className=""  style={{overflowWrap: "break-word"}}>{restaurant?.name}</CardTitle>
                   <CardDescription className="flex items-center mt-1">
                     <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                     {restaurant?.address}
                   </CardDescription>
                 </div>
-                {/* <Badge variant="outline" className="flex items-center gap-1">
-                  <Star className="h-3 w-3 fill-primary text-primary" />
-                  {restaurant?.rating}
-                </Badge> */}
+           
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium">Description</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {restaurant?.description ? restaurant?.description : "NIL"}{" "}
+                  <p className="text-sm text-muted-foreground " style={{overflowWrap: "break-word"}}>
+                    {restaurant?.description ? restaurant?.description : "NA"}{" "}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Cuisine</h4>
                   <p className="text-sm text-muted-foreground">
-                    {restaurant?.category}
+                    {restaurant?.category ? restaurant?.category :"NA"}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Phone</h4>
                   <p className="text-sm text-muted-foreground">
-                    {restaurant?.phone}
+                    {restaurant?.phone ? restaurant?.phone : "NA"}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Website</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {restaurant?.website}
+                  <p className="text-sm text-muted-foreground"  style={{overflowWrap: "break-word"}}>
+                    {restaurant?.website ? restaurant?.website :"NA"}
                   </p>
                 </div>
                 <div>
@@ -367,7 +364,7 @@ export default function RestaurantDetailPage() {
                           .replace(/�\?\?�\?\?/g, "-")
                           .replace(/�\?/g, " ")
                           .replace(/[^\w\s:.,/-]/g, "")
-                      : "NIL"}
+                      : "NA"}
                   </p>
                 </div>
               </div>
@@ -622,7 +619,7 @@ export default function RestaurantDetailPage() {
                         <div className="aspect-square w-full overflow-hidden">
                           <img
                             src={getMenuImagePath(item?.image_url)} // replace with your API image URL later
-                            alt="Paneer Tikka"
+                            alt={item.item_name}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = "/Images/fallback.jpg";

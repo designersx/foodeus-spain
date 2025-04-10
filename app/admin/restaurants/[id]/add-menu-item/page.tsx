@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload,ChevronDownIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -48,7 +48,7 @@ export default function AddMenuItemPage() {
     item_name: "",
     description: "",
     price: "",
-    menu_type: "",
+    menu_type: "Today's Special",
     image: null as File | null,
     item_list: [] as string[], // Change to array
   });
@@ -71,6 +71,14 @@ export default function AddMenuItemPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -113,11 +121,11 @@ export default function AddMenuItemPage() {
       }
 
       data.append("restaurant_id", restaurantId);
-      data.append("item_name", formData.item_name);
+      data.append("item_name", formData.item_name.trim());
       data.append("price", formData.price);
       data.append("menu_type", formData.menu_type === "Other" ? customMenuType : formData.menu_type || "");
       formData.item_list.forEach((item) => data.append("item_list[]", item)); // Append as array
-      data.append("description", formData.description);
+      data.append("description", formData.description.trim());
       if (formData.image) {
         data.append("image_urls", formData.image);
       }
@@ -253,6 +261,12 @@ export default function AddMenuItemPage() {
                 onChange={handleChange}
                 maxLength={60}
                 required
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
             </div>
 
@@ -268,6 +282,12 @@ export default function AddMenuItemPage() {
                 rows={3}
                 maxLength={200}
                 required
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
             </div>
 
@@ -289,12 +309,13 @@ export default function AddMenuItemPage() {
                     const input = e.currentTarget;
                     input.value = input.value
                     .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
+                    
                   }}
                   title="Enter a valid price (e.g. 9.99)"
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="menu_type">Menu Type <span className="text-danger">*</span></Label>
                 <Select value={formData.menu_type} onValueChange={handleSelectChange}>
                   <SelectTrigger id="menu_type">
@@ -307,7 +328,26 @@ export default function AddMenuItemPage() {
                     <SelectItem value="Combo Meals">Combo Meals</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
+              <div className="space-y-2">
+              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="w-full justify-start"
+              >
+                {selectedItems.size > 0
+                  ? `${selectedItems.size} item(s) selected`
+                  : "Select Items from List"}
+                    <ChevronDownIcon className="w-5 h-5 ml-2" />
+              </Button>
+              {selectedItems.size > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {/* Selected: {Array.from(selectedItems).join(", ")} */}
+                  Selected Items Count: {selectedItems.size}
+                </div>
+              )}
+            </div>
             </div>
 
             {/* Custom Menu Type */}
@@ -325,7 +365,7 @@ export default function AddMenuItemPage() {
             )}
 
             {/* Select Items */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
               <Button
                 type="button"
@@ -341,7 +381,7 @@ export default function AddMenuItemPage() {
                   Selected: {Array.from(selectedItems).join(", ")}
                 </div>
               )}
-            </div>
+            </div> */}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>

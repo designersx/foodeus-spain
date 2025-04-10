@@ -33,7 +33,7 @@ export default function EditRestaurantPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const restaurantId = params.id as string;
   const [restaurant, setRestaurant] = useState<any>(null);
-
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -74,6 +74,7 @@ export default function EditRestaurantPage() {
         cover_image: null,
       });
       const normalized = getMenuImagePath(parsed.cover_image || parsed.image || "/placeholder.svg");
+      setLoading(false);
       // console.log('ss',normalized);
       setCoverImagePreview(normalized);
     }
@@ -89,6 +90,14 @@ export default function EditRestaurantPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       setFormData((prev) => ({ ...prev, cover_image: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -106,16 +115,16 @@ export default function EditRestaurantPage() {
       const token = localStorage.getItem("token");
       const data = new FormData();
 
-      data.append("name", formData.name);
-      data.append("address", formData.address);
-      data.append("latitude", formData.latitude);
-      data.append("longitude", formData.longitude);
-      data.append("category", formData.category);
-      data.append("cuisine", formData.cuisine);
-      data.append("description", formData.description);
-      data.append("phone", formData.phone);
-      data.append("website", formData.website);
-      data.append("open_hours", formData.open_hours);
+      data.append("name", formData.name.trim());  
+      data.append("address", formData.address.trim());
+      data.append("latitude", formData.latitude.trim());
+      data.append("longitude", formData.longitude.trim());
+      data.append("category", formData.category.trim());
+      data.append("cuisine", formData.cuisine.trim());
+      data.append("description", formData.description.trim());
+      data.append("phone", formData.phone.trim());
+      data.append("website", formData.website.trim());
+      data.append("open_hours", formData.open_hours.trim());
       data.append("ratings", "4.5"); // optional default value
 
       if (formData.cover_image) {
@@ -164,6 +173,15 @@ export default function EditRestaurantPage() {
         <Button asChild>
           <Link href="/admin/restaurants">Back to Restaurants</Link>
         </Button>
+      </div>
+    );
+  }
+  // console.log('formData.category',formData.category);
+  if(loading){
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh]">
+        <h2 className="text-2xl font-bold">Loading...</h2>
+        <p className="text-muted-foreground mb-4">Please wait a moment</p>
       </div>
     );
   }
@@ -244,6 +262,12 @@ export default function EditRestaurantPage() {
                   onChange={handleChange}
                   required
                   maxLength={100}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value.replace(/^\s+/, "");
+                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -273,36 +297,24 @@ export default function EditRestaurantPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Enter restaurant description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={3}
-                required
-                maxLength={200}
-              />
-            </div>
-
-            <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <h3 className="font-medium">Location Information</h3>
-              </div>
+      
 
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <Input
                   id="address"
                   name="address"
-                  placeholder="Enter full address"
+                   placeholder="Enter address"
                   value={formData.address}
                   onChange={handleChange}
                   required
                   maxLength={100}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value.replace(/^\s+/, "");
+                    target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                  }}
                 />
               </div>
 
@@ -334,12 +346,12 @@ export default function EditRestaurantPage() {
                     onChange={handleChange}
                     onInput={(e: React.FormEvent<HTMLInputElement>) => {
                       const input = e.currentTarget;
-                      input.value = input.value.replace(/[^0-9.-]/g, ""); // allow numbers, dot, minus
+                      input.value = input.value.replace(/[^0-9.-]/g, ""); 
                     }}
                   />
                 </div>
               </div>
-            </div>
+           
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -347,7 +359,7 @@ export default function EditRestaurantPage() {
                 <Input
                   id="phone"
                   name="phone"
-                  placeholder="(555) 123-4567"
+                  placeholder="Enter Phone Number"
                   value={formData.phone}
                   onChange={handleChange}
                   required
@@ -364,10 +376,14 @@ export default function EditRestaurantPage() {
                 <Input
                   id="website"
                   name="website"
-                  placeholder="www.example.com"
+                    placeholder="Enter Website URL"
                   value={formData.website}
                   onChange={handleChange}
                   maxLength={60}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value.replace(/^\s+/, "");
+                  }}
                 />
               </div>
             </div>
@@ -382,8 +398,34 @@ export default function EditRestaurantPage() {
                 onChange={handleChange}
                 required
                 maxLength={100}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter restaurant description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                required
+                maxLength={200}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+
+                }}
+              />
+            </div>
+
           </CardContent>
 
           <CardFooter className="flex justify-between">

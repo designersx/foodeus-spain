@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload,ChevronDownIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +31,7 @@ export default function EditMenuItemPage() {
     item_name: "",
     description: "",
     price: "",
-    menu_type: "",
+    menu_type: "Today's Special",
     item_list: [] as string[], // Array for item list
     image: null as File | null,
   });
@@ -76,6 +76,14 @@ useEffect(() => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        })
+          return; 
+        }
       setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result as string);
@@ -90,12 +98,20 @@ useEffect(() => {
     try {
       const token = localStorage.getItem("token");
       const data = new FormData();
+      if (formData.item_list.length === 0) {
+        toast({
+          title: "Warning !",
+          description: "Please Add at least one item to the menu",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      data.append("item_name", formData.item_name);
+      data.append("item_name", formData.item_name.trim());
       data.append("price", formData.price);
       data.append("menu_type", formData.menu_type);
       data.append("item_list", JSON.stringify(Array.from(selectedItems))); // Storing selected items list
-      data.append("description", formData.description);
+      data.append("description", formData.description.trim());
 
       if (formData.image) data.append("image_urls", formData.image);
 
@@ -211,23 +227,35 @@ useEffect(() => {
             {/* Menu Name */}
             <div className="space-y-2">
               <Label htmlFor="item_name">Item Name <span className="text-danger">*</span></Label>
-              <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required />
+              <Input name="item_name" value={formData.item_name} placeholder="Item Name" onChange={handleChange} maxLength={50} required onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                }}/>
             </div>
 
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Description <span className="text-danger">*</span></Label>
-              <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required />
+              <Textarea name="description" value={formData.description} placeholder="Description" onChange={handleChange} maxLength={200} required onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                }}/>
             </div>
 
             {/* Price and Menu Type */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price">Price € <span className="text-danger">*</span></Label>
-                <Input name="price" value={formData.price} placeholder="Price" onChange={handleChange} required />
+                <Input name="price" value={formData.price} placeholder="Price" onChange={handleChange} required    maxLength={7} onInput={(e) => {
+                    const input = e.currentTarget;
+                    input.value = input.value
+                    .replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); 
+                  }}/>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="menu_type">Menu Type <span className="text-danger">*</span></Label>
                 <Select value={formData.menu_type} onValueChange={(value) => setFormData(prev => ({ ...prev, menu_type: value }))} required>
                   <SelectTrigger>
@@ -240,11 +268,30 @@ useEffect(() => {
                     <SelectItem value="Combo Meals">Combo Meals</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
+              <div className="space-y-2">
+              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="w-full justify-start"
+              >
+                {selectedItems.size > 0
+                  ? `${selectedItems.size} item(s) selected`
+                  : "Select Items from List"}
+                  <ChevronDownIcon className="w-5 h-5 ml-2" />
+              </Button>
+              {selectedItems.size > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {/* Selected: {Array.from(selectedItems).join(", ")} */}
+                  Selected Items Count: {selectedItems.size}
+                </div>
+              )}
+            </div>
             </div>
                   
             {/* Item List Selection */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
               <Button
                 type="button"
@@ -260,7 +307,7 @@ useEffect(() => {
                   Selected: {Array.from(selectedItems).join(", ")}
                 </div>
               )}
-            </div>
+            </div> */}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>
@@ -317,20 +364,18 @@ useEffect(() => {
       </div>
     </div>
     <DialogFooter>
-      <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+      {/* <Button variant="outline" onClick={() => setIsModalOpen(false)}>
         Cancel
-      </Button>
-      <Button
-        onClick={() => {
-          setFormData((prev) => ({
-            ...prev,
-            item_list: Array.from(selectedItems), // Save selected items
-          }));
-          setIsModalOpen(false);  // Close the modal
-        }}
-      >
-        Save Selection
-      </Button>
+      </Button> */}
+      {items.length <= 0 && (
+          <Button variant="outline"
+          onClick={() => {
+            router.push(`/admin/restaurants/${restaurantId}/add-item`);
+          }} 
+        >
+          Add Item
+        </Button>
+      )}
     </DialogFooter>
   </DialogContent>
 </Dialog>
