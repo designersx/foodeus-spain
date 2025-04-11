@@ -73,85 +73,46 @@ export function ListView() {
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
-  // useEffect(() => {
-   
-  //     getRestaurantsWithMenus()
-  //       .then((data) => {
-  //         // console.log("API Response:", data);
-  //         if (!Array.isArray(data.data)) {
-  //           console.error("API response is not an array:", data);
-  //           return;
-  //         }
+  const userLocationFromStorage = JSON.parse(localStorage.getItem("userLocation") || "{}");
 
-  //         const formattedRestaurants: Restaurant[] = data.data.map(
-  //           (restaurant: any) => {
-  //             // Ensure menus exist before sorting
-  //             const sortedMenus = restaurant.menus
-  //               ? [...restaurant.menus].sort((a, b) => {
-  //                 const today = new Date().toDateString(); // Strip time
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
 
-  //                 const isATodaySpecial =
-  //                   a.menu_type === "Today's Special" &&
-  //                   new Date(a.updated_at).toDateString() === today;
+          setUserLocation(userPos);
+          
+          localStorage.setItem("userLocation", JSON.stringify(userPos));
 
-  //                 const isBTodaySpecial =
-  //                   b.menu_type === "Today's Special" &&
-  //                   new Date(b.updated_at).toDateString() === today;
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
 
-  //                 if (isATodaySpecial && !isBTodaySpecial) return -1;
-  //                 if (!isATodaySpecial && isBTodaySpecial) return 1;
+          if (error.code === error.PERMISSION_DENIED) {
+            setLocationError(
+              "Location access was denied. Please enable it in your browser settings."
+            );
+          } else {
+            setLocationError("Unable to access your location.");
+          }
 
-  //                 // Otherwise, sort by updated_at descending
-  //                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-  //               })
-  //               : [];
+          setLoading(false);
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
+      setLoading(false);
+    }
 
-  //             return {
-  //               id: restaurant.restaurant_id?.toString() || "",
-  //               name: restaurant.name || "",
-  //               location: restaurant.address || "",
-  //               coordinates: {
-  //                 lat: Number(restaurant.location?.latitude) || 0,
-  //                 lng: Number(restaurant.location?.longitude) || 0,
-  //               },
-  //               rating: restaurant.ratings?.toString() || "",
-  //               category: restaurant.category,
-  //               menu:
-  //                 sortedMenus.length > 0
-  //                   ? {
-  //                     title: {
-  //                       en: sortedMenus[0].item_name || "",
-  //                       es: sortedMenus[0].item_name || "",
-  //                     },
-  //                     description: {
-  //                       en: sortedMenus[0].description || "",
-  //                       es: sortedMenus[0].description || "",
-  //                     },
-  //                     image: sortedMenus[0]?.image_url || "",
-  //                     items: sortedMenus[0]?.item_list,
-  //                     updated_at: sortedMenus[0]?.updated_at,
-  //                     menu_type: sortedMenus[0]?.menu_type,
-  //                     menu_id: sortedMenus[0]?.menu_id,
-  //                   }
-  //                   : {
-  //                     title: { en: "", es: "" },
-  //                     description: { en: "", es: "" },
-  //                     image: "",
-  //                   },
-  //             };
-  //           }
-  //         );
-  //         // console.log("formattedRestaurants", formattedRestaurants);
-  //         setRestaurants(formattedRestaurants);
-  //         setHasFetched(true);
-  //       })
-  //       .catch((err) => {
-  //         console.error("Error fetching restaurants:", err);
-  //         setLoading(false);
-  //       });
-   
-  // }, [hasFetched, setRestaurants, setHasFetched]);
-
+    return () => {
+      setLoading(false);
+    };
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -230,26 +191,17 @@ export function ListView() {
     };
   
     // Only run the fetch once when data is not fetched
-    // if (!hasFetched) {
+    if (!hasFetched) {
       fetchRestaurants();
-    // }
+    }
   
   }, [hasFetched]);
   
   
+  
   useEffect(() => {
     if (!restaurants.length) return;
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserLocation(userPos);
-          localStorage.setItem("userLocation", JSON.stringify(userPos)); 
-
+    if (userLocationFromStorage) {
           const today = new Date().toISOString().split("T")[0];
 
           const withDistance = restaurants.map((restaurant) => {
@@ -263,8 +215,8 @@ export function ListView() {
             return {
               ...restaurant,
               distance: calculateDistance(
-                userPos.lat,
-                userPos.lng,
+                userLocationFromStorage?.lat,
+                userLocationFromStorage?.lng,
                 restaurant.coordinates.lat,
                 restaurant.coordinates.lng
               ),
@@ -287,23 +239,9 @@ export function ListView() {
 
           setRestaurantsWithDistance(withDistance);
           setFilteredRestaurants(withDistance);
-          setLoading(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-
-          if (error.code === error.PERMISSION_DENIED) {
-            setLocationError(
-              "Location access was denied. Please enable it in your browser settings."
-            );
-          } else {
-            setLocationError("Unable to access your location.");
-          }
-          setLoading(false);
-        }
-      );
+          setLoading(false); 
     }
-  }, [restaurants]);
+  }, [restaurants,userLocation]);
 
 
   const deg2rad = (deg: number) => {
@@ -371,17 +309,14 @@ export function ListView() {
     setIsSticky(false);
   };
 
-  // Scroll direction detection
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
       if (focused) {
         if (currentScrollY < lastScrollY) {
-          // Scrolling up
           setIsSticky(true);
         } else {
-          // Scrolling down
           setIsSticky(false);
         }
       }
@@ -438,7 +373,26 @@ export function ListView() {
     );
   };
 
+  if (loading) {
+    return (
+      <div
+        className="position-absolute top-50 start-50 translate-middle"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="pb-5">
       <HeroSlideshow />
       <div className=" SearchFixed container my-3">
@@ -465,15 +419,9 @@ export function ListView() {
       </div>
 
       <div className="text-center mt-4">
-        {loading ? (
-          <div className="position-absolute top-70 start-50 translate-middle">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading map...</span>
-            </div>
-          </div>
-        ) : (
-          <>
-            {filteredRestaurants.length > 0 ? (
+  
+          
+            {userLocation && !locationError && filteredRestaurants.length > 0 ? (
               filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
                 // filteredRestaurants.map((restaurant) => (
                 <RestaurantCard
@@ -485,8 +433,8 @@ export function ListView() {
             ) : (
               <p className="text-center text-gray-500">No restaurants found.</p>
             )}
-          </>
-        )}
+        
+        
       </div>
 
       {locationError && (

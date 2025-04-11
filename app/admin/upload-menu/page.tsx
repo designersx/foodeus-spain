@@ -34,14 +34,14 @@ export default function ImportMenuCSV() {
   const [activeTab, setActiveTab] = useState("upload")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   // Sample CSV content
-  const sampleCSV = `Restaurant_ID,Item_Name,Price,Menu_Type,Item_list,Description,Image_URL
-  1,Grilled Chicken Platter,14.99,Today's Special,"Mashed Potatoes, Veggies","Limited-time grilled chicken special","https://example.com/grilled-chicken.jpg"
-  2,Sunday Brunch Buffet,20.00,Buffet,"Eggs, Pancakes, Sausages","All-you-can-eat brunch buffet","https://example.com/brunch.jpg"
-  3,Steak à la Carte,18.50,A La Carte,"Steak, Side Salad","Cooked-to-order steak from our à la carte menu","https://example.com/steak.jpg"
-  4,Burger Combo,11.99,Combo Meals,"Burger, Fries, Coke","Classic combo meal","https://example.com/combo.jpg"`
+  const sampleCSV = `Restaurant_ID,Item_Name,Price,Item_list,Description,Image_URL
+  1,Grilled Chicken Platter,14.99,"Mashed Potatoes, Veggies","Limited-time grilled chicken special","https://example.com/grilled-chicken.jpg"
+  2,Sunday Brunch Buffet,20.00,"Eggs, Pancakes, Sausages","All-you-can-eat brunch buffet","https://example.com/brunch.jpg"
+  3,Steak à la Carte,18.50,"Steak, Side Salad","Cooked-to-order steak from our à la carte menu","https://example.com/steak.jpg"
+  4,Burger Combo,11.99,"Burger, Fries, Coke","Classic combo meal","https://example.com/combo.jpg"`
   
   const expectedMenuHeaders = [
-    "Restaurant_ID", "Item_Name", "Price", "Menu_Type", 
+    "Restaurant_ID", "Item_Name", "Price", 
     "Item_list", "Description", "Image_URL"
   ];
   
@@ -214,12 +214,11 @@ export default function ImportMenuCSV() {
 
   // Validate required fields
   const validateRow = (row: CSVRow) => ({
-    isValid: !!row.Restaurant_ID && !!row.Item_Name && !!row.Price && !!row.Menu_Type,
+    isValid: !!row.Restaurant_ID && !!row.Item_Name && !!row.Price,
     missingFields: [
       !row.Restaurant_ID && "Restaurant_ID",
       !row.Item_Name && "Item_Name",
       !row.Price && "Price",
-      !row.Menu_Type && "Menu_Type",
     ].filter(Boolean) as string[],
   })
 
@@ -335,7 +334,7 @@ export default function ImportMenuCSV() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="upload" className="p-6 space-y-6 mt-0">
+            <TabsContent value="upload" className="p-6 space-y-6 mt-2">
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertTitle>Important</AlertTitle>
@@ -438,12 +437,12 @@ export default function ImportMenuCSV() {
                       </Badge>
                       <span className="text-sm">Price of the item (numeric value)</span>
                     </li>
-                    <li className="flex items-center gap-2">
+                    {/* <li className="flex items-center gap-2">
                       <Badge variant="outline" className="font-mono">
                         Menu_Type
                       </Badge>
                       <span className="text-sm">Category (e.g., Today's Special, Buffet)</span>
-                    </li>
+                    </li> */}
                   </ul>
 
                   <h3 className="text-lg font-medium pt-2 flex items-center gap-2">
@@ -522,7 +521,7 @@ export default function ImportMenuCSV() {
                           <TableHead className="font-semibold">Restaurant ID*</TableHead>
                           <TableHead className="font-semibold">Item Name*</TableHead>
                           <TableHead className="font-semibold">Price*</TableHead>
-                          <TableHead className="font-semibold">Menu Type*</TableHead>
+                          {/* <TableHead className="font-semibold">Menu Type*</TableHead> */}
                           <TableHead className="font-semibold">Item List</TableHead>
                           <TableHead className="font-semibold">Description</TableHead>
                           <TableHead className="font-semibold">Image URL</TableHead>
@@ -548,11 +547,11 @@ export default function ImportMenuCSV() {
                               <TableCell className={!row.Price ? "text-destructive font-medium bg-destructive/20" : ""}>
                                 {row.Price || "Missing"}
                               </TableCell>
-                              <TableCell
+                              {/* <TableCell
                                 className={!row.Menu_Type ? "text-destructive font-medium bg-destructive/20" : ""}
                               >
                                 {row.Menu_Type || "Missing"}
-                              </TableCell>
+                              </TableCell> */}
                               <TableCell className="max-w-[150px] truncate">{row.Item_list || "-"}</TableCell>
                               <TableCell className="max-w-[200px] truncate">{row.Description || "-"}</TableCell>
                               <TableCell className="max-w-[150px] truncate">{row.Image_URL || "-"}</TableCell>

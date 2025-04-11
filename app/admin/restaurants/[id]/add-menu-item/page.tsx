@@ -227,6 +227,7 @@ export default function AddMenuItemPage() {
                       src={imagePreview}
                       alt="Item preview"
                       className="mx-auto max-h-[200px] rounded-md object-cover"
+                      
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
                       <p className="text-white font-medium">Change Image</p>

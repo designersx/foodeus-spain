@@ -91,6 +91,7 @@ export default function RestaurantDetailPage() {
   const [relod, setreload] = useState(false);
   const [fallback, setFallback] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryMenuItem, setsearchQueryMenuItem] = useState("");
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [activeTab, setActiveTab] = useState("menu");
   // const [items, setItems] = useState<RestaurantItem[]>([]);
@@ -146,16 +147,14 @@ export default function RestaurantDetailPage() {
   }, [relod]);
 
   useEffect(() => {
-    // Check if the active tab is stored in sessionStorage
     const storedTab = sessionStorage.getItem("activeTab");
     
     if (storedTab) {
-      setActiveTab(storedTab); // Set the active tab based on the stored value
+      setActiveTab(storedTab); 
     }
   }, []);
 
-  // const restaurantId = params.id as string
-  // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
+
 
   if (!restaurant && !loading) {
     return (
@@ -289,6 +288,13 @@ export default function RestaurantDetailPage() {
       menu?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
       menu?.category?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
+
+  const filteredItems = items?.filter(
+    (item) =>
+      item?.item_name?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase()) ||
+      item?.item_type?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase())
+  );
+  // console.log("filteredItems", filteredItems)
   const normalized = getMenuImagePath(restaurant?.cover_image);
   // console.log('normalize',normalized)
   const src = normalized
@@ -522,7 +528,7 @@ export default function RestaurantDetailPage() {
                             </div>
                             <div className="text-right">
                               <div className="font-medium">€{item?.price}</div>
-                              <Badge variant="outline">{item.category}</Badge>
+                              {/* <Badge variant="outline">{item.category}</Badge> */}
                               {/* {item.updated_at && <Badge className="ml-2"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}
                             </Badge>} */}
                             </div>
@@ -611,8 +617,21 @@ export default function RestaurantDetailPage() {
               )}
             </TabsContent>
             <TabsContent value="itemsList" className="space-y-4">
-              {items.length > 0 ? (
-                items.map((item) => (
+            <div className="flex items-center gap-2 w-full">
+                <div className="relative flex-1">
+                  <Input
+                    type="search"
+                    placeholder="Search Menu Item"
+                    className="pl-8 w-full"
+                    value={searchQueryMenuItem}
+                    onChange={(e) => {
+                      setsearchQueryMenuItem(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
                   <Card key={item.id}>
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/4">
@@ -637,7 +656,7 @@ export default function RestaurantDetailPage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">{item.price}</div>
+                            <div className="font-medium">€{item.price}</div>
                             <Badge variant="outline">{item.item_type}</Badge>
                           </div>
                         </div>
