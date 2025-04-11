@@ -207,7 +207,6 @@ export function HeroSlideshow() {
       return () => clearInterval(interval); // Cleanup interval on component unmount
     }
   }, [slides]); // Re-run the effect when slides change
-
   return (
     <div id="heroCarousel" className="carousel slide rounded overflow-hidden" data-bs-ride="carousel">
       <div className="carousel-inner">

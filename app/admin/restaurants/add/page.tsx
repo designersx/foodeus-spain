@@ -21,7 +21,7 @@ const validationSchema = Yup.object().shape({
   category: Yup.string().trim().required("Cuisine is required"),
   address: Yup.string().trim().required("Address is required"),
   phone: Yup.string().required("Phone is required").matches(/^\d+$/, "Phone must be digits only").min(9).max(15),
-  website: Yup.string().url("Invalid url").nullable(),
+ 
   description: Yup.string().trim().max(200).required("Description is required"),
   open_hours: Yup.string().trim().max(100).required("Business hours are required"),
 })
@@ -355,7 +355,7 @@ export default function AddRestaurantPage() {
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   target.value = target.value
-                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/[^a-zA-Z0-9\s./:]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
                   .replace(/^\s+/g, ""); 
 
                 }}/>

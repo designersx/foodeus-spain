@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 ,Clipboard} from "lucide-react";
 import { apiClient } from "@/services/apiService";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,6 +91,7 @@ export default function RestaurantDetailPage() {
   const [relod, setreload] = useState(false);
   const [fallback, setFallback] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryMenuItem, setsearchQueryMenuItem] = useState("");
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [activeTab, setActiveTab] = useState("menu");
   // const [items, setItems] = useState<RestaurantItem[]>([]);
@@ -106,9 +107,21 @@ export default function RestaurantDetailPage() {
               Authorization: `Bearer ${token}`,
             },
           });
-      setItems(response.data.data);
+          if (Array.isArray(response.data.data)) {
+            const sotedItems = response?.data?.data
+              .filter((item: any) => item.id != null)
+              .sort(
+                (a: any, b: any) =>
+                  new Date(b.updated_at).getTime() -
+                  new Date(a.updated_at).getTime()
+              );
+            // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+            setItems(sotedItems);
+          }
+    
+    
     } catch (error) {
-      console.error("Error fetching restaurant:", error);
+      // console.error("Error fetching restaurant:", error);
       setItems([])
     } finally {
       setLoading(false);
@@ -146,16 +159,14 @@ export default function RestaurantDetailPage() {
   }, [relod]);
 
   useEffect(() => {
-    // Check if the active tab is stored in sessionStorage
     const storedTab = sessionStorage.getItem("activeTab");
     
     if (storedTab) {
-      setActiveTab(storedTab); // Set the active tab based on the stored value
+      setActiveTab(storedTab); 
     }
   }, []);
 
-  // const restaurantId = params.id as string
-  // const restaurant = restaurantsData.find((r) => r.id === restaurantId)
+
 
   if (!restaurant && !loading) {
     return (
@@ -278,7 +289,6 @@ export default function RestaurantDetailPage() {
 
   const handleEditItem = (item: any) => {
     // Store the item data in sessionStorage
-    console.log("item clicked");
     sessionStorage.setItem("editMenuItem", JSON.stringify(item));
     // Redirect to edit page
     router.push(`/admin/edit-menu-item/edit-menu-item/${item.id}`);
@@ -289,11 +299,20 @@ export default function RestaurantDetailPage() {
       menu?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
       menu?.category?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
+
+  const filteredItems = items?.filter(
+    (item) =>
+      item?.item_name?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase()) ||
+      item?.item_type?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase())
+  );
+  // console.log("filteredItems", filteredItems)
   const normalized = getMenuImagePath(restaurant?.cover_image);
   // console.log('normalize',normalized)
   const src = normalized
     ? `${API_BASE_URL}/${normalized}`
     : "/Images/restaurent-fall.jpg";
+
+    // console.log('filteredMenus', filteredMenus)
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -522,7 +541,7 @@ export default function RestaurantDetailPage() {
                             </div>
                             <div className="text-right">
                               <div className="font-medium">€{item?.price}</div>
-                              <Badge variant="outline">{item.category}</Badge>
+                              {/* <Badge variant="outline">{item.category}</Badge> */}
                               {/* {item.updated_at && <Badge className="ml-2"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}
                             </Badge>} */}
                             </div>
@@ -602,17 +621,46 @@ export default function RestaurantDetailPage() {
                   );
                 })}
                 
-              {restaurant && restaurant.menus?.length <= 0 && (
+              {filteredMenus?.length <= 0 && (
                 <>
-                  <div className="flex justify-center items-center py-12">
-                    <p>No menu items found.</p>
-                  </div>
+                  <div className="text-center text-muted-foreground py-8">
+                    <p>No menu found.</p>
+                  </div>  
                 </>
               )}
             </TabsContent>
             <TabsContent value="itemsList" className="space-y-4">
-              {items.length > 0 ? (
-                items.map((item) => (
+            <div className="flex items-center gap-2 w-full">
+                <div className="relative flex-1">
+                  <Input
+                    type="search"
+                    placeholder="Search Menu Item"
+                    className="pl-8 w-full"
+                    value={searchQueryMenuItem}
+                    onChange={(e) => {
+                      setsearchQueryMenuItem(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between items-center mb-4">
+              <span></span>
+              <Button asChild>
+                <Link
+                  href={`/admin/restaurants/${restaurant?.id}/upload-item-list`} style={{ textDecoration: "none" }}
+                  onClick={() => {
+                    sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
+                  }}
+                >
+                  <Clipboard className="h-4 w-4 mr-2" />
+                  Upload Menu Item List
+                </Link>
+              </Button>
+            </div>
+
+              
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
                   <Card key={item.id}>
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/4">
@@ -637,7 +685,7 @@ export default function RestaurantDetailPage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">{item.price}</div>
+                            <div className="font-medium">€{item.price}</div>
                             <Badge variant="outline">{item.item_type}</Badge>
                           </div>
                         </div>
