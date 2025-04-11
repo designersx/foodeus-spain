@@ -154,6 +154,7 @@ export function ListView() {
 
 
   useEffect(() => {
+    setLoading(true);
     const fetchRestaurants = async () => {
       try {
         const data = await getRestaurantsWithMenus();
@@ -222,6 +223,8 @@ export function ListView() {
         setHasFetched(true);
       } catch (err) {
         console.error("Error fetching restaurants:", err);
+        setLoading(false);
+      }finally{
         setLoading(false);
       }
     };
@@ -463,7 +466,7 @@ export function ListView() {
 
       <div className="text-center mt-4">
         {loading ? (
-          <div className="position-absolute top-50 start-50 translate-middle">
+          <div className="position-absolute top-70 start-50 translate-middle">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading map...</span>
             </div>

@@ -242,7 +242,7 @@ const expectedHeaders = [
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full border-b grid grid-cols-2">
-              <TabsTrigger value="upload" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">
+              <TabsTrigger value="upload" className="data-[state=active]:border-b-2 data-[state=active]:border-primary mb-2">
                 Upload CSV
               </TabsTrigger>
               <TabsTrigger
