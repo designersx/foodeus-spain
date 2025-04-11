@@ -62,15 +62,15 @@ const HeroSection = () => {
     fetchHeroList()
   },[unsavedChanges])
   // Auto-slide effect
-  useEffect(() => {
-    if (slides.length <= 1) return;     
+  // useEffect(() => {
+  //   if (slides.length <= 1) return;     
 
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length); 
-    }, 15000); 
+  //   const interval = setInterval(() => {
+  //     setCurrentSlide((prev) => (prev + 1) % slides.length); 
+  //   }, 15000); 
 
-    return () => clearInterval(interval);
-  }, [slides]); 
+  //   return () => clearInterval(interval);
+  // }, [slides]); 
 
   // Handle file upload
   const handleFileChange = async (

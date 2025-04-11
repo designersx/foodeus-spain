@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 ,Clipboard} from "lucide-react";
 import { apiClient } from "@/services/apiService";
 import { Button } from "@/components/ui/button";
 import {
@@ -107,9 +107,21 @@ export default function RestaurantDetailPage() {
               Authorization: `Bearer ${token}`,
             },
           });
-      setItems(response.data.data);
+          if (Array.isArray(response.data.data)) {
+            const sotedItems = response?.data?.data
+              .filter((item: any) => item.id != null)
+              .sort(
+                (a: any, b: any) =>
+                  new Date(b.updated_at).getTime() -
+                  new Date(a.updated_at).getTime()
+              );
+            // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+            setItems(sotedItems);
+          }
+    
+    
     } catch (error) {
-      console.error("Error fetching restaurant:", error);
+      // console.error("Error fetching restaurant:", error);
       setItems([])
     } finally {
       setLoading(false);
@@ -277,7 +289,6 @@ export default function RestaurantDetailPage() {
 
   const handleEditItem = (item: any) => {
     // Store the item data in sessionStorage
-    console.log("item clicked");
     sessionStorage.setItem("editMenuItem", JSON.stringify(item));
     // Redirect to edit page
     router.push(`/admin/edit-menu-item/edit-menu-item/${item.id}`);
@@ -300,6 +311,8 @@ export default function RestaurantDetailPage() {
   const src = normalized
     ? `${API_BASE_URL}/${normalized}`
     : "/Images/restaurent-fall.jpg";
+
+    // console.log('filteredMenus', filteredMenus)
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -608,11 +621,11 @@ export default function RestaurantDetailPage() {
                   );
                 })}
                 
-              {restaurant && restaurant.menus?.length <= 0 && (
+              {filteredMenus?.length <= 0 && (
                 <>
-                  <div className="flex justify-center items-center py-12">
-                    <p>No menu items found.</p>
-                  </div>
+                  <div className="text-center text-muted-foreground py-8">
+                    <p>No menu found.</p>
+                  </div>  
                 </>
               )}
             </TabsContent>
@@ -630,6 +643,22 @@ export default function RestaurantDetailPage() {
                   />
                 </div>
               </div>
+              <div className="flex justify-between items-center mb-4">
+              <span></span>
+              <Button asChild>
+                <Link
+                  href={`/admin/restaurants/${restaurant?.id}/upload-item-list`} style={{ textDecoration: "none" }}
+                  onClick={() => {
+                    sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
+                  }}
+                >
+                  <Clipboard className="h-4 w-4 mr-2" />
+                  Upload Menu Item List
+                </Link>
+              </Button>
+            </div>
+
+              
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <Card key={item.id}>

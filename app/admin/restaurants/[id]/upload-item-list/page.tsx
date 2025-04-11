@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useRef } from "react";
-import { Download, Upload, FileText, AlertCircle, Check, Info } from "lucide-react";
+import { Download, Upload, FileText, AlertCircle, Check, Info,ArrowLeft} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiClient } from "@/services/apiService";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 
 interface CSVRow {
   Item_Name: string;
@@ -225,6 +226,13 @@ console.log('restaurantId',restaurantId)
 
   return (
     <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+        <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href={`/admin/restaurants/${restaurantId}`}>
+            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurant
+          </Link>
+        </Button>
+      </div>
       <div className="flex-1 overflow-y-auto">
         <Card className="shadow-lg border-0 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground p-6 text-black">
@@ -343,7 +351,7 @@ console.log('restaurantId',restaurantId)
                       </li>
                       <li className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono">Item_Type</Badge>
-                        <span className="text-sm">Type of item (e.g., Main Course, Appetizer)</span>
+                        <span className="text-sm">Type of item (e.g., Starters,Main Course,Desserts,Beverages)</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono">Menu_ID</Badge>

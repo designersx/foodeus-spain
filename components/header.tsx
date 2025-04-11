@@ -1,11 +1,18 @@
 "use client"
+import React, { useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/context/language-context"
 
 export default function Header() {
   const { language, setLanguage, t } = useLanguage()
-
+  useEffect(() => {
+    const storedLanguage = localStorage.getItem("language")
+    if (storedLanguage) {
+      setLanguage(storedLanguage as "en" | "es")
+    }
+  }, [setLanguage])
+ 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light  border-bottom">
       <div className="container">

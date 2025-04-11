@@ -73,7 +73,16 @@ export function ListView() {
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
-  const userLocationFromStorage = JSON.parse(localStorage.getItem("userLocation") || "{}");
+  const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
+  
+  useEffect(() => {
+    // Check if we're on the client side before accessing localStorage
+    if (typeof window !== "undefined") {
+      const locationVar = localStorage.getItem("userLocation") || "{}";
+      const userLocation = JSON.parse(locationVar);
+      setUserLocationFromStorage(userLocation);
+    }
+  }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -250,8 +259,8 @@ export function ListView() {
 
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
-
     if (!term) {
+      console.log("No search term, showing all restaurants.");
       setFilteredRestaurants(restaurantsWithDistance);
       return;
     }
@@ -259,32 +268,20 @@ export function ListView() {
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;
 
-      switch (filterBy) {
-        case "restaurant":
-          return restaurant?.name?.toLowerCase().includes(term);
-
-        case "location":
-          return restaurant?.location?.toLowerCase().includes(term);
-
-        case "menu":
-          return restaurant?.menu?.title?.en?.toLowerCase().includes(term);
-        case "items":
-          return restaurant?.menu?.items?.toLowerCase().includes(term);
-
-        case "all":
-        default:
           return (
             restaurant?.name?.toLowerCase().includes(term) ||
             restaurant?.location?.toLowerCase().includes(term) ||
             restaurant?.menu?.title?.en?.toLowerCase().includes(term) ||
             restaurant?.menu?.items?.toLowerCase().includes(term)
           );
-      }
     });
 
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
 
+
+
+  
   // serachbar go on top
   const searchRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
@@ -328,22 +325,22 @@ export function ListView() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, focused]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollThreshold = 300; // px from bottom
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     const scrollThreshold = 300; // px from bottom
 
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - scrollThreshold
-      ) {
-        // Load 10 more restaurants
-        setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
-      }
-    };
+  //     if (
+  //       window.innerHeight + window.scrollY >=
+  //       document.body.offsetHeight - scrollThreshold
+  //     ) {
+  //       // Load 10 more restaurants
+  //       setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
+  //     }
+  //   };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [filteredRestaurants.length]);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [filteredRestaurants.length]);
 
   const retryGeolocation = () => {
     setLoading(true);
@@ -392,7 +389,7 @@ export function ListView() {
   }
 
   return (
-    
+
     <div className="pb-5">
       <HeroSlideshow />
       <div className=" SearchFixed container my-3">
@@ -419,11 +416,27 @@ export function ListView() {
       </div>
 
       <div className="text-center mt-4">
-  
-          
-            {userLocation && !locationError && filteredRestaurants.length > 0 ? (
-              filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
-                // filteredRestaurants.map((restaurant) => (
+          {loading ?
+          (
+          <div
+              className="position-absolute top-50 start-50 translate-middle"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+          </div>
+          )
+      
+        : (
+            userLocation && !locationError && filteredRestaurants.length > 0 ? (
+              // filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
+                filteredRestaurants.map((restaurant) => (
                 <RestaurantCard
                   key={restaurant?.id}
                   restaurant={restaurant}
@@ -431,8 +444,9 @@ export function ListView() {
                 />
               ))
             ) : (
-              <p className="text-center text-gray-500">No restaurants found.</p>
-            )}
+              userLocation && locationError  && <p className="text-center text-gray-500">No restaurants found.</p>
+            )
+          )}
         
         
       </div>

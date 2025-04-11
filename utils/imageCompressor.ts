@@ -1,7 +1,6 @@
 import imageCompression from 'browser-image-compression';
 
 export const compressAndResizeImage = async (file:any) => {
-  console.log('Original file type:', file);
   try {
     // Define options for compression
     const options = {
