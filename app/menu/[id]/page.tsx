@@ -183,7 +183,7 @@ export default function MenuDetailPage() {
     const rounded = Math.floor(count / 10) * 10;
     return `${rounded}+`;
   };
-  console.log('sss',mapUrl)
+  // console.log('sss',mapUrl)
   return (
     <>
       <div className="pb-5 mb-5">

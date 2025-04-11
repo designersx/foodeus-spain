@@ -224,9 +224,8 @@ export function HeroSlideshow() {
                   alt={slide.title[language]}
                   layout="fill" // Ensure the image fills its container
                   objectFit="cover" // Image will cover the container
-                  className="object-cover"
                   priority={index === 0} // Load the first image with priority
-                  style={{ filter: "brightness(65%)" }} // Apply brightness filter
+                  style={{ filter: "brightness(65%)",objectFit: "cover"  }} // Apply brightness filter
                 />
                 <div className="carousel-caption pb-4">
                   <h2 className="lobsterFont" style={{ textShadow: '0px 0px 3px #000000' }}>
@@ -249,9 +248,8 @@ export function HeroSlideshow() {
                   alt={slide.title[language]}
                   layout="fill" // Ensure the image fills its container
                   objectFit="cover" // Image will cover the container
-                  className="object-cover"
                   priority={index === 0} // Load the first image with priority
-                  style={{ filter: "brightness(65%)" }} // Apply brightness filter
+                  style={{ filter: "brightness(65%)",objectFit: "cover"  }} // Apply brightness filter
                 />
                 <div className="carousel-caption pb-4">
                   <h2 className="lobsterFont" style={{ textShadow: '0px 0px 3px #000000' }}>

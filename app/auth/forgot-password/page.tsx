@@ -105,6 +105,11 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
     
       <Card className="w-full max-w-md">
+      <div className="absolute top-10 left-4">
+    <Button variant="outline" onClick={() => window.history.back()} className="text-primary">
+      &larr; Back
+    </Button>
+  </div>
       <CardHeader className="text-center space-y-2">
       <div className="flex justify-center mb-2">
         <div className="flex items-center gap-2 text-primary">

@@ -256,12 +256,13 @@ export default function AddRestaurantPage() {
                 <Input {...formik.getFieldProps("name")}   
                 placeholder="Enter Restaurant Name"
                   maxLength={50}
-                onInput={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
-                
-                }}/>
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
+                  }}/>
                 {formik.touched.name && formik.errors.name && <span className="text-sm text-danger">{formik.errors.name}</span>}
               </div>
               <div>
@@ -293,13 +294,13 @@ export default function AddRestaurantPage() {
                 onBlur={formik.handleBlur}
                 placeholder="Enter address"
               maxLength={100}
-                onInput={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  // Trim leading spaces and prevent entering them
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+              onInput={(e) => {
+                const target = e.target as HTMLInputElement;
+                target.value = target.value
+                .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                .replace(/^\s+/g, ""); 
 
-                }}
+              }}
               />
               {suggestions.length > 0 && (
                 <div className="absolute top-full left-0 z-50 bg-white shadow border rounded w-full max-h-60 overflow-auto">
@@ -351,9 +352,12 @@ export default function AddRestaurantPage() {
                 placeholder="Enter Website URL"
 
                 maxLength={70} 
-                 onInput={(e) => {
+                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  target.value = target.value.replace(/^\s+/, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
+
                 }}/>
                 {formik.touched.website && formik.errors.website && <span className="text-sm text-danger ">{formik.errors.website}</span>}
               </div>
@@ -365,12 +369,12 @@ export default function AddRestaurantPage() {
              placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
               maxLength={200}
               onInput={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  // Trim leading spaces and prevent entering them
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
-                  
-                }}/>
+                const target = e.target as HTMLInputElement;
+                target.value = target.value
+                .replace(/[^a-zA-Z0-9\s-]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                .replace(/^\s+/g, ""); 
+
+              }}/>
               {formik.touched.open_hours && formik.errors.open_hours && <span className="text-sm text-danger">{formik.errors.open_hours}</span>}
             </div>
 
@@ -381,9 +385,9 @@ export default function AddRestaurantPage() {
               maxLength={200}
                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
-                  // Trim leading spaces and prevent entering them
-                  target.value = target.value.replace(/^\s+/, "");
-                  target.value = target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
 
                 }}/>
               {formik.touched.description && formik.errors.description && <span className="text-sm text-danger">{formik.errors.description}</span>}

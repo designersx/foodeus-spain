@@ -317,7 +317,7 @@ export default function ImportMenuCSV() {
             <TabsList className="w-full rounded-none border-b grid grid-cols-2">
               <TabsTrigger
                 value="upload"
-                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary mb-2"
               >
                 Upload CSV
               </TabsTrigger>

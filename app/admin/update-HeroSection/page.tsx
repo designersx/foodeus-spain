@@ -476,7 +476,15 @@ const HeroSection = () => {
                   placeholder="Enter slide title"
                   value={slide?.title || ""}
                   onChange={(e) => handleTitleChange(id, e.target.value)}
+                  maxLength={100}
                   className="w-full border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500"
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
+                  }}
                 />
               </div>
             </div>

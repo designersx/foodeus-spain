@@ -352,13 +352,13 @@ export default function RestaurantDetailPage() {
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Website</h4>
-                  <p className="text-sm text-muted-foreground"  style={{overflowWrap: "break-word"}}>
-                    {restaurant?.website ? restaurant?.website :"NA"}
+                  <p className="text-sm text-muted-foreground"  style={{overflowWrap: "break-word",textDecoration:"none"}}>
+                    {restaurant?.website ?  <a href={restaurant?.website} target="_blank" rel="noopener noreferrer"  style={{ textDecoration: "none" }} > {restaurant?.website} </a>:"NA"}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium">Hours</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h4 className="text-sm font-medium" style={{overflowWrap: "break-word"}}>Hours</h4>
+                  <p className="text-sm text-muted-foreground" style={{overflowWrap: "break-word"}}> 
                     {restaurant?.open_hours
                       ? restaurant.open_hours
                           .replace(/�\?\?�\?\?/g, "-")
