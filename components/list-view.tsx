@@ -6,10 +6,13 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { HeroSlideshow } from "@/components/hero-slideshow";
 import { Input } from "@/components/ui/input"; // Radix UI Input
 import { Search } from "lucide-react";
-import { getRestaurantsWithMenus } from "@/services/apiService";
+import { apiClient, getRestaurantsWithMenus } from "@/services/apiService";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useRestaurantStore } from "@/store/restaurantStore";
+import { boolean } from "yup";
+import RegisterPromptModal from "./RegisterPromptModal";
+import { useRouter } from 'next/navigation';
 
 interface Menu {
   title: { en: string; es: string };
@@ -74,7 +77,10 @@ export function ListView() {
   const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
   const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
-  
+  const [isLoggedIn, setIsLoggedIn] = useState<string>("")
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
     // Check if we're on the client side before accessing localStorage
     if (typeof window !== "undefined") {
@@ -94,7 +100,7 @@ export function ListView() {
           };
 
           setUserLocation(userPos);
-          
+
           localStorage.setItem("userLocation", JSON.stringify(userPos));
 
           setLoading(false);
@@ -133,27 +139,27 @@ export function ListView() {
           console.error("API response is not an array:", data);
           return;
         }
-  
+
         const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
           const sortedMenus = restaurant.menus
             ? [...restaurant.menus].sort((a, b) => {
-                const today = new Date().toDateString();
-  
-                const isATodaySpecial =
-                  a.menu_type === "Today's Special" &&
-                  new Date(a.updated_at).toDateString() === today;
-  
-                const isBTodaySpecial =
-                  b.menu_type === "Today's Special" &&
-                  new Date(b.updated_at).toDateString() === today;
-  
-                if (isATodaySpecial && !isBTodaySpecial) return -1;
-                if (!isATodaySpecial && isBTodaySpecial) return 1;
-  
-                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-              })
+              const today = new Date().toDateString();
+
+              const isATodaySpecial =
+                a.menu_type === "Today's Special" &&
+                new Date(a.updated_at).toDateString() === today;
+
+              const isBTodaySpecial =
+                b.menu_type === "Today's Special" &&
+                new Date(b.updated_at).toDateString() === today;
+
+              if (isATodaySpecial && !isBTodaySpecial) return -1;
+              if (!isATodaySpecial && isBTodaySpecial) return 1;
+
+              return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+            })
             : [];
-  
+
           return {
             id: restaurant.restaurant_id?.toString() || "",
             name: restaurant.name || "",
@@ -167,91 +173,88 @@ export function ListView() {
             menu:
               sortedMenus.length > 0
                 ? {
-                    title: {
-                      en: sortedMenus[0].item_name || "",
-                      es: sortedMenus[0].item_name || "",
-                    },
-                    description: {
-                      en: sortedMenus[0].description || "",
-                      es: sortedMenus[0].description || "",
-                    },
-                    image: sortedMenus[0]?.image_url || "",
-                    items: sortedMenus[0]?.item_list,
-                    updated_at: sortedMenus[0]?.updated_at,
-                    menu_type: sortedMenus[0]?.menu_type,
-                    menu_id: sortedMenus[0]?.menu_id,
-                  }
-                : {
-                    title: { en: "", es: "" },
-                    description: { en: "", es: "" },
-                    image: "",
+                  title: {
+                    en: sortedMenus[0].item_name || "",
+                    es: sortedMenus[0].item_name || "",
                   },
+                  description: {
+                    en: sortedMenus[0].description || "",
+                    es: sortedMenus[0].description || "",
+                  },
+                  image: sortedMenus[0]?.image_url || "",
+                  items: sortedMenus[0]?.item_list,
+                  updated_at: sortedMenus[0]?.updated_at,
+                  menu_type: sortedMenus[0]?.menu_type,
+                  menu_id: sortedMenus[0]?.menu_id,
+                }
+                : {
+                  title: { en: "", es: "" },
+                  description: { en: "", es: "" },
+                  image: "",
+                },
           };
         });
-  
+
         setRestaurants(formattedRestaurants);
         setHasFetched(true);
       } catch (err) {
         console.error("Error fetching restaurants:", err);
         setLoading(false);
-      }finally{
+      } finally {
         setLoading(false);
       }
     };
-  
+
     // Only run the fetch once when data is not fetched
     if (!hasFetched) {
       fetchRestaurants();
     }
-  
+
   }, [hasFetched]);
-  
-  
-  
+
   useEffect(() => {
     if (!restaurants.length) return;
     if (userLocationFromStorage) {
-          const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split("T")[0];
 
-          const withDistance = restaurants.map((restaurant) => {
-            const hasMenu = !!restaurant.menu?.updated_at;
-            const latestUpdate = restaurant.menu?.updated_at || "";
-            const updatedDate = latestUpdate?.split(" ")[0];
+      const withDistance = restaurants.map((restaurant) => {
+        const hasMenu = !!restaurant.menu?.updated_at;
+        const latestUpdate = restaurant.menu?.updated_at || "";
+        const updatedDate = latestUpdate?.split(" ")[0];
 
-            const updatedToday =
-              updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
+        const updatedToday =
+          updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
 
-            return {
-              ...restaurant,
-              distance: calculateDistance(
-                userLocationFromStorage?.lat,
-                userLocationFromStorage?.lng,
-                restaurant.coordinates.lat,
-                restaurant.coordinates.lng
-              ),
-              updatedToday,
-              hasMenu,
-              rating: restaurant.rating || 3,
-            };
-          });
+        return {
+          ...restaurant,
+          distance: calculateDistance(
+            userLocationFromStorage?.lat,
+            userLocationFromStorage?.lng,
+            restaurant.coordinates.lat,
+            restaurant.coordinates.lng
+          ),
+          updatedToday,
+          hasMenu,
+          rating: restaurant.rating || 3,
+        };
+      });
 
-          // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
-          withDistance.sort((a, b) => {
-            if (a.updatedToday && !b.updatedToday) return -1;
-            if (!a.updatedToday && b.updatedToday) return 1;
+      // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
+      withDistance.sort((a, b) => {
+        if (a.updatedToday && !b.updatedToday) return -1;
+        if (!a.updatedToday && b.updatedToday) return 1;
 
-            if (a.hasMenu && !b.hasMenu) return -1;
-            if (!a.hasMenu && b.hasMenu) return 1;
+        if (a.hasMenu && !b.hasMenu) return -1;
+        if (!a.hasMenu && b.hasMenu) return 1;
 
-            return (a.distance || 0) - (b.distance || 0);
-          });
+        return (a.distance || 0) - (b.distance || 0);
+      });
 
-          setRestaurantsWithDistance(withDistance);
-          setFilteredRestaurants(withDistance);
-          setLoading(false); 
+      setRestaurantsWithDistance(withDistance);
+      setFilteredRestaurants(withDistance);
+      setLoading(false);
     }
-  }, [restaurants,userLocation]);
-
+  }, [restaurants, userLocation]);
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
@@ -268,26 +271,49 @@ export function ListView() {
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;
 
-          return (
-            restaurant?.name?.toLowerCase().includes(term) ||
-            restaurant?.location?.toLowerCase().includes(term) ||
-            restaurant?.menu?.title?.en?.toLowerCase().includes(term) ||
-            restaurant?.menu?.items?.toLowerCase().includes(term)
-          );
+      return (
+        restaurant?.name?.toLowerCase().includes(term) ||
+        restaurant?.location?.toLowerCase().includes(term) ||
+        restaurant?.menu?.title?.en?.toLowerCase().includes(term) ||
+        restaurant?.menu?.items?.toLowerCase().includes(term)
+      );
     });
 
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
 
+  const handleRestaurantClick = (restaurant) => {
 
+    const isLoginUser = localStorage.getItem("isLoggedIn");
+    console.log(isLoginUser)
+    if (isLoginUser === "true") {
+      router.push(`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`);
+    } else {
+      setShowRegisterModal(true);
+    }
+  };
 
-  
+  const handleRegister = async (data: { name: string; email: string }) => {
+    const { name, email } = data;
+    console.log("Registered with Name:", name, "and Email:", email);
+
+    try {
+      const response = await apiClient.post('/mobileUsers/createMobileUser', { name, email });
+      if (response.status === 200) {
+        console.log("User registered successfully", response.data);
+      }
+    } catch (error) {
+      console.error("Error registering user", error);
+    }
+  };
+  useEffect(() => {
+    console.log("LoggedIn status changed:", isLoggedIn);
+  }, [isLoggedIn]);
   // serachbar go on top
   const searchRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [focused, setFocused] = useState(false);
-
   // Scroll to top with offset on focus
   const handleFocus = () => {
     const element = searchRef.current;
@@ -416,9 +442,9 @@ export function ListView() {
       </div>
 
       <div className="text-center mt-4">
-          {loading ?
+        {loading ?
           (
-          <div
+            <div
               className="position-absolute top-50 start-50 translate-middle"
               style={{
                 position: 'absolute',
@@ -430,25 +456,28 @@ export function ListView() {
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
-          </div>
+            </div>
           )
-      
-        : (
+          : (
             userLocation && !locationError && filteredRestaurants.length > 0 ? (
               // filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
-                filteredRestaurants.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant?.id}
-                  restaurant={restaurant}
-                  distance={restaurant?.distance}
-                />
+              filteredRestaurants.map((restaurant, index) => (
+                <div key={index} onClick={() => handleRestaurantClick(restaurant)} >
+                  <RestaurantCard
+                    key={restaurant?.id}
+                    restaurant={restaurant}
+                    distance={restaurant?.distance}
+
+                  />
+                </div>
+
               ))
             ) : (
-              userLocation && locationError  && <p className="text-center text-gray-500">No restaurants found.</p>
+              userLocation && locationError && <p className="text-center text-gray-500">No restaurants found.</p>
             )
           )}
-        
-        
+
+
       </div>
 
       {locationError && (
@@ -463,6 +492,13 @@ export function ListView() {
             </button>
           </div>
         </div>
+      )}
+      {!isLoggedIn && (
+        <RegisterPromptModal
+          show={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onRegister={handleRegister}
+        />
       )}
     </div>
   );

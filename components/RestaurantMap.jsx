@@ -101,6 +101,7 @@ const openInfoWindow = (restaurant, map, infoWindowRef, language, onNavigate) =>
 };
 
 export function RestaurantMap({ restaurants }) {
+
   const mapRef = useRef(null);
   const directionsRendererRef = useRef(null);
   const directionsServiceRef = useRef(null);
