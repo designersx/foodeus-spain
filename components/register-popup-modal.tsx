@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { apiClient } from "@/services/apiService";
 import PopUp from "./ui/custom-toast";
+import { useLanguage } from "@/context/language-context";
 
 interface RegisterPromptModalProps {
   show: boolean;
@@ -25,16 +26,20 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const [isSending, setIsSending] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const { t, language } = useLanguage()
+
   const handleSend = async () => {
     const newErrors: { name?: string; email?: string } = {};
     if (!email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = language=="es"?"El correo electrónico es obligatorio":"Email is required"
     } else if (!emailRegex.test(email)) {
-      newErrors.email = "Enter a valid email address";
+      newErrors.email = language=="es"? "Ingrese una dirección de correo electrónico válida" :"Enter a valid email address"
     }
 
     if (!isLoginMode && !name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name =language === "es" 
+      ? "El nombre es obligatorio" 
+      : "Name is required";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -133,7 +138,8 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               color: !isLoginMode ? "white" : "#4B5563",
             }}
           >
-            Register
+
+            {t("registerHeading")}
           </button>
           <button
             onClick={() => setIsLoginMode(true)}
@@ -147,31 +153,32 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               color: isLoginMode ? "white" : "#4B5563",
             }}
           >
-            Login
+            {t("loginHeading")}
+
           </button>
         </div>}
         {/* Email & Name Inputs */}
         {!showOtp ? (
           <>
-            
+
             {!isLoginMode && (
               <div className="mb-4">
                 <Input
                   type="text"
-                  placeholder="Name"
+                  placeholder={language == "es" ? "Nombre" : "Name"}
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
                     setErrors(prev => ({ ...prev, name: "" }));
                   }}
                 />
-                {errors.name && <p className="text-red-500 text-sm mt-1 text-left">{errors.name}</p>}
+                {errors.name && <p style={{color:"red"}} className="text-red-500 text-sm mt-1 text-left">{errors.name}</p>}
               </div>
             )}
             <div className="mb-4">
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={language == "es" ? "Correo Electrónico" : "Email"}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -181,12 +188,12 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               {errors.email && <p style={{ color: "red" }} className="text-red-500 text-sm mt-1 text-left">{errors.email}</p>}
             </div>
             <Button onClick={handleSend} className="w-full">
-              {isSending ? "Sending..." : "Send OTP"}
+              {isSending ? `${t("sendOtpButtonSending")}` : `${t("sendOtpButton1")}`}
             </Button>
           </>
         ) : (
           <>
-            <h2 className="text-xl font-semibold mb-3">Verify OTP</h2>
+            <h2 className="text-xl font-semibold mb-3"> {t("verifyOtpHeading")}</h2>
             <div className="flex justify-center gap-2 mb-4">
               {inputOtp.map((digit, index) => (
                 <Input
@@ -205,9 +212,10 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
                 />
               ))}
             </div>
-            {errors.otp && <p style={{color:"red"}} className="text-red-500 text-sm mb-2">{errors.otp}</p>}
+            {errors.otp && <p style={{ color: "red" }} className="text-red-500 text-sm mb-2">{errors.otp}</p>}
             <Button onClick={handleSubmitOtp} className="w-auto">
-              Submit OTP
+
+              {t("sendOtpButton1")}
             </Button>
           </>
         )}
