@@ -93,6 +93,7 @@ console.log("User Location not found in localStorage.");
 }
   };
   return (
+    <>
     <Link href={`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`} className="text-decoration-none text-dark">
       <div className="card mb-3 mainClass">
         <div className="dishControl" style={{ height: "" }}>
@@ -177,6 +178,8 @@ console.log("User Location not found in localStorage.");
         </div>
       </div>
     </Link>
+    <hr></hr>
+    </>
   )
 }
 
