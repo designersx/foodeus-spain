@@ -6,169 +6,188 @@ import decodeToken from "@/lib/decode-token";
 import PopUp from "./ui/custom-toast";
 
 interface ProfileSectionModalProps {
-    show: boolean;
-    onClose: () => void;
-
+  show: boolean;
+  onClose: () => void;
 }
+
 type DecodedToken = {
-    userId: string;
+  userId: string;
 };
-const ProfileSection: React.FC<ProfileSectionModalProps> = ({
-    show,
-    onClose,
 
-}) => {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
-    const [toast, setToast] = useState({ show: false, message: "", type: "" });
-    const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
-    const token = localStorage.getItem("token");
-    const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
-    // Fetch user details
-    useEffect(() => {
-        if (getUserId?.userId) {
-            apiClient
-                .get(`/mobileUsers/getMobileUserWithId/${getUserId.userId}`)
-                .then((res) => {
-                    const user = res.data?.data || {};
-                    setName(user.name || "");
-                    setEmail(user.email || "");
-                })
-                .catch((err) => {
-                    console.error("Error fetching user data", err);
-                });
-        }
-    }, []);
+const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const token = localStorage.getItem("token");
+  const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
 
-    const handleEditToggle = () => {
-        setIsEditing((prev) => !prev);
-    };
+  useEffect(() => {
+    if (getUserId?.userId) {
+      apiClient
+        .get(`/mobileUsers/getMobileUserWithId/${getUserId.userId}`)
+        .then((res) => {
+          const user = res.data?.data || {};
+          setName(user.name || "");
+          setEmail(user.email || "");
+        })
+        .catch((err) => {
+          console.error("Error fetching user data", err);
+        });
+    }
+  }, []);
 
-    const handleUpdate = () => {
-        const newErrors: { name?: string; email?: string } = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
+  };
 
-        if (!name.trim()) newErrors.name = "Name is required";
-        if (!email.trim()) newErrors.email = "Email is required";
-        else if (!emailRegex.test(email)) newErrors.email = "Invalid email";
+  const handleUpdate = () => {
+    const newErrors: { name?: string; email?: string } = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-        // Clear errors
-        setErrors({});
-        // Call the update API to update user details
-        if (getUserId?.userId) {
-            apiClient
-                .put(`/mobileUsers/updateMobileUserWithId/${getUserId.userId}`, {
-                    name,
-                    email,
-                })
-                .then((response) => {
-                    if (response.data.success) {
-                        setToast({ show: true, message: "Updated successfully!", type: "success" });
-                    } else {
-                        setToast({ show: true, message: "Update failed!", type: "error" });
-                    }
-                })
-                .catch((err) => {
-                    setToast({ show: true, message: "An error occurred. Please try again.", type: "error" });
-                    console.error("Error updating user data", err);
-                });
-        }
-        setTimeout(() => {
-            setToast({ show: false, message: "", type: "" });
-            setIsEditing(false);
-        }, 2000);
-    };
-    const handleCloseModal = () => {
-        setIsEditing(false);
-        onClose();
-    };
+    if (!name.trim()) newErrors.name = "Name is required";
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!emailRegex.test(email)) newErrors.email = "Invalid email";
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-    if (!show) return null;
+    setErrors({});
 
-    return (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full text-center relative">
-                <button
-                    style={{ width: "40px", height: "40px", fontSize: "25px" }}
-                    onClick={handleCloseModal}
-                    className="absolute top-2 right-2 text-gray-600 hover:text-black"
-                >
-                    &times;
-                </button>
-                <button
-                    onClick={handleEditToggle}
-                    className="absolute top-2 left-2 text-gray-600 hover:text-black text-xl"
-                >
-                    {isEditing ? "Cancel" : "Edit"}
-                </button>
+    if (getUserId?.userId) {
+      apiClient
+        .put(`/mobileUsers/updateMobileUserWithId/${getUserId.userId}`, {
+          name,
+          email,
+        })
+        .then((response) => {
+          if (response.data.success) {
+            setToast({ show: true, message: "Updated successfully!", type: "success" });
+          } else {
+            setToast({ show: true, message: "Update failed!", type: "error" });
+          }
+        })
+        .catch((err) => {
+          setToast({ show: true, message: "An error occurred. Please try again.", type: "error" });
+          console.error("Error updating user data", err);
+        });
+    }
 
-                <h2 className="text-xl font-semibold mb-4">Profile Details</h2>
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+      setIsEditing(false);
+    }, 2000);
+  };
 
-                <div className="flex justify-between items-center gap-4">
-                    <label className="text-sm font-medium">Name</label>
-                    {isEditing ? (
-                        <>
-                            <Input
-                                value={name}
-                                onChange={(e) => {
-                                    setName(e.target.value);
-                                    setErrors((prev) => ({ ...prev, name: "" }));
-                                }}
-                            />
-                            {errors.name && (
-                                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                            )}
-                        </>
-                    ) : (
-                        <p className="mt-2 text-gray-800">{name}</p>
-                    )}
-                </div>
-                <br />
+  const handleCloseModal = () => {
+    setIsEditing(false);
+    onClose();
+  };
 
-                <div className="flex justify-between items-center gap-4">
-                    <label className="text-sm font-medium">Email</label>
-                    {isEditing ? (
-                        <>
-                            <Input
-                                type="email"
-                                value={email}
-                                onChange={(e) => {
-                                    setEmail(e.target.value);
-                                    setErrors((prev) => ({ ...prev, email: "" }));
-                                }}
-                            />
-                            {errors.email && (
-                                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                            )}
-                        </>
-                    ) : (
-                        <p className="mt-2 text-gray-800">{email}</p>
-                    )}
-                </div>
-                <br />
-                {isEditing && (
-                    <Button variant="default" className="w-full" onClick={handleUpdate}>
-                        Update
-                    </Button>
-                )}
-            </div>
+  if (!show) return null;
 
+  return (
+    <div
+      className="fixed inset-0 z-50 flex justify-center items-center px-4 "
+      style={{ backgroundColor: "#000000a3" }}
+    >
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative space-y-6 ">
+        {/* Close Button */}
+        <button
+          onClick={handleCloseModal}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-800 text-2xl"
+        >
+          &times;
+        </button>
 
-            {toast.show && (
-                <PopUp
-                    type={toast.type}
-                    message={toast.message}
-                    onClose={() => setToast({ show: false, message: "", type: "" })}
-                />
-            )}
+       
+
+        {/* Heading */}
+        <h2 className="text-2xl font-bold text-gray-800 text-center border-b pb-3">
+          Profile Details
+        </h2>
+
+        {/* Name Field */}
+        <div className="space-y-1">
+          <label className="text-sm font-semibold text-gray-700 block">Name</label>
+          {isEditing ? (
+            <>
+              <Input
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setErrors((prev) => ({ ...prev, name: "" }));
+                }}
+                className="w-full border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-900 font-medium border p-2 rounded">{name}</p>
+          )}
+          
         </div>
-    );
+
+        {/* Divider */}
+        <hr className="my-2" />
+
+        {/* Email Field */}
+        <div className="space-y-1">
+          <label className="text-sm font-semibold text-gray-700 block">Email</label>
+          {isEditing ? (
+            <>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((prev) => ({ ...prev, email: "" }));
+                }}
+                className="w-full border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-900 font-medium border p-2 rounded">{email}</p>
+          )}
+        </div>
+         {/* Edit Button */}
+         <button
+  onClick={handleEditToggle}
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
+  style={{ background: "#0d6efd", color: "#fff" }}
+>
+  {isEditing ? "Cancel" : "Edit"}
+</button>
+
+        {/* Update Button */}
+        {isEditing && (
+          <Button
+            onClick={handleUpdate}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
+          style={{background: "#0d6efd"}}>
+            Update
+          </Button>
+        )}
+      </div>
+
+      {/* Toast */}
+      {toast.show && (
+        <PopUp
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ show: false, message: "", type: "" })}
+        />
+      )}
+    </div>
+  );
 };
 
 export default ProfileSection;
