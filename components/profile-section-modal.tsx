@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { apiClient } from "@/services/apiService";
 import decodeToken from "@/lib/decode-token";
 import PopUp from "./ui/custom-toast";
+import { useLanguage } from "@/context/language-context";
 
 interface ProfileSectionModalProps {
   show: boolean;
@@ -22,7 +23,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const token = localStorage.getItem("token");
   const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
-
+ const { t,language } = useLanguage()
   useEffect(() => {
     if (getUserId?.userId) {
       apiClient
@@ -107,12 +108,12 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
 
         {/* Heading */}
         <h2 className="text-2xl font-bold text-gray-800 text-center border-b pb-3">
-          Profile Details
+          {t("profileHeading")}
         </h2>
 
         {/* Name Field */}
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-700 block">Name</label>
+          <label className="text-sm font-semibold text-gray-700 block">{t("profileName")}</label>
           {isEditing ? (
             <>
               <Input
@@ -138,7 +139,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
 
         {/* Email Field */}
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-700 block">Email</label>
+          <label className="text-sm font-semibold text-gray-700 block">{t("profileEmail")}</label>
           {isEditing ? (
             <>
               <Input
@@ -164,7 +165,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
   style={{ background: "#0d6efd", color: "#fff" }}
 >
-  {isEditing ? "Cancel" : "Edit"}
+  {isEditing ?` ${t("ProfileCancel")}` :  `${t("ProfileEdit")}`}
 </button>
 
         {/* Update Button */}
@@ -173,7 +174,8 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
             onClick={handleUpdate}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
           style={{background: "#0d6efd"}}>
-            Update
+          
+            {t("ProfileUpdate")}
           </Button>
         )}
       </div>

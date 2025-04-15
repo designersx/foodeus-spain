@@ -23,9 +23,12 @@ export default function Header() {
   const [isShowProfileSection, setIsShowProfileSection] = useState<boolean>(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [toast, setToast] = useState<Toast>({ show: false, message: '', type: '', onConfirm: null });
+
   const handleLogout = () => {
     setToast({
-      show: true, message: "Are you sure you want to Logout?", onConfirm: () => {
+      show: true, message: language === "es" ? "¿Estás seguro de que quieres cerrar sesión?" : "Are you sure you want to Logout?"
+
+      , onConfirm: () => {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem("token")
         setIsLoggedIn(null);
@@ -124,12 +127,15 @@ export default function Header() {
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
                 <button className="dropdown-item" onClick={handleProfileSection} >
-                  Profile
+
+                  {t("headingProfileTabProfile")}
+
                 </button>
               </li>
               <li>
                 <button className="dropdown-item" onClick={handleLogout}>
-                  Logout
+
+                  {t("headingProfileTabLogout")}
                 </button>
               </li>
             </ul>
