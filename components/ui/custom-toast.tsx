@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../css/PopUp.module.css'
+import { useLanguage } from '@/context/language-context';
 interface PopUpProps {
   type: 'success' | 'error' | 'info' | 'warning';
   message: string;
@@ -9,7 +10,7 @@ interface PopUpProps {
 
 const PopUp: React.FC<PopUpProps> = ({ type, message, onClose, onConfirm }) => {
   const [show, setShow] = useState(false);
-
+  const { t,language } = useLanguage()
   useEffect(() => {
     if (message) setShow(true);
   }, [message]);
@@ -41,11 +42,11 @@ const PopUp: React.FC<PopUpProps> = ({ type, message, onClose, onConfirm }) => {
 
           {type === "info" ? (
             <div className={styles.buttons}>
-              <button className={styles.cancel} onClick={handleClose}>Cancel</button>
+              <button className={styles.cancel} onClick={handleClose}> {language==="es"?"Cancelar":"Cancel"}</button>
               <button className={styles.confirmBtn} onClick={() => {
                 onConfirm?.();
                 handleClose();
-              }}>Confirm</button>
+              }}>  {language==="es"?"Confirmar":"Confirm"}</button>
             </div>
           ) : (
             <button className={styles.close} onClick={handleClose}>Close</button>

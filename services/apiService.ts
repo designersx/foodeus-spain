@@ -12,7 +12,6 @@ export const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
-
 // ✅ Function to get all restaurants with menus
 export const getRestaurantsWithMenus = async () => {
   try {

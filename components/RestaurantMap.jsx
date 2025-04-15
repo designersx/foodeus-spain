@@ -4,7 +4,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/context/language-context";
-
 const triggerNavigationTo = (restaurant, directionsServiceRef, directionsRendererRef, mapRef, infoWindowRef, language, markerRefs, userMarkerRef, restaurants, setIsNavigating, setDestination) => {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
