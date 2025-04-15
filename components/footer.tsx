@@ -12,7 +12,7 @@ export default function Footer() {
     <footer className="fixed-bottom bg-light border-top">
       <div className="container">
         <div className="row text-center py-3">
-          <div className="col-4">
+          <div className="col-6">
             <Link
               href="/"
               className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/" ? "text-primary" : "text-secondary"
@@ -35,7 +35,7 @@ export default function Footer() {
               <span className="small">{t("listView")}</span>
             </Link>
           </div>
-          <div className="col-4">
+          <div className="col-6">
             <Link
               href="/dish"
               className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/dish" ? "text-primary" : "text-secondary"
@@ -56,7 +56,7 @@ export default function Footer() {
             </Link>
           </div>
           
-          <div className="col-4">
+          {/* <div className="col-4">
             <Link
               href="/map"
 
@@ -70,7 +70,9 @@ export default function Footer() {
 
               <span className="small">{t("mapView")}</span>
             </Link>
-          </div>
+          </div> */}
+
+
           {/* <div className="col-3">
             <Link
               href="/about-us"

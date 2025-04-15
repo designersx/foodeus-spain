@@ -10,6 +10,8 @@ import { apiClient, getRestaurantsWithMenus } from "@/services/apiService";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useRestaurantStore } from "@/store/restaurantStore";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { boolean } from "yup";
 import RegisterPromptModal from "./register-popup-modal";
 import { useRouter } from 'next/navigation';
@@ -403,14 +405,14 @@ export function ListView() {
       </div>
     );
   }
-
+const pathname = usePathname()
   return (
     <div className="pb-5">
-      <HeroSlideshow />
+      {/* <HeroSlideshow /> */}
       <div className=" SearchFixed container my-3">
         <div className="row g-2 align-items-center">
           {/* Search Input */}
-          <div className="col-12 col-md-9">
+          <div className="col-9 col-md-9">
             <input
               ref={searchRef}
               type="text"
@@ -427,6 +429,23 @@ export function ListView() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <div className="col-3 col-md-3">
+            <Link
+              href="/map"
+
+              className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/map" ? "text-primary" : "text-secondary"
+                }`}
+            >
+              <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.70718 0.903421L9.70712 0.902994L9.69806 0.905051C9.67349 0.910629 9.64951 0.918506 9.62642 0.928574L1.1647 3.95734L1.1647 3.95734L1.16395 3.95761C1.08661 3.98599 1.01986 4.03745 0.972673 4.10501C0.925489 4.17257 0.900134 4.25298 0.9 4.33539V4.33555L0.9 20.6975L0.9 20.6976C0.90011 20.7624 0.915795 20.8262 0.945736 20.8836C0.975678 20.941 1.019 20.9903 1.07205 21.0274C1.1251 21.0645 1.18631 21.0883 1.25049 21.0966C1.31451 21.105 1.37959 21.0977 1.44023 21.0756C1.44038 21.0755 1.44053 21.0755 1.44068 21.0754L9.76744 18.0956L18.0942 21.0754C18.0944 21.0755 18.0945 21.0755 18.0947 21.0756C18.1837 21.1081 18.2814 21.1081 18.3704 21.0756C18.3706 21.0755 18.3708 21.0755 18.3709 21.0754L26.8353 18.0457L26.836 18.0454C26.9134 18.0171 26.9801 17.9656 27.0273 17.898C27.0745 17.8305 27.0999 17.7501 27.1 17.6677V17.6675V1.30557V1.3054C27.0999 1.24065 27.0842 1.17687 27.0543 1.11946C27.0243 1.06205 26.981 1.0127 26.928 0.975609C26.8749 0.938515 26.8137 0.914775 26.7495 0.906418C26.6855 0.898078 26.6204 0.905306 26.5597 0.927482C26.5596 0.927528 26.5594 0.927574 26.5593 0.92762L18.2326 3.90741L9.90663 0.927916C9.8433 0.902991 9.77468 0.894556 9.70718 0.903421ZM1.70465 4.6143L9.36512 1.87364V17.3888L1.70465 20.1294V4.6143ZM10.1698 17.3794V1.8738L17.8302 4.62368V20.1292L10.1698 17.3794ZM18.6349 4.6143L26.2953 1.87364V17.3887L18.6349 20.1294V4.6143Z" fill="#95757D" stroke="#95757D" strokeWidth="0.2" />
+              </svg>
+
+
+              <span className="small">{t("mapView")}</span>
+            </Link>
+          </div>
+
+          
         </div>
       </div>
 

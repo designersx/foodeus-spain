@@ -73,20 +73,20 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   };
   return (
     <>
-     <div className="text-decoration-none text-dark">
-        <div className="card mb-3 mainClass">
-          <div className="dishControl" style={{ height: "" }}>
-            <div className="dishImage ">
-              <Image
-                src={src}
-                alt={restaurant?.menu.title[language]}
-                onError={() => setSrc("/Images/fallback.jpg")}
-                loading="lazy"
-                fill
-                className=""
-              />
-            </div>
-            <div className="dishContent">
+    <Link href={`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`} className="text-decoration-none text-dark">
+      <div className="card mb-3 mainClass">
+        <div className="dishControl" style={{ height: "" }}>
+          <div className="dishImage ">
+            <Image
+              src={src}
+              alt={restaurant?.menu.title[language]}
+              onError={() => setSrc("/Images/fallback.jpg")}
+              loading="lazy"
+              fill
+              className=""
+            />
+          </div>
+          <div className="dishContent">
 
               <div className="card-body h-100  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
                 <div>
@@ -132,7 +132,8 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
           </div>
         </div>
       </div>
-
+    </Link>
+    <hr></hr>
     </>
   )
 }
