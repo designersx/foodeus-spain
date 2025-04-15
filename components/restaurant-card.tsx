@@ -8,7 +8,7 @@ import { API_BASE_URL, apiClient } from "@/services/apiService"
 import { Badge } from "@/components/ui/badge"
 import { Edit, Plus, Search, Star } from "lucide-react"
 import { getMenuImagePath } from "@/utils/getImagePath"
-import RegisterPromptModal from "./RegisterPromptModal";
+import RegisterPromptModal from "./register-popup-modal";
 interface Restaurant {
   id: string
   name: string
@@ -42,8 +42,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const router = useRouter()
   // Format distance to show in km or m
   const formatDistance = (distance?: number) => {
     if (distance === undefined) return ""
@@ -75,7 +73,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   };
   return (
     <>
-
      <div className="text-decoration-none text-dark">
         <div className="card mb-3 mainClass">
           <div className="dishControl" style={{ height: "" }}>
@@ -100,17 +97,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                         ? "Menu not Available"
                         : "Menú no disponible"}
                   </h5>
-                  {/* <p
-                  className="card-text small text-secondary mb-0 line-clamp-2"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {restaurant.menu.description[language]}
-                </p> */}
                 </div>
                 <div className="resturantLoc  w-100">
                   <div>
@@ -133,20 +119,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                           e.stopPropagation(); // Stop the event from propagating to parent elements
                           navigateMeThere();
                         }}>
-                          {/* <Link
-                          href={{
-                            pathname: '/map',
-                            query: {
-                              id: restaurant.id,
-                              name: restaurant.name,
-                              lat: restaurant.coordinates.lat,
-                              lng: restaurant.coordinates.lng,
-                              mark: true,
-                            },
-                          }}
-                        >
-                          {formatDistance(distance)}
-                        </Link> */}
                           <span >{formatDistance(distance)}</span>
                         </div>
                       )}

@@ -1,18 +1,89 @@
 "use client"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/context/language-context"
-
+import { User } from "lucide-react";
+import PopUp from "./ui/custom-toast"
+import ProfileSection from "./profile-section-modal"
+import { LogIn } from "lucide-react"; // ya koi bhi icon lib aap use kar rahe ho usse
+import RegisterPromptModal from "./register-popup-modal"
+import { apiClient } from "@/services/apiService"
+import { usePathname } from 'next/navigation';
+interface Toast {
+  show: boolean;
+  message: string;
+  type: string;
+  onConfirm: (() => void) | null;
+}
 export default function Header() {
+  const pathname = usePathname();
   const { language, setLanguage, t } = useLanguage()
+  const [isLoggedIn, setIsLoggedIn] = useState<string>("")
+  const [isShowProfileSection, setIsShowProfileSection] = useState<boolean>(false)
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [toast, setToast] = useState<Toast>({ show: false, message: '', type: '', onConfirm: null });
+  const handleLogout = () => {
+    setToast({
+      show: true, message: "Are you sure you want to Logout?", onConfirm: () => {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem("token")
+        setIsLoggedIn(null);
+      }, type: 'info'
+    });
+
+  }
+  const handleProfileSection = () => {
+    setIsShowProfileSection(true)
+  }
+  const handleEditProfileSection = () => {
+
+  }
+  const handleLogin = () => {
+
+    setShowRegisterModal(true)
+  }
+  //handle close
+  const handleClose = () => {
+    setShowRegisterModal(false)
+  }
+  //handle register
+  const handleRegister = async (data: { name: string; email: string }) => {
+    const { name, email } = data;
+
+
+    try {
+      const response = await apiClient.post('/mobileUsers/createMobileUser', { name, email });
+      if (response) {
+        setToast({
+          show: true, message: "OTP sent successfully",
+          type: 'success',
+        });
+        return true;
+
+      }
+      return false;
+    } catch (error) {
+      // console.error("Error registering user", error.response);
+      setToast({ show: true, message: error.response.data.message, type: 'error' });
+      return false;
+    }
+  };
+  //function lock
   useEffect(() => {
     const storedLanguage = localStorage.getItem("language")
     if (storedLanguage) {
       setLanguage(storedLanguage as "en" | "es")
     }
   }, [setLanguage])
- 
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const isUserTrue = localStorage.getItem('isLoggedIn');
+      setIsLoggedIn(isUserTrue || "");
+    }, 1000);
+    return () => clearInterval(interval); // cleanup on unmount
+  }, []);
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light  border-bottom">
       <div className="container">
@@ -24,10 +95,45 @@ export default function Header() {
             height={40}
             className=""
           />
-          {/* <span className="fw-bold"></span> */}
         </Link>
-
         <div className="d-flex align-items-center">
+          {pathname === "/" && isLoggedIn !== "true" && (
+            <div className="dropdown me-2">
+              <button
+                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                type="button"
+                data-bs-toggle="dropdown"
+                onClick={handleLogin}
+              >
+                <LogIn size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Profile-section */}
+          {isLoggedIn == "true" && pathname === "/" && <div className="dropdown me-2">
+            <button
+              className="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <User size={16} />
+
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <button className="dropdown-item" onClick={handleProfileSection} >
+                  Profile
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={handleLogout}>
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>}
           {/* Language Dropdown */}
           <div className="dropdown me-2">
             <button
@@ -40,88 +146,33 @@ export default function Header() {
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
-                <button className="dropdown-item" onClick={() =>{ setLanguage("en");localStorage.setItem("language","en")}}>
+                <button className="dropdown-item" onClick={() => { setLanguage("en"); localStorage.setItem("language", "en") }}>
                   English {language === "en" && "✓"}
                 </button>
               </li>
               <li>
-                <button className="dropdown-item" onClick={() =>{ setLanguage("es");localStorage.setItem("language","es")}}>
+                <button className="dropdown-item" onClick={() => { setLanguage("es"); localStorage.setItem("language", "es") }}>
                   Español {language === "es" && "✓"}
                 </button>
               </li>
             </ul>
           </div>
-
-          {/* <div className="dropdown">
-          <button
-            className="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i className="bi bi-person-circle"></i>
-            User
-          </button>
-          <ul className="dropdown-menu dropdown-menu-end">
-            <li>
-              <a className="dropdown-item" href="/profile">
-                <i className="bi bi-person me-2"></i> Profile
-              </a>
-            </li>
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
-            <li>
-              <button className="dropdown-item text-danger" onClick={handleLogout}>
-                <i className="bi bi-box-arrow-right me-2"></i> Logout
-              </button>
-            </li>
-          </ul>
-        </div> */}
-        
-          {/* Hamburger Menu */}
-          {/* <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#navbarOffcanvas"
-            aria-controls="navbarOffcanvas"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button> */}
         </div>
-
-        {/* Offcanvas Menu */}
-        {/* <div
-          className="offcanvas offcanvas-end"
-          tabIndex={-1}
-          id="navbarOffcanvas"
-          aria-labelledby="navbarOffcanvasLabel"
-        >
-          <div className="offcanvas-header">
-            <h5 className="offcanvas-title" id="navbarOffcanvasLabel">
-              Menu
-            </h5>
-            <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-          </div>
-          <div className="offcanvas-body">
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <Link href="/" className="nav-link fs-5">
-                  {t("restaurants")}
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link href="#" className="nav-link fs-5">
-                  {t("menuOfTheDay")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div> */}
       </div>
+      {toast.show && <PopUp type={toast.type} onClose={() => setToast({ show: false, message: '', type: '', onConfirm: null })} message={toast.message} onConfirm={toast.onConfirm}
+
+      />}
+      {
+        isShowProfileSection && <ProfileSection show={isShowProfileSection}
+          onClose={() => setIsShowProfileSection(false)}
+        />
+      }
+      <RegisterPromptModal
+        show={showRegisterModal}
+        onClose={handleClose}
+        onRegister={handleRegister}
+      // modalView={true}
+      />
     </nav>
   )
 }

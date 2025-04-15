@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Clipboard, MenuIcon as Restaurant ,Camera } from "lucide-react";
+import { LogOut, Clipboard, MenuIcon as Restaurant, Camera } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import {
   Sidebar,
@@ -93,8 +93,16 @@ export default function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/update-HeroSection"}>
               <Link href="/admin/update-HeroSection" className="nav-link-admin">
-                <Camera  className="h-4 w-4" />
+                <Camera className="h-4 w-4" />
                 <span>Manage Hero Section</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/admin/users"}>
+              <Link href="/admin/users" className="nav-link-admin">
+                <Clipboard className="h-4 w-4" />
+                <span>Users</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

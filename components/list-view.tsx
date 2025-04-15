@@ -11,8 +11,9 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useRestaurantStore } from "@/store/restaurantStore";
 import { boolean } from "yup";
-import RegisterPromptModal from "./RegisterPromptModal";
+import RegisterPromptModal from "./register-popup-modal";
 import { useRouter } from 'next/navigation';
+import PopUp from "./ui/custom-toast";
 
 interface Menu {
   title: { en: string; es: string };
@@ -56,7 +57,6 @@ const calculateDistance = (
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
-
 export function ListView() {
   const { t, language } = useLanguage();
   const [userLocation, setUserLocation] = useState<{
@@ -79,8 +79,8 @@ export function ListView() {
   const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState<string>("")
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const router = useRouter();
-
   useEffect(() => {
     // Check if we're on the client side before accessing localStorage
     if (typeof window !== "undefined") {
@@ -282,33 +282,40 @@ export function ListView() {
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
 
-  const handleRestaurantClick = (restaurant) => {
-
+  const handleRestaurantClick = (restaurant: Restaurant) => {
     const isLoginUser = localStorage.getItem("isLoggedIn");
-    console.log(isLoginUser)
     if (isLoginUser === "true") {
       router.push(`/menu/${restaurant.id}?menuId=${restaurant.menu.menu_id}`);
     } else {
       setShowRegisterModal(true);
     }
   };
-
+  //handle register
   const handleRegister = async (data: { name: string; email: string }) => {
     const { name, email } = data;
-    console.log("Registered with Name:", name, "and Email:", email);
+
 
     try {
       const response = await apiClient.post('/mobileUsers/createMobileUser', { name, email });
-      if (response.status === 200) {
-        console.log("User registered successfully", response.data);
+      if (response) {
+        setToast({
+          show: true, message: "OTP sent successfully",
+          type: 'success',
+        });
+        return true;
+
       }
+      return false;
     } catch (error) {
-      console.error("Error registering user", error);
+      // console.error("Error registering user", error.response);
+      setToast({ show: true, message: error.response.data.message, type: 'error' });
+      return false;
     }
   };
-  useEffect(() => {
-    console.log("LoggedIn status changed:", isLoggedIn);
-  }, [isLoggedIn]);
+  //handle close
+  const handleClose = () => {
+    setShowRegisterModal(false)
+  }
   // serachbar go on top
   const searchRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
@@ -350,23 +357,6 @@ export function ListView() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, focused]);
-
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     const scrollThreshold = 300; // px from bottom
-
-  //     if (
-  //       window.innerHeight + window.scrollY >=
-  //       document.body.offsetHeight - scrollThreshold
-  //     ) {
-  //       // Load 10 more restaurants
-  //       setVisibleCount((prev) => Math.min(prev + 10, filteredRestaurants.length));
-  //     }
-  //   };
-
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, [filteredRestaurants.length]);
 
   const retryGeolocation = () => {
     setLoading(true);
@@ -415,7 +405,6 @@ export function ListView() {
   }
 
   return (
-
     <div className="pb-5">
       <HeroSlideshow />
       <div className=" SearchFixed container my-3">
@@ -460,7 +449,6 @@ export function ListView() {
           )
           : (
             userLocation && !locationError && filteredRestaurants.length > 0 ? (
-              // filteredRestaurants?.slice(0, visibleCount).map((restaurant) => (
               filteredRestaurants.map((restaurant, index) => (
                 <div key={index} onClick={() => handleRestaurantClick(restaurant)} >
                   <RestaurantCard
@@ -496,8 +484,16 @@ export function ListView() {
       {!isLoggedIn && (
         <RegisterPromptModal
           show={showRegisterModal}
-          onClose={() => setShowRegisterModal(false)}
+          onClose={handleClose}
           onRegister={handleRegister}
+          // modalView={false}
+        />
+      )}
+      {toast.show && (
+        <PopUp
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ show: false, message: "", type: "" })}
         />
       )}
     </div>
