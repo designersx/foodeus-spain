@@ -60,7 +60,6 @@ export default function MenuDetailPage() {
    
   useEffect(() => {
     if (id) {
-
       getRestaurantById(`${id}`)
         .then((data) => {
           // console.log("API Response:", data);
@@ -302,7 +301,7 @@ export default function MenuDetailPage() {
 
       {/* Action buttons - fixed at bottom */}
       <div className="fixed-bottom bg-white border-top p-3">
-        <div className="container">
+        <div className="container p-0">
           <div className="row g-2">
             {/* <div className="col-sm-6 col-12" >
                <a href={mapUrl} target="_blank" rel="noopener noreferrer" 
@@ -315,7 +314,7 @@ export default function MenuDetailPage() {
                 {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}
               </Link>
             </div> */}
-            <div className="col-sm-6 col-12">
+            <div className="col-sm-6 col-6">
               <button
                 type="button"
                 onClick={() => window.open(mapUrl, "_blank")}
@@ -324,7 +323,7 @@ export default function MenuDetailPage() {
                 {language === "en" ? "Take Me There" : "Llévame Allí"}
               </button>
             </div>
-            <div className="col-sm-6 col-12">
+            <div className="col-sm-6 col-6">
               <Link href={`/full-menu/${menuItems?.id}`}>
                 <button className="btn btn-outline-primary w-100">
                   {language === "en" ? "Show Full Menu" : "Mostrar Menú Completo"}

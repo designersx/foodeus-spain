@@ -2,11 +2,9 @@
 import axios from "axios";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from "react";
-
 // Base API URL from environment variables
 // export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; 
-
 // Create an Axios instance with default settings 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -49,28 +47,28 @@ export const searchRestaurants = async (query: string) => {
     console.error("❌ Error searching restaurants:", error);
     return { success: false, data: [] };
   }
-};  
+};
 
 
-export const getRestaurantListforAdmin=async()=>{
-  try { 
+export const getRestaurantListforAdmin = async () => {
+  try {
     const response = await apiClient.get(`/restaurants/`);
     return response.data;
   } catch (error) {
     return { success: false, data: [] };
-}
+  }
 }
 
-export const getRestaurantByIdforAdmin=async(id:number)=>{
-  try { 
+export const getRestaurantByIdforAdmin = async (id: number) => {
+  try {
     const response = await apiClient.get(`/restaurants/${id}`);
     return response.data;
   } catch (error) {
     return { success: false, data: [] };
-}
+  }
 }
 
-const addRestaurant = async (data:any) => {
+const addRestaurant = async (data: any) => {
   try {
     const response = await apiClient.post(`/restaurants/add`, data);
     return response.data; // The data returned from the API
@@ -92,3 +90,14 @@ export const login = async (email: string, password: string) => {
   }
 };
 
+export const getMobileUsers = async () => {
+  try {
+    const response = await apiClient.get('/admin/getMobileUsers');
+    console.log(response, "GET ")
+    // Store the received token in localStorage (or any other storage mechanism)
+    return response.data;
+  } catch (error) {
+    console.error("Error during login:", error);
+    return { success: false, data: [] };
+  }
+}

@@ -2,16 +2,16 @@
 
 import type React from "react"
 import { useAuth } from "@/context/auth-context";
-import { useState ,useEffect} from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Utensils , Eye, EyeOff,} from "lucide-react"
+import { Utensils, Eye, EyeOff, } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { login ,API_BASE_URL} from "@/services/apiService"
+import { login, API_BASE_URL } from "@/services/apiService"
 import axios from "axios"
 import { encrypt, decrypt } from "@/utils/crypto";
 
@@ -23,25 +23,25 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
   const { toast } = useToast()
-  const { login } = useAuth(); 
-  const [rememberMe, setRememberMe] = useState(false); 
+  const { login } = useAuth();
+  const [rememberMe, setRememberMe] = useState(false);
 
-useEffect(() => {
-  if (typeof window !== "undefined") {
-    const savedRemember = localStorage.getItem("rememberMe") === "true";
-    setRememberMe(savedRemember);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedRemember = localStorage.getItem("rememberMe") === "true";
+      setRememberMe(savedRemember);
 
-    if (savedRemember) {
-      const savedEmail = localStorage.getItem("rememberMeEmail") || "";
-      const savedPasswordEncrypted = localStorage.getItem("rememberMePassword") || "";
-      const savedPassword = savedPasswordEncrypted ? decrypt(savedPasswordEncrypted) : "";
+      if (savedRemember) {
+        const savedEmail = localStorage.getItem("rememberMeEmail") || "";
+        const savedPasswordEncrypted = localStorage.getItem("rememberMePassword") || "";
+        const savedPassword = savedPasswordEncrypted ? decrypt(savedPasswordEncrypted) : "";
 
-      setEmail(savedEmail);
-      setPassword(savedPassword);
+        setEmail(savedEmail);
+        setPassword(savedPassword);
+      }
     }
-  }
-}, []);
-  
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -49,27 +49,27 @@ useEffect(() => {
     try {
       // console.log("Logging in with email:", email, "and password:", password);
       // Call the login function from the auth service
-      const response=await axios.post(`${API_BASE_URL}/admin/login`,{email,password});
+      const response = await axios.post(`${API_BASE_URL}/admin/login`, { email, password });
       // console.log('llds',response);
-      if(response.data.success){
-        if(rememberMe){
+      if (response.data.success) {
+        if (rememberMe) {
           localStorage.setItem('rememberMe', 'true');
           localStorage.setItem('rememberMeEmail', email);
           localStorage.setItem("rememberMePassword", encrypt(password));
-        }else{
+        } else {
           localStorage.removeItem("rememberMeEmail");
           localStorage.removeItem("rememberMePassword");
           localStorage.setItem("rememberMe", "false");
         }
-        localStorage.setItem('token',response.data.data.token);
+        localStorage.setItem('token', response.data.data.token);
         localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
         await login(email, password)
-      toast({
-        title: "Login successful",
-        description: "Welcome to Foodeus Admin Panel",
-      })
+        toast({
+          title: "Login successful",
+          description: "Welcome to Foodeus Admin Panel",
+        })
       }
-      
+
     } catch (error) {
       console.error("Failed to log in:", error)
       if (axios.isAxiosError(error)) {
@@ -143,8 +143,8 @@ useEffect(() => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>  
-             <div className="space-y-2">
+            </div>
+            <div className="space-y-2">
               <div className="flex items-center justify-end">
                 <input
                   id="remember-me"
@@ -154,10 +154,10 @@ useEffect(() => {
                   className="me-2"
                 /><Label htmlFor="remember-me">Remember me</Label>
               </div>
-              </div>
-            <span className="text-danger d-block text-center">{error&& error}
+            </div>
+            <span className="text-danger d-block text-center">{error && error}
             </span>
-            
+
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>

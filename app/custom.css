@@ -3425,7 +3425,7 @@ width: 40px !important;
   color:#F1582E;
 }
 .mainClass{
-  border: 0.5px solid #e3e3e3 !important;
+  border: 0.5px solid #ffffff !important;
 
 }
 .dishImage{
@@ -3447,7 +3447,7 @@ width: 40px !important;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 10px;
+  padding: 0px;
 }
 
 
