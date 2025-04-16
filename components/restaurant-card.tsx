@@ -256,7 +256,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                       </p>
                       {distance !== undefined && (
                         <div className="small fw-medium text-primary restDistance" onClick={(e) => {
-                          e.stopPropagation(); // Stop the event from propagating to parent elements
+                          e.stopPropagation(); 
                           navigateMeThere();
                         }}>
                           <span >{formatDistance(distance)}</span>
