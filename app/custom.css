@@ -3475,6 +3475,21 @@ text-decoration: none !important;
 }
 
 
+.MenuCatagery{
+max-height:157px;
+ min-height:157px;
+ min-width:136px;
+ max-width: 136px; 
+}
+
+.MenuCatagery img{
+  max-height:157px;
+   min-height:157px;  
+   max-width:136px;
+   min-width: 136px; 
+  }
+
+
 @media (max-width:430px){
   .dishImage{
   width: 100%;

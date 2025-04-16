@@ -478,8 +478,8 @@ export default function RestaurantDetailPage() {
                   return (
                     <Card key={item.id} className="overflow-hidden">
                       <div className="flex flex-col sm:flex-row">
-                        <div className="sm:w-1/4">
-                          <div className="aspect-square w-full overflow-hidden">
+                        <div className="sm:w-1/4" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" , borderRadius: "0.5rem"}}>
+                          <div className=" w-full overflow-hidden MenuCatagery"  >
                             <img
                               src={normalized}
                               alt={item.name}
@@ -487,11 +487,11 @@ export default function RestaurantDetailPage() {
                                 const target = e.target as HTMLImageElement;
                                 target.src = "/Images/fallback.jpg";
                               }}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover" 
                             />
                           </div>
                         </div>
-                        <div className="flex-1 p-4">
+                        <div className="flex-1 p-3">
                           <div className="flex justify-end mb-2">
                             {item.updated_at && (
                               <span className="text-sm text-end">
@@ -518,7 +518,7 @@ export default function RestaurantDetailPage() {
                             </Badge>} */}
                             </div>
                           </div>
-                          <div className="mt-4 flex justify-end gap-2">
+                          <div className=" flex justify-end gap-2">
                             <Button
                               variant="outline"
                               size="sm"
