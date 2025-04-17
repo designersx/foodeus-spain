@@ -27,7 +27,6 @@ export default function Header() {
   const handleLogout = () => {
     setToast({
       show: true, message: language === "es" ? "¿Estás seguro de que quieres cerrar sesión?" : "Are you sure you want to Logout?"
-
       , onConfirm: () => {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem("token")
