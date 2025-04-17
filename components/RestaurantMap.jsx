@@ -156,11 +156,25 @@ export function RestaurantMap({ restaurants }) {
 
     const controlDiv = document.createElement("div");
     controlDiv.style.margin = "10px";
-
     const relocateBtn = document.createElement("button");
     relocateBtn.innerHTML = language === "es" ? "📍 Reubicar" : "📍 Relocate";
-    relocateBtn.style.cssText =
-      "background:#4285F4;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);font-size:14px";
+    relocateBtn.style.cssText = `
+    background: #F1582E ;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    position: fixed;
+    right: 15px;
+    bottom:270px ;
+}
+     
+  `;
     relocateBtn.onclick = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {

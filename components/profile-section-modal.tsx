@@ -5,6 +5,7 @@ import { apiClient } from "@/services/apiService";
 import decodeToken from "@/lib/decode-token";
 import PopUp from "./ui/custom-toast";
 import { useLanguage } from "@/context/language-context";
+import { error } from "console";
 
 interface ProfileSectionModalProps {
   show: boolean;
@@ -21,7 +22,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("mobileToken");
   const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
  const { t,language } = useLanguage()
   useEffect(() => {
@@ -72,7 +73,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
           }
         })
         .catch((err) => {
-          setToast({ show: true, message: "An error occurred. Please try again.", type: "error" });
+          setToast({ show: true, message:` ${err.response.data.message}`, type: "error" });
           console.error("Error updating user data", err);
         });
     }

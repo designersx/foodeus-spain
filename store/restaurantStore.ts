@@ -40,7 +40,7 @@ export const useRestaurantStore = create(
     {
       name: "restaurant-store", // storage key
       storage: {
-        getItem: () => null, // 🔥 disables localStorage (in-memory only)
+        getItem: () => null, 
         setItem: () => {},
         removeItem: () => {},
       },

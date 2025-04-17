@@ -16,15 +16,13 @@ export const apiClient = axios.create({
 export const getRestaurantsWithMenus = async () => {
   try {
     const response = await apiClient.get("/enduser/getRestaurantsWithMenus");
-    console.log(response)
-    return response.data; // Axios automatically parses JSON
+    return response.data;
 
   } catch (error) {
     console.error("Error fetching restaurants:", error);
     return { success: false, data: [] };
   }
 };
-
 // ✅ Function to get a single restaurant by ID
 export const getRestaurantById = async (id: string) => {
   try {
@@ -35,7 +33,6 @@ export const getRestaurantById = async (id: string) => {
     return { success: false, data: null };
   }
 };
-
 // ✅ Function to search restaurants by name
 export const searchRestaurants = async (query: string) => {
   try {
@@ -48,8 +45,6 @@ export const searchRestaurants = async (query: string) => {
     return { success: false, data: [] };
   }
 };
-
-
 export const getRestaurantListforAdmin = async () => {
   try {
     const response = await apiClient.get(`/restaurants/`);
