@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/context/language-context";
+import "./css/MapView.css"
 const triggerNavigationTo = (restaurant, directionsServiceRef, directionsRendererRef, mapRef, infoWindowRef, language, markerRefs, userMarkerRef, restaurants, setIsNavigating, setDestination) => {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
@@ -123,147 +124,69 @@ export function RestaurantMap({ restaurants }) {
     );
   }, []);
 
-  useEffect(() => {
-    if (!userLocation) return;
+ useEffect(() => {
+  if (!userLocation) return;
 
-    const map = new google.maps.Map(mapRef.current, {
-      center: userLocation,
-      zoom: 15,
-      styles: [
-        { featureType: "poi", stylers: [{ visibility: "off" }] },
-        { featureType: "transit", stylers: [{ visibility: "off" }] },
-      ],
-    });
+  const map = new google.maps.Map(mapRef.current, {
+    center: userLocation,
+    zoom: 15,
+    disableDefaultUI:false,  // Disable default UI elements including the pan arrows
+    styles: [
+      { featureType: "poi", stylers: [{ visibility: "off" }] },
+      { featureType: "transit", stylers: [{ visibility: "off" }] },
+    ],
+  });
 
-    directionsRendererRef.current = new google.maps.DirectionsRenderer();
-    directionsServiceRef.current = new google.maps.DirectionsService();
-    infoWindowRef.current = new google.maps.InfoWindow();
-    directionsRendererRef.current.setMap(map);
+  directionsRendererRef.current = new google.maps.DirectionsRenderer();
+  directionsServiceRef.current = new google.maps.DirectionsService();
+  infoWindowRef.current = new google.maps.InfoWindow();
+  directionsRendererRef.current.setMap(map);
 
-    userMarkerRef.current = new google.maps.Marker({
-      position: userLocation,
-      map,
-      title: "You",
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 8,
-        fillColor: "#4285F4",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "white",
-      },
-    });
+  userMarkerRef.current = new google.maps.Marker({
+    position: userLocation,
+    map,
+    title: "You",
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: "#4285F4",
+      fillOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: "white",
+    },
+  });
 
-    const controlDiv = document.createElement("div");
-    controlDiv.style.margin = "10px";
-    const relocateBtn = document.createElement("button");
-    relocateBtn.innerHTML = language === "es" ? "📍 Reubicar" : "📍 Relocate";
-    relocateBtn.style.cssText = `
+  const controlDiv = document.createElement("div");
+  controlDiv.style.margin = "10px";
+  const relocateBtn = document.createElement("button");
+  relocateBtn.innerHTML = "📍 Relocate   "
+  relocateBtn.style.cssText = `
     background: #F1582E ;
     color: #fff;
     border: none;
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: 3px;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     font-size: 15px;
     font-weight: bold;
     transition: background 0.3s ease;
     position: fixed;
-    right: 15px;
-    bottom:270px ;
-}
-     
+    right: 23px;
+    bottom: 205px;
+    z-index: 9999;
   `;
-    relocateBtn.onclick = () => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setUserLocation(newLoc);
-          userMarkerRef.current.setPosition(newLoc);
-          map.setCenter(newLoc);
+  relocateBtn.onclick = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserLocation(newLoc);
+        userMarkerRef.current.setPosition(newLoc);
+        map.setCenter(newLoc);
 
-          if (isNavigating && destination) {
-            triggerNavigationTo(
-              { name: "", coordinates: destination },
-              directionsServiceRef,
-              directionsRendererRef,
-              mapRef,
-              infoWindowRef,
-              language,
-              markerRefs,
-              userMarkerRef,
-              restaurants,
-              setIsNavigating,
-              setDestination
-            );
-          }
-        },
-        () => alert("Failed to retrieve location."),
-        { enableHighAccuracy: true }
-      );
-    };
-
-    const stopBtn = document.createElement("button");
-    stopBtn.innerHTML = language === "es" ? "🛑 Detener navegación" : "🛑 Stop Navigation";
-    stopBtn.style.cssText =
-      "margin-left:10px;background:#d9534f;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);font-size:14px";
-    stopBtn.onclick = () => {
-      directionsRendererRef.current.setDirections({ routes: [] });
-      infoWindowRef.current.close();
-      setIsNavigating(false);
-      setDestination(null);
-      markerRefs.current.forEach((m) => m.setMap(null));
-      markerRefs.current = [];
-      restaurants.forEach((rest) => {
-        const label = new google.maps.Marker({
-          position: rest.coordinates,
-          map,
-          title: rest.name,
-          label: {
-            text: rest.name.substring(0, 1),
-            fontSize: "14px",
-          },
-        });
-        label.addListener("click", () => {
-          openInfoWindow(rest, map, infoWindowRef, language, () => {
-            triggerNavigationTo(
-              rest,
-              directionsServiceRef,
-              directionsRendererRef,
-              mapRef,
-              infoWindowRef,
-              language,
-              markerRefs,
-              userMarkerRef,
-              restaurants,
-              setIsNavigating,
-              setDestination
-            );
-          });
-        });
-        markerRefs.current.push(label);
-      });
-    };
-
-    controlDiv.appendChild(relocateBtn);
-    // controlDiv.appendChild(stopBtn);
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
-
-    restaurants.forEach((restaurant) => {
-      const label = new google.maps.Marker({
-        position: restaurant.coordinates,
-        map,
-        title: restaurant.name,
-        label: {
-          text: restaurant.name.substring(0, 1),
-          fontSize: "14px",
-        },
-      });
-      label.addListener("click", () => {
-        openInfoWindow(restaurant, map, infoWindowRef, language, () => {
+        if (isNavigating && destination) {
           triggerNavigationTo(
-            restaurant,
+            { name: "", coordinates: destination },
             directionsServiceRef,
             directionsRendererRef,
             mapRef,
@@ -275,11 +198,47 @@ export function RestaurantMap({ restaurants }) {
             setIsNavigating,
             setDestination
           );
-        });
-      });
-      markerRefs.current.push(label);
+        }
+      },
+      () => alert("Failed to retrieve location."),
+      { enableHighAccuracy: true }
+    );
+  };
+
+  controlDiv.appendChild(relocateBtn);
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+
+  restaurants.forEach((restaurant) => {
+    const label = new google.maps.Marker({
+      position: restaurant.coordinates,
+      map,
+      title: restaurant.name,
+      label: {
+        text: restaurant.name.substring(0, 1),
+        fontSize: "14px",
+      },
     });
-  }, [userLocation]);
+    label.addListener("click", () => {
+      openInfoWindow(restaurant, map, infoWindowRef, language, () => {
+        triggerNavigationTo(
+          restaurant,
+          directionsServiceRef,
+          directionsRendererRef,
+          mapRef,
+          infoWindowRef,
+          language,
+          markerRefs,
+          userMarkerRef,
+          restaurants,
+          setIsNavigating,
+          setDestination
+        );
+      });
+    });
+    markerRefs.current.push(label);
+  });
+}, [userLocation]);
+
 
   return (
     <>
