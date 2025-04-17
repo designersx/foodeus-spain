@@ -65,7 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userData = { email, role: "admin" }
       localStorage.setItem("foodeus-admin-auth", JSON.stringify(userData))
       setUser(userData)
-
       // console.log("Login successful - Redirecting to dashboard")
       router.push("/admin/restaurants")
     } catch (error) {

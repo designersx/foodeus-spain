@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useLanguage } from "@/context/language-context"
 import KmlMap from "@/components/KmlMap";
-
 export function MapView() {
   const { t } = useLanguage()
   const [destination, setDestination] = useState<string>("");

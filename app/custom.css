@@ -3497,3 +3497,51 @@ text-decoration: none !important;
 }
 }
 
+
+  .relocate-btn {
+    background: #F1582E;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    position: fixed;
+    right: 15px;
+    bottom: 270px;
+    z-index: 9999;
+  }
+
+    /* Mobile (phones) */
+    @media (max-width: 480px) {
+      .relocate-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+        bottom: 80px;
+        right: 10px;
+      }
+    }
+  
+    /* Tablets (e.g., iPads) */
+    @media (min-width: 481px) and (max-width: 1024px) {
+      .relocate-btn {
+        font-size: 16px;
+        padding: 10px 16px;
+        bottom: 120px;
+        right: 15px;
+      }
+    }
+  
+    /* Optional: Very large screens */
+    @media (min-width: 1440px) {
+      .relocate-btn {
+        font-size: 17px;
+        padding: 12px 18px;
+        bottom: 280px;
+        right: 25px;
+      }
+    }
+

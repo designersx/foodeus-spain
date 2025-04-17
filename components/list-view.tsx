@@ -350,7 +350,6 @@ export function ListView() {
     }
   }, [restaurants, userLocation]);
 
-
   //fake code
   // useEffect(() => {
   //   if (!restaurants.length) return;
@@ -407,7 +406,7 @@ export function ListView() {
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
     if (!term) {
-      console.log("No search term, showing all restaurants.");
+      // console.log("No search term, showing all restaurants.");
       setFilteredRestaurants(restaurantsWithDistance);
       return;
     }
@@ -480,7 +479,6 @@ export function ListView() {
 
     setFocused(true);
   };
-
   const handleBlur = () => {
     setFocused(false);
     setIsSticky(false);

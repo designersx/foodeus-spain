@@ -10,6 +10,26 @@ import { Badge } from "@/components/ui/badge"
 import { API_BASE_URL, apiClient, getRestaurantListforAdmin } from "@/services/apiService"
 import { getMenuImagePath } from "@/utils/getImagePath"
 import { toast } from "@/hooks/use-toast";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 interface Restaurant {
   name: string;
   email: string;
@@ -88,6 +108,9 @@ export default function RestaurantsPage() {
       // setIsLoading(false)
     }
   }
+  const handleEditUserProfile = (item: any) => {
+    sessionStorage.setItem("editUsersDetails", JSON.stringify(item));
+  }
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -141,17 +164,22 @@ export default function RestaurantsPage() {
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-between">
                 <div className="flex items-center gap-2">
-                  {/* {users?.status === 1 ? <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
+                  {users?.status === 1 ? <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
                     Inactive Account
                   </button> : <button onClick={() => handleInactiveAccount(users.id, "active")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
                     Active Account
-                  </button>} */}
-                 {users?.status === 0?"": <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
-                    Inactive Account
                   </button>}
-                  <button style={{ color: "white", backgroundColor: "#f1582e",cursor:"not-allowed" }} className="bg-blue-500  px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                    Edit
-                  </button>
+                  {/* {users?.status === 0 ? "" : <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
+                    Inactive Account
+                  </button>} */}
+
+                  <Link href={`/admin/users/${users.id}/edit`}>
+                    <button style={{ color: "white", backgroundColor: "#f1582e" }}
+                      onClick={() => handleEditUserProfile(users)}
+                      className="bg-blue-500  px-3 py-1 rounded hover:bg-blue-600 text-sm">
+                      Edit
+                    </button>
+                  </Link>
                 </div>
               </CardFooter>
             </Card>
