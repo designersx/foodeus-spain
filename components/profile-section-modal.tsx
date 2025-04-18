@@ -24,7 +24,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const token = localStorage.getItem("mobileToken");
   const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
- const { t,language } = useLanguage()
+  const { t, language } = useLanguage()
   useEffect(() => {
     if (getUserId?.userId) {
       apiClient
@@ -73,7 +73,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
           }
         })
         .catch((err) => {
-          setToast({ show: true, message:` ${err.response.data.message}`, type: "error" });
+          setToast({ show: true, message: ` ${err.response.data.message}`, type: "error" });
           console.error("Error updating user data", err);
         });
     }
@@ -105,7 +105,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
           &times;
         </button>
 
-       
+
 
         {/* Heading */}
         <h2 className="text-2xl font-bold text-gray-800 text-center border-b pb-3">
@@ -132,7 +132,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
           ) : (
             <p className="text-gray-900 font-medium border p-2 rounded">{name}</p>
           )}
-          
+
         </div>
 
         {/* Divider */}
@@ -160,22 +160,22 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
             <p className="text-gray-900 font-medium border p-2 rounded">{email}</p>
           )}
         </div>
-         {/* Edit Button */}
-         <button
-  onClick={handleEditToggle}
-  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
-  style={{ background: "#0d6efd", color: "#fff" }}
->
-  {isEditing ?` ${t("ProfileCancel")}` :  `${t("ProfileEdit")}`}
-</button>
+        {/* Edit Button */}
+        <button
+          onClick={handleEditToggle}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
+          style={{ background: "#0d6efd", color: "#fff" }}
+        >
+          {isEditing ? ` ${t("ProfileCancel")}` : `${t("ProfileEdit")}`}
+        </button>
 
         {/* Update Button */}
         {isEditing && (
           <Button
             onClick={handleUpdate}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
-          style={{background: "#0d6efd"}}>
-          
+            style={{ background: "#0d6efd" }}>
+
             {t("ProfileUpdate")}
           </Button>
         )}

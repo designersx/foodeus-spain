@@ -242,10 +242,10 @@ export function ListView() {
         data.data.forEach((restaurant: any) => {
           const allMenus = restaurant.menus || [];
 
-          const todaysSpecialMenus = allMenus.filter(
-            (menu: any) => menu.menu_type === "Today's Special"
-          );
-
+          // const todaysSpecialMenus = allMenus.filter(
+          //   (menu: any) => menu.menu_type === "Today's Special"
+          // );
+          const todaysSpecialMenus = allMenus; // No filter, show all menus
           todaysSpecialMenus.forEach((menu: any) => {
             todaySpecialRestaurants.push({
               id: restaurant.restaurant_id?.toString() || "",
