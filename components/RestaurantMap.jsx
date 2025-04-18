@@ -130,7 +130,7 @@ export function RestaurantMap({ restaurants }) {
   const map = new google.maps.Map(mapRef.current, {
     center: userLocation,
     zoom: 15,
-    disableDefaultUI:false,  // Disable default UI elements including the pan arrows
+    disableDefaultUI:true,  
     styles: [
       { featureType: "poi", stylers: [{ visibility: "off" }] },
       { featureType: "transit", stylers: [{ visibility: "off" }] },
@@ -173,7 +173,7 @@ export function RestaurantMap({ restaurants }) {
     transition: background 0.3s ease;
     position: fixed;
     right: 23px;
-    bottom: 205px;
+    bottom: 140px;
     z-index: 9999;
   `;
   relocateBtn.onclick = () => {
