@@ -134,7 +134,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               width: "128px",
               transition: "all 0.3s ease-in-out",
               transform: "scale(1)",
-              backgroundColor: !isLoginMode ? "#3B82F6" : "#E5E7EB",
+              backgroundColor: !isLoginMode ? "#F1582E" : "#E5E7EB",
               color: !isLoginMode ? "white" : "#4B5563",
             }}
           >
@@ -149,7 +149,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               width: "128px",
               transition: "all 0.3s ease-in-out",
               transform: "scale(1)",
-              backgroundColor: isLoginMode ? "#3B82F6" : "#E5E7EB",
+              backgroundColor: isLoginMode ? "#F1582E" : "#E5E7EB",
               color: isLoginMode ? "white" : "#4B5563",
             }}
           >
@@ -187,7 +187,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
               />
               {errors.email && <p style={{ color: "red" }} className="text-red-500 text-sm mt-1 text-left">{errors.email}</p>}
             </div>
-            <Button onClick={handleSend} className="w-full">
+            <Button onClick={handleSend} className="w-full !bg-transparent bgSecondary !bg-[#FAC584]">
               {isSending ? `${t("sendOtpButtonSending")}` : `${t("sendOtpButton1")}`}
             </Button>
           </>

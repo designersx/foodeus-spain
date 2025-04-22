@@ -225,18 +225,30 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 fill
                 className=""
               />
+<span className="dishPrice"> $20
+ 
+</span>
+
             </div>
             <div className="dishContent">
 
-              <div className="card-body h-100  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
-                <div>
-                  <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
+              <div className="card-body h-100 foodDescription  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
+                <div className="MeniList">
+
+                <div className="MeneSequence">
+            <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Risoto <span className="DishQuanty">+3</span></span>
+            <span className="Starter" style={{backgroundColor:'#EEE7D0',}}>Lentil Soup</span>
+            <span className="Drinks" style={{backgroundColor:'#EED0D0',}} >Soft Drink</span>
+            <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Pancake red</span>
+          </div>
+
+                  {/* <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
                     {restaurant?.menu.title[language]
                       ? restaurant.menu.title[language]
                       : language === "en"
                         ? "Menu not Available"
                         : "Menú no disponible"}
-                  </h5>
+                  </h5> */}
                 </div>
                 <div className="resturantLoc  w-100">
                   <div>
