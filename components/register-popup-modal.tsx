@@ -90,7 +90,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
       if (response.status === 200) {
         setToast({ show: true, message: response.data.message, type: 'success' });
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("mobileToken", response.data.token);
         setTimeout(() => {
           setInputOtp(["", "", "", ""]);
           onClose();

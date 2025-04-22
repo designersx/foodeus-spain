@@ -6,7 +6,7 @@ import { useLanguage } from "@/context/language-context"
 import { User } from "lucide-react";
 import PopUp from "./ui/custom-toast"
 import ProfileSection from "./profile-section-modal"
-import { LogIn } from "lucide-react"; // ya koi bhi icon lib aap use kar rahe ho usse
+import { LogIn } from "lucide-react"; 
 import RegisterPromptModal from "./register-popup-modal"
 import { apiClient } from "@/services/apiService"
 import { usePathname } from 'next/navigation';
@@ -15,6 +15,11 @@ interface Toast {
   message: string;
   type: string;
   onConfirm: (() => void) | null;
+}
+interface RegisterUserDetails {
+  name: string;
+  email: string;
+  status: boolean;
 }
 export default function Header() {
   const pathname = usePathname();
@@ -27,10 +32,9 @@ export default function Header() {
   const handleLogout = () => {
     setToast({
       show: true, message: language === "es" ? "¿Estás seguro de que quieres cerrar sesión?" : "Are you sure you want to Logout?"
-
       , onConfirm: () => {
         localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem("token")
+        localStorage.removeItem("mobileToken")
         setIsLoggedIn(null);
       }, type: 'info'
     });
@@ -38,9 +42,6 @@ export default function Header() {
   }
   const handleProfileSection = () => {
     setIsShowProfileSection(true)
-  }
-  const handleEditProfileSection = () => {
-
   }
   const handleLogin = () => {
 
@@ -53,10 +54,14 @@ export default function Header() {
   //handle register
   const handleRegister = async (data: { name: string; email: string }) => {
     const { name, email } = data;
-
+    const userDetails: RegisterUserDetails = {
+      name: name,
+      email: email,
+      status: true,
+    };
 
     try {
-      const response = await apiClient.post('/mobileUsers/createMobileUser', { name, email });
+      const response = await apiClient.post('/mobileUsers/createMobileUser',userDetails);
       if (response) {
         setToast({
           show: true, message: "OTP sent successfully",

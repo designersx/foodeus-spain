@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Upload } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -113,6 +112,7 @@ export default function EditRestaurantPage() {
 
     try {
       const token = localStorage.getItem("token");
+      console.log(token)
       const data = new FormData();
 
       data.append("name", formData.name.trim());  

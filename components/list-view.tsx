@@ -16,7 +16,6 @@ import { boolean } from "yup";
 import RegisterPromptModal from "./register-popup-modal";
 import { useRouter } from 'next/navigation';
 import PopUp from "./ui/custom-toast";
-
 interface Menu {
   title: { en: string; es: string };
   description: { en: string; es: string };
@@ -26,7 +25,6 @@ interface Menu {
   menu_id?: string | number;
   menu_type?: any;
 }
-
 interface Restaurant {
   id: string;
   name: string;
@@ -38,7 +36,11 @@ interface Restaurant {
   ratings?: string | number;
   updatedToday?: boolean;
 }
-
+interface RegisterUserDetails {
+  name: string;
+  email: string;
+  status: boolean;
+}
 // Function to calculate distance
 const calculateDistance = (
   lat1: number,
@@ -130,74 +132,166 @@ export function ListView() {
       setLoading(false);
     };
   }, []);
+  // correct code
+  //   useEffect(() => {
+  //     setLoading(true);
+  //     const fetchRestaurants = async () => {
+  //       try {
+  //         const data = await getRestaurantsWithMenus();
+  //         console.log("API Response:", data);
+  //         if (!Array.isArray(data.data)) {
+  //           console.error("API response is not an array:", data);
+  //           return;
+  //         }
+  //         const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
+  //           const sortedMenus = restaurant.menus
+  //             ? [...restaurant.menus].sort((a, b) => {
+  //               const today = new Date().toDateString();
+  //               console.log(today,"today")
+  // console.log(...restaurant.menus,"...restaurant.menus")
+  //               const isATodaySpecial =
+  //                 a.menu_type === "Today's Special" &&
+  //                 new Date(a.updated_at).toDateString() === today;
+  //   console.log(isATodaySpecial,"isATodaySpecial")
+  //               const isBTodaySpecial =
+  //                 b.menu_type === "Today's Special" &&
+  //                 new Date(b.updated_at).toDateString() === today;
+
+  //               if (isATodaySpecial && !isBTodaySpecial) return -1;
+  //               if (!isATodaySpecial && isBTodaySpecial) return 1;
+
+  //               return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  //             })
+  //             : [];
+
+  //           return {
+  //             id: restaurant.restaurant_id?.toString() || "",
+  //             name: restaurant.name || "",
+  //             location: restaurant.address || "",
+  //             coordinates: {
+  //               lat: Number(restaurant.location?.latitude) || 0,
+  //               lng: Number(restaurant.location?.longitude) || 0,
+  //             },
+  //             rating: restaurant.ratings?.toString() || "",
+  //             category: restaurant.category,
+  //             menu:
+  //               sortedMenus.length > 0
+  //                 ? {
+  //                   title: {
+  //                     en: sortedMenus[0].item_name || "",
+  //                     es: sortedMenus[0].item_name || "",
+  //                   },
+  //                   description: {
+  //                     en: sortedMenus[0].description || "",
+  //                     es: sortedMenus[0].description || "",
+  //                   },
+  //                   image: sortedMenus[0]?.image_url || "",
+  //                   items: sortedMenus[0]?.item_list,
+  //                   updated_at: sortedMenus[0]?.updated_at,
+  //                   menu_type: sortedMenus[0]?.menu_type,
+  //                   menu_id: sortedMenus[0]?.menu_id,
+  //                 }
+  //                 : {
+  //                   title: { en: "", es: "" },
+  //                   description: { en: "", es: "" },
+  //                   image: "",
+  //                 },
+  //           };
+  //         });
+  //         setRestaurants(formattedRestaurants);
+  //         setHasFetched(true);
+  //       } catch (err) {
+  //         console.error("Error fetching restaurants:", err);
+  //         setLoading(false);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+
+  //     // Only run the fetch once when data is not fetched
+  //     if (!hasFetched) {
+  //       fetchRestaurants();
+  //     }
+
+  //   }, [hasFetched]);
+
+
+  // Utility to format date to just yyyy-mm-dd
+  const formatDate = (date: Date) =>
+    date.toISOString().split("T")[0];
 
   useEffect(() => {
     setLoading(true);
     const fetchRestaurants = async () => {
       try {
         const data = await getRestaurantsWithMenus();
-        // console.log("API Response:", data);
         if (!Array.isArray(data.data)) {
           console.error("API response is not an array:", data);
           return;
         }
 
-        const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
-          const sortedMenus = restaurant.menus
-            ? [...restaurant.menus].sort((a, b) => {
-              const today = new Date().toDateString();
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
 
-              const isATodaySpecial =
-                a.menu_type === "Today's Special" &&
-                new Date(a.updated_at).toDateString() === today;
+        const formattedToday = formatDate(today);
+        const formattedYesterday = formatDate(yesterday);
 
-              const isBTodaySpecial =
-                b.menu_type === "Today's Special" &&
-                new Date(b.updated_at).toDateString() === today;
+        const todaySpecialRestaurants: Restaurant[] = [];
 
-              if (isATodaySpecial && !isBTodaySpecial) return -1;
-              if (!isATodaySpecial && isBTodaySpecial) return 1;
+        data.data.forEach((restaurant: any) => {
+          const allMenus = restaurant.menus || [];
 
-              return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-            })
-            : [];
-
-          return {
-            id: restaurant.restaurant_id?.toString() || "",
-            name: restaurant.name || "",
-            location: restaurant.address || "",
-            coordinates: {
-              lat: Number(restaurant.location?.latitude) || 0,
-              lng: Number(restaurant.location?.longitude) || 0,
-            },
-            rating: restaurant.ratings?.toString() || "",
-            category: restaurant.category,
-            menu:
-              sortedMenus.length > 0
-                ? {
-                  title: {
-                    en: sortedMenus[0].item_name || "",
-                    es: sortedMenus[0].item_name || "",
-                  },
-                  description: {
-                    en: sortedMenus[0].description || "",
-                    es: sortedMenus[0].description || "",
-                  },
-                  image: sortedMenus[0]?.image_url || "",
-                  items: sortedMenus[0]?.item_list,
-                  updated_at: sortedMenus[0]?.updated_at,
-                  menu_type: sortedMenus[0]?.menu_type,
-                  menu_id: sortedMenus[0]?.menu_id,
-                }
-                : {
-                  title: { en: "", es: "" },
-                  description: { en: "", es: "" },
-                  image: "",
+          // const todaysSpecialMenus = allMenus.filter(
+          //   (menu: any) => menu.menu_type === "Today's Special"
+          // );
+          const todaysSpecialMenus = allMenus; // No filter, show all menus
+          todaysSpecialMenus.forEach((menu: any) => {
+            todaySpecialRestaurants.push({
+              id: restaurant.restaurant_id?.toString() || "",
+              name: restaurant.name || "",
+              location: restaurant.address || "",
+              coordinates: {
+                lat: Number(restaurant.location?.latitude) || 0,
+                lng: Number(restaurant.location?.longitude) || 0,
+              },
+              rating: restaurant.ratings?.toString() || "",
+              category: restaurant.category,
+              menu: {
+                title: {
+                  en: menu.item_name || "",
+                  es: menu.item_name || "",
                 },
-          };
+                description: {
+                  en: menu.description || "",
+                  es: menu.description || "",
+                },
+                image: menu.image_url || "",
+                items: menu.item_list,
+                updated_at: menu.updated_at,
+                menu_type: menu.menu_type,
+                menu_id: menu.menu_id,
+              },
+            });
+          });
         });
 
-        setRestaurants(formattedRestaurants);
+        // ✅ Sort today's special menus: today > yesterday > older
+        todaySpecialRestaurants.sort((a, b) => {
+          const aDate = formatDate(new Date(a.menu.updated_at));
+          const bDate = formatDate(new Date(b.menu.updated_at));
+
+          if (aDate === formattedToday && bDate !== formattedToday) return -1;
+          if (aDate !== formattedToday && bDate === formattedToday) return 1;
+
+          if (aDate === formattedYesterday && bDate !== formattedYesterday) return -1;
+          if (aDate !== formattedYesterday && bDate === formattedYesterday) return 1;
+
+          // Fallback: sort latest first
+          return new Date(b.menu.updated_at).getTime() - new Date(a.menu.updated_at).getTime();
+        });
+
+        setRestaurants(todaySpecialRestaurants);
         setHasFetched(true);
       } catch (err) {
         console.error("Error fetching restaurants:", err);
@@ -207,18 +301,16 @@ export function ListView() {
       }
     };
 
-    // Only run the fetch once when data is not fetched
     if (!hasFetched) {
       fetchRestaurants();
     }
-
   }, [hasFetched]);
 
+  // correct Code
   useEffect(() => {
     if (!restaurants.length) return;
     if (userLocationFromStorage) {
       const today = new Date().toISOString().split("T")[0];
-
       const withDistance = restaurants.map((restaurant) => {
         const hasMenu = !!restaurant.menu?.updated_at;
         const latestUpdate = restaurant.menu?.updated_at || "";
@@ -258,6 +350,55 @@ export function ListView() {
     }
   }, [restaurants, userLocation]);
 
+  //fake code
+  // useEffect(() => {
+  //   if (!restaurants.length) return;
+
+  //   if (userLocationFromStorage) {
+  //     const today = new Date().toISOString().split("T")[0];
+
+  //     const withDistance = restaurants.map((restaurant) => {
+  //       const latestUpdate = restaurant.menu?.updated_at || "";
+  //       const updatedDate = latestUpdate.split("T")[0]; // ISO format
+
+  //       const updatedToday =
+  //         updatedDate === today &&
+  //         restaurant?.menu?.menu_type === "Today's Special";
+
+  //       return {
+  //         ...restaurant,
+  //         distance: calculateDistance(
+  //           userLocationFromStorage.lat,
+  //           userLocationFromStorage.lng,
+  //           restaurant.coordinates.lat,
+  //           restaurant.coordinates.lng
+  //         ),
+  //         updatedToday,
+  //         hasMenu: !!restaurant.menu?.updated_at,
+  //         rating: restaurant.rating || 3,
+  //       };
+  //     });
+
+  //     // ✅ Sort primarily by distance, then updatedToday, then hasMenu
+  //     withDistance.sort((a, b) => {
+  //       const distanceDiff = (a.distance || 0) - (b.distance || 0);
+  //       if (distanceDiff !== 0) return distanceDiff;
+
+  //       if (a.updatedToday && !b.updatedToday) return -1;
+  //       if (!a.updatedToday && b.updatedToday) return 1;
+
+  //       if (a.hasMenu && !b.hasMenu) return -1;
+  //       if (!a.hasMenu && b.hasMenu) return 1;
+
+  //       return 0;
+  //     });
+
+  //     setRestaurantsWithDistance(withDistance);
+  //     setFilteredRestaurants(withDistance);
+  //     setLoading(false);
+  //   }
+  // }, [restaurants, userLocation]);
+
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
   };
@@ -265,7 +406,7 @@ export function ListView() {
   useEffect(() => {
     const term = searchTerm?.toLowerCase();
     if (!term) {
-      console.log("No search term, showing all restaurants.");
+      // console.log("No search term, showing all restaurants.");
       setFilteredRestaurants(restaurantsWithDistance);
       return;
     }
@@ -295,10 +436,13 @@ export function ListView() {
   //handle register
   const handleRegister = async (data: { name: string; email: string }) => {
     const { name, email } = data;
-
-
+    const userDetails: RegisterUserDetails = {
+      name: name,
+      email: email,
+      status: true,
+    };
     try {
-      const response = await apiClient.post('/mobileUsers/createMobileUser', { name, email });
+      const response = await apiClient.post('/mobileUsers/createMobileUser', userDetails);
       if (response) {
         setToast({
           show: true, message: "OTP sent successfully",
@@ -309,7 +453,7 @@ export function ListView() {
       }
       return false;
     } catch (error) {
-      // console.error("Error registering user", error.response);
+      console.error("Error registering user", error.response);
       setToast({ show: true, message: error.response.data.message, type: 'error' });
       return false;
     }
@@ -335,7 +479,6 @@ export function ListView() {
 
     setFocused(true);
   };
-
   const handleBlur = () => {
     setFocused(false);
     setIsSticky(false);
@@ -408,7 +551,7 @@ export function ListView() {
       </div>
     );
   }
-const pathname = usePathname()
+  const pathname = usePathname()
   return (
     <div className="pb-5">
       {/* <HeroSlideshow /> */}
@@ -467,7 +610,7 @@ const pathname = usePathname()
             </Link>
           </div>
 
-          
+
         </div>
       </div>
 
@@ -527,7 +670,7 @@ const pathname = usePathname()
           show={showRegisterModal}
           onClose={handleClose}
           onRegister={handleRegister}
-          // modalView={false}
+        // modalView={false}
         />
       )}
       {toast.show && (

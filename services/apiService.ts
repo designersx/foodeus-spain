@@ -16,14 +16,13 @@ export const apiClient = axios.create({
 export const getRestaurantsWithMenus = async () => {
   try {
     const response = await apiClient.get("/enduser/getRestaurantsWithMenus");
-    return response.data; // Axios automatically parses JSON
-    console.log('menusss', response.data)
+    return response.data;
+
   } catch (error) {
     console.error("Error fetching restaurants:", error);
     return { success: false, data: [] };
   }
 };
-
 // ✅ Function to get a single restaurant by ID
 export const getRestaurantById = async (id: string) => {
   try {
@@ -34,7 +33,6 @@ export const getRestaurantById = async (id: string) => {
     return { success: false, data: null };
   }
 };
-
 // ✅ Function to search restaurants by name
 export const searchRestaurants = async (query: string) => {
   try {
@@ -47,8 +45,6 @@ export const searchRestaurants = async (query: string) => {
     return { success: false, data: [] };
   }
 };
-
-
 export const getRestaurantListforAdmin = async () => {
   try {
     const response = await apiClient.get(`/restaurants/`);
@@ -89,14 +85,3 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const getMobileUsers = async () => {
-  try {
-    const response = await apiClient.get('/admin/getMobileUsers');
-    console.log(response, "GET ")
-    // Store the received token in localStorage (or any other storage mechanism)
-    return response.data;
-  } catch (error) {
-    console.error("Error during login:", error);
-    return { success: false, data: [] };
-  }
-}
