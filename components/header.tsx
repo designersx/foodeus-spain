@@ -106,9 +106,9 @@ export default function Header() {
         </Link>
         <div className="d-flex align-items-center">
           {pathname === "/" && isLoggedIn !== "true" && (
-            <div className="dropdown me-2">
+            <div className="dropdown ">
               <button
-                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                className="btn btn-sm btn-outline-secondary BorderNone d-flex align-items-center gap-1"
                 type="button"
                 data-bs-toggle="dropdown"
                 onClick={handleLogin}
@@ -119,9 +119,10 @@ export default function Header() {
           )}
 
           {/* Profile-section */}
-          {isLoggedIn == "true" && pathname === "/" && <div className="dropdown me-2">
-            <button
-              className="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+          {isLoggedIn == "true" && pathname === "/" && 
+          <div className="dropdown me-2">
+            <button 
+              className="btn btn-sm btn-outline-secondary  dropdown-toggle d-flex align-items-center gap-1"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -146,9 +147,9 @@ export default function Header() {
             </ul>
           </div>}
           {/* Language Dropdown */}
-          <div className="dropdown me-2">
+          <div className="dropdown ">
             <button
-              className="btn btn-sm btn-outline-secondary dropdown-toggle"
+              className="btn btn-sm btn-outline-secondary BorderNone dropdown-toggle"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

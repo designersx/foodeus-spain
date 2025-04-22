@@ -531,6 +531,9 @@ export function ListView() {
     );
   };
 
+
+  
+
   if (loading) {
     return (
       <div
@@ -552,10 +555,18 @@ export function ListView() {
   return (
     <div className="pb-5">
       {/* <HeroSlideshow /> */}
-      <div className=" SearchFixed container my-3">
-        <div className="row g-2 align-items-center">
+      <div className=" SearchFixed container my-1">
+        <div className=" SearchBox  g-4 align-items-center">
           {/* Search Input */}
-          <div className="col-9 col-md-9">
+          <div className=" MenuType">
+          <div className="MeneSequence">
+            <span className="Starter" style={{backgroundColor:'#EEE7D0',}}>Starter</span>
+            <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Main Dish</span>
+            <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Desert</span>
+            <span className="Drinks" style={{backgroundColor:'#EED0D0',}} >Drinks</span>
+          </div>
+
+          <div className="InputSearch">
             <input
               ref={searchRef}
               type="text"
@@ -564,7 +575,7 @@ export function ListView() {
                   ? "Buscar restaurantes, cocina o ubicación"
                   : "Search restaurants, cuisine, or location"
               }
-              className={`form-control w-full p-3 border rounded-md transition-all duration-300 ${isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
+              className={`form-control w-full p-2 border rounded-md transition-all duration-300 ${isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
                 }`}
               onFocus={handleFocus}
               onBlur={handleBlur}
@@ -572,17 +583,28 @@ export function ListView() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="col-3 col-md-3">
+          
+          </div>
+          <div className="MapIcon">
             <Link
               href="/map"
 
               className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/map" ? "text-primary" : "text-secondary"
                 }`}
             >
-              <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9.70718 0.903421L9.70712 0.902994L9.69806 0.905051C9.67349 0.910629 9.64951 0.918506 9.62642 0.928574L1.1647 3.95734L1.1647 3.95734L1.16395 3.95761C1.08661 3.98599 1.01986 4.03745 0.972673 4.10501C0.925489 4.17257 0.900134 4.25298 0.9 4.33539V4.33555L0.9 20.6975L0.9 20.6976C0.90011 20.7624 0.915795 20.8262 0.945736 20.8836C0.975678 20.941 1.019 20.9903 1.07205 21.0274C1.1251 21.0645 1.18631 21.0883 1.25049 21.0966C1.31451 21.105 1.37959 21.0977 1.44023 21.0756C1.44038 21.0755 1.44053 21.0755 1.44068 21.0754L9.76744 18.0956L18.0942 21.0754C18.0944 21.0755 18.0945 21.0755 18.0947 21.0756C18.1837 21.1081 18.2814 21.1081 18.3704 21.0756C18.3706 21.0755 18.3708 21.0755 18.3709 21.0754L26.8353 18.0457L26.836 18.0454C26.9134 18.0171 26.9801 17.9656 27.0273 17.898C27.0745 17.8305 27.0999 17.7501 27.1 17.6677V17.6675V1.30557V1.3054C27.0999 1.24065 27.0842 1.17687 27.0543 1.11946C27.0243 1.06205 26.981 1.0127 26.928 0.975609C26.8749 0.938515 26.8137 0.914775 26.7495 0.906418C26.6855 0.898078 26.6204 0.905306 26.5597 0.927482C26.5596 0.927528 26.5594 0.927574 26.5593 0.92762L18.2326 3.90741L9.90663 0.927916C9.8433 0.902991 9.77468 0.894556 9.70718 0.903421ZM1.70465 4.6143L9.36512 1.87364V17.3888L1.70465 20.1294V4.6143ZM10.1698 17.3794V1.8738L17.8302 4.62368V20.1292L10.1698 17.3794ZM18.6349 4.6143L26.2953 1.87364V17.3887L18.6349 20.1294V4.6143Z" fill="#95757D" stroke="#95757D" strokeWidth="0.2" />
-              </svg>
+<div className="svgControler">
 
+              <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18.2609" cy="18.2609" r="18.2609" fill="#F1582E"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M26.1876 9.29969C24.2049 7.34128 21.5664 6.26172 18.763 6.26172C15.9587 6.26172 13.3213 7.34125 11.3373 9.29969C9.35464 11.2581 8.26172 13.8632 8.26172 16.6335C8.26172 19.4035 9.35461 22.0086 11.3373 23.9672C12.6436 25.2575 13.9543 26.5422 15.2653 27.8268C16.4036 28.9434 17.543 30.0588 18.6779 31.1788L18.7619 31.2617L18.8458 31.1788C19.9807 30.06 21.1179 28.9457 22.2561 27.8303C23.568 26.5445 24.88 25.2587 26.1873 23.9684C28.17 22.01 29.2617 19.4048 29.2617 16.6346C29.2617 13.8635 28.1702 11.2583 26.1876 9.29969ZM18.7618 21.6197C15.978 21.6197 13.7127 19.3833 13.7127 16.6323C13.7127 13.8825 15.9779 11.6449 18.7618 11.6449C21.5458 11.6449 23.811 13.8824 23.811 16.6323C23.811 19.3833 21.5458 21.6197 18.7618 21.6197Z" fill="white"/>
+</svg>
+
+<div className="circles">
+  <div className="circle1"></div>
+  <div className="circle2"></div>
+  <div className="circle3"></div>
+</div>
+</div>
 
               <span className="small">{t("mapView")}</span>
             </Link>
