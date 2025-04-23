@@ -498,13 +498,13 @@ export default function EditMenuItemPage() {
                           <img
                             src={
                               item.image_url
-                                ? `http://https://foodeus.truet.net/${item.image_url}`
-                                : "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg"
+                                ? `https://foodeus.truet.net/${item.image_url}`
+                                : "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg"
                             }
                             alt={item.item_name || "Menu item image"}
                             onError={(e) => {
                               e.currentTarget.src =
-                                "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                             }}
                             className="w-12 h-12 object-cover rounded-md border"
                           />
@@ -565,7 +565,7 @@ export default function EditMenuItemPage() {
                       <img
                         src={
                           editingItem.imagePreview ||
-                          `http://https://foodeus.truet.net/${editingItem.image_url}`
+                          `https://foodeus.truet.net/${editingItem.image_url}`
                         }
                         alt="Preview"
                         className="max-h-32 object-cover rounded-md mx-auto"
