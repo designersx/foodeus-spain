@@ -3,7 +3,7 @@ import axios from "axios";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from "react";
 // Base API URL from environment variables
-// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; //locals
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; 
 // Create an Axios instance with default settings 
 export const apiClient = axios.create({
