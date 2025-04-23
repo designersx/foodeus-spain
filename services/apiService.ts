@@ -3,7 +3,7 @@ import axios from "axios";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from "react";
 // Base API URL from environment variables
-// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://https://foodeus.truet.net"; //locals
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; 
 // Create an Axios instance with default settings 
 export const apiClient = axios.create({
@@ -27,6 +27,15 @@ export const getRestaurantsWithMenus = async () => {
 export const getRestaurantById = async (id: string) => {
   try {
     const response = await apiClient.get(`/enduser/getRestaurantWithMenus/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error fetching restaurant:", error);
+    return { success: false, data: null };
+  }
+};
+export const getRestaurantMenuById = async (id: string) => {
+  try {
+    const response = await apiClient.get(`/menu/getRestaurantMenuItemList/${id}`);
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching restaurant:", error);

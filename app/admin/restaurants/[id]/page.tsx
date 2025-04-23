@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Edit, MapPin, Plus, Star, Trash2 ,Clipboard} from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  MapPin,
+  Plus,
+  Star,
+  Trash2,
+  Clipboard,
+} from "lucide-react";
 import { apiClient } from "@/services/apiService";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,12 +38,12 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { API_BASE_URL, getRestaurantByIdforAdmin} from "@/services/apiService";
+import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService";
 
 // types/item.ts
 export interface RestaurantItem {
   id: string;
-  restaurant_id:string;
+  restaurant_id: string;
   item_name: string;
   price: number;
   image_url: string;
@@ -43,7 +51,6 @@ export interface RestaurantItem {
   description?: string;
   created_at?: string;
   updated_at?: string;
-  
 }
 interface ItemList {
   image: string;
@@ -63,7 +70,6 @@ interface MenuItem {
   popular?: boolean; // Optional if applicable
   updated_at: any;
   item_list?: ItemList[]; // Ensure this is an array of ItemList
- 
 }
 
 interface Restaurant {
@@ -96,33 +102,34 @@ export default function RestaurantDetailPage() {
   const [activeTab, setActiveTab] = useState("menu");
   // const [items, setItems] = useState<RestaurantItem[]>([]);
   const [items, setItems] = useState<RestaurantItem[]>([]);
-
+console.log(items," aarti dffmsk items")
   const fetchItemList = async () => {
     setLoading(true);
     try {
-          const token = localStorage.getItem("token");
-          const response = await apiClient.get(`/menuitems/getRestaurantMenuItemList/${restaurantId}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (Array.isArray(response.data.data)) {
-            const sotedItems = response?.data?.data
-              .filter((item: any) => item.id != null)
-              .sort(
-                (a: any, b: any) =>
-                  new Date(b.updated_at).getTime() -
-                  new Date(a.updated_at).getTime()
-              );
-            // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
-            setItems(sotedItems);
-          }
-    
-    
+      const token = localStorage.getItem("token");
+      const response = await apiClient.get(
+        `/menuitems/getRestaurantMenuItemList/${restaurantId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (Array.isArray(response.data.data)) {
+        const sotedItems = response?.data?.data
+          .filter((item: any) => item.id != null)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime()
+          );
+        // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+        setItems(sotedItems);
+      }
     } catch (error) {
       // console.error("Error fetching restaurant:", error);
-      setItems([])
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -152,21 +159,18 @@ export default function RestaurantDetailPage() {
         setLoading(false);
       }
     };
-   
 
     fetchRestaurants();
-    fetchItemList()
+    fetchItemList();
   }, [relod]);
 
   useEffect(() => {
     const storedTab = sessionStorage.getItem("activeTab");
-    
+
     if (storedTab) {
-      setActiveTab(storedTab); 
+      setActiveTab(storedTab);
     }
   }, []);
-
-
 
   if (!restaurant && !loading) {
     return (
@@ -255,11 +259,14 @@ export default function RestaurantDetailPage() {
       // console.log(itemId)
       const token = localStorage.getItem("token");
 
-      const response = await apiClient.delete(`/menuitems/deleteRestaurantMenuItem/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiClient.delete(
+        `/menuitems/deleteRestaurantMenuItem/${itemId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data.success) {
         await fetchItemList();
@@ -267,7 +274,7 @@ export default function RestaurantDetailPage() {
           title: "Menu item deleted",
           description: "The menu item has been deleted successfully",
         });
-      
+
         // Optionally refresh the menu list or remove the item from local state
       } else {
         throw new Error(response.data.message || "Failed to delete item");
@@ -302,8 +309,12 @@ export default function RestaurantDetailPage() {
 
   const filteredItems = items?.filter(
     (item) =>
-      item?.item_name?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase()) ||
-      item?.item_type?.toLowerCase().includes(searchQueryMenuItem?.toLowerCase())
+      item?.item_name
+        ?.toLowerCase()
+        .includes(searchQueryMenuItem?.toLowerCase()) ||
+      item?.item_type
+        ?.toLowerCase()
+        .includes(searchQueryMenuItem?.toLowerCase())
   );
   // console.log("filteredItems", filteredItems)
   const normalized = getMenuImagePath(restaurant?.cover_image);
@@ -312,7 +323,7 @@ export default function RestaurantDetailPage() {
     ? `${API_BASE_URL}/${normalized}`
     : "/Images/restaurent-fall.jpg";
 
-    // console.log('filteredMenus', filteredMenus)
+  // console.log('filteredMenus', filteredMenus)
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
@@ -340,27 +351,34 @@ export default function RestaurantDetailPage() {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="truncate w-full">
-                  <CardTitle  className=""  style={{overflowWrap: "break-word"}}>{restaurant?.name}</CardTitle>
+                  <CardTitle
+                    className=""
+                    style={{ overflowWrap: "break-word" }}
+                  >
+                    {restaurant?.name}
+                  </CardTitle>
                   <CardDescription className="flex items-center mt-1">
                     <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                     {restaurant?.address}
                   </CardDescription>
                 </div>
-           
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium">Description</h4>
-                  <p className="text-sm text-muted-foreground " style={{overflowWrap: "break-word"}}>
+                  <p
+                    className="text-sm text-muted-foreground "
+                    style={{ overflowWrap: "break-word" }}
+                  >
                     {restaurant?.description ? restaurant?.description : "NA"}{" "}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Cuisine</h4>
                   <p className="text-sm text-muted-foreground">
-                    {restaurant?.category ? restaurant?.category :"NA"}
+                    {restaurant?.category ? restaurant?.category : "NA"}
                   </p>
                 </div>
                 <div>
@@ -371,13 +389,39 @@ export default function RestaurantDetailPage() {
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Website</h4>
-                  <p className="text-sm text-muted-foreground"  style={{overflowWrap: "break-word",textDecoration:"none"}}>
-                    {restaurant?.website ?  <a href={restaurant?.website} target="_blank" rel="noopener noreferrer"  style={{ textDecoration: "none" }} > {restaurant?.website} </a>:"NA"}
+                  <p
+                    className="text-sm text-muted-foreground"
+                    style={{
+                      overflowWrap: "break-word",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {restaurant?.website ? (
+                      <a
+                        href={restaurant?.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: "none" }}
+                      >
+                        {" "}
+                        {restaurant?.website}{" "}
+                      </a>
+                    ) : (
+                      "NA"
+                    )}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium" style={{overflowWrap: "break-word"}}>Hours</h4>
-                  <p className="text-sm text-muted-foreground" style={{overflowWrap: "break-word"}}> 
+                  <h4
+                    className="text-sm font-medium"
+                    style={{ overflowWrap: "break-word" }}
+                  >
+                    Hours
+                  </h4>
+                  <p
+                    className="text-sm text-muted-foreground"
+                    style={{ overflowWrap: "break-word" }}
+                  >
                     {restaurant?.open_hours
                       ? restaurant.open_hours
                           .replace(/�\?\?�\?\?/g, "-")
@@ -455,12 +499,12 @@ export default function RestaurantDetailPage() {
                 <TabsTrigger value="menu" className="flex-1 sm:flex-initial">
                   Today's Special
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="itemsList"
                   className="flex-1 sm:flex-initial"
                 >
                   Item List
-                </TabsTrigger>
+                </TabsTrigger> */}
                 {/* <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">
                   Analytics
                 </TabsTrigger> */}
@@ -546,34 +590,47 @@ export default function RestaurantDetailPage() {
                             </Badge>} */}
                             </div>
                           </div>
-                           {/* Display item list */}
-                        {item.item_list && item.item_list?.length > 0 && (
-                          <div className="mt-4">
-                            <h4 className="font-semibold text-lg">Item List</h4>
-                            <ul className="space-y-2 mt-2" style={{paddingLeft: "0rem"}}>
-                              {item.item_list.map((menuItem, index) => (
-                                <li key={index} className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {menuItem.image && (
-                                      <img
-                                        src={getMenuImagePath(menuItem.image)}
-                                        alt={menuItem.name}
-                                        className="w-8 h-8 rounded-full object-cover"
-                                      />
-                                    )}
-                                    <span className="text-sm text-gray-800">{menuItem.name}</span>
-                                  </div>
-                                  <div className="font-medium">€{menuItem.price}</div>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                          {/* Display item list */}
+                          {item.item_list && item.item_list?.length > 0 && (
+                            <div className="mt-4">
+                              <h4 className="font-semibold text-lg">
+                                Item List
+                              </h4>
+                              <ul
+                                className="space-y-2 mt-2"
+                                style={{ paddingLeft: "0rem" }}
+                              >
+                                {item.item_list.map((menuItem, index) => (
+                                  <li
+                                    key={index}
+                                    className="flex justify-between items-center"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      {menuItem.image && (
+                                        <img
+                                          src={getMenuImagePath(menuItem.image)}
+                                          alt={menuItem.name}
+                                          className="w-8 h-8 rounded-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.src =
+                                              "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                                          }}
+                                        />
+                                      )}
+                                      <span className="text-sm text-gray-800">
+                                        {menuItem.name}
+                                      </span>
+                                    </div>
+                                    {/* <div className="font-medium">€{menuItem.price}</div> */}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                           <div className="mt-4 flex justify-end gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                          
                               onClick={() => {
                                 sessionStorage.setItem(
                                   "editMenuItem",
@@ -620,17 +677,17 @@ export default function RestaurantDetailPage() {
                     </Card>
                   );
                 })}
-                
+
               {filteredMenus?.length <= 0 && (
                 <>
                   <div className="text-center text-muted-foreground py-8">
                     <p>No menu found.</p>
-                  </div>  
+                  </div>
                 </>
               )}
             </TabsContent>
             <TabsContent value="itemsList" className="space-y-4">
-            <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center gap-2 w-full">
                 <div className="relative flex-1">
                   <Input
                     type="search"
@@ -644,21 +701,21 @@ export default function RestaurantDetailPage() {
                 </div>
               </div>
               <div className="flex justify-between items-center mb-4">
-              <span></span>
-              <Button asChild>
-                <Link
-                  href={`/admin/restaurants/${restaurant?.id}/upload-item-list`} style={{ textDecoration: "none" }}
-                  onClick={() => {
-                    sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
-                  }}
-                >
-                  <Clipboard className="h-4 w-4 mr-2" />
-                  Upload Menu Item List
-                </Link>
-              </Button>
-            </div>
+                <span></span>
+                <Button asChild>
+                  <Link
+                    href={`/admin/restaurants/${restaurant?.id}/upload-item-list`}
+                    style={{ textDecoration: "none" }}
+                    onClick={() => {
+                      sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
+                    }}
+                  >
+                    <Clipboard className="h-4 w-4 mr-2" />
+                    Upload Menu Item List
+                  </Link>
+                </Button>
+              </div>
 
-              
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <Card key={item.id}>
@@ -681,7 +738,7 @@ export default function RestaurantDetailPage() {
                           <div>
                             <h3 className="font-semibold">{item.item_name}</h3>
                             <p className="text-sm text-muted-foreground">
-                            {item.description}
+                              {item.description}
                             </p>
                           </div>
                           <div className="text-right">
@@ -703,7 +760,6 @@ export default function RestaurantDetailPage() {
                                 `/admin/restaurants/${restaurant?.id}/item/${item?.id}/edit`
                               );
                               sessionStorage.setItem("activeTab", activeTab);
-
                             }}
                           >
                             <Edit className="h-3.5 w-3.5 mr-1" /> Edit
@@ -718,8 +774,9 @@ export default function RestaurantDetailPage() {
                               <DialogHeader>
                                 <DialogTitle>Delete Menu Item</DialogTitle>
                                 <DialogDescription>
-                                  Are you sure you want to delete {item.item_name}?
-                                  This action cannot be undone.
+                                  Are you sure you want to delete{" "}
+                                  {item.item_name}? This action cannot be
+                                  undone.
                                 </DialogDescription>
                               </DialogHeader>
                               <DialogFooter>
