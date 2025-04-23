@@ -613,7 +613,7 @@ console.log(items," aarti dffmsk items")
                                           className="w-8 h-8 rounded-full object-cover"
                                           onError={(e) => {
                                             e.currentTarget.src =
-                                              "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                                           }}
                                         />
                                       )}

@@ -555,11 +555,11 @@ export default function AddMenuItemPage() {
                     >
                       <div className="flex items-center gap-3 mb-2">
                         <img
-                          src={`http://https://foodeus.truet.net/${item.image_url}`}
+                          src={`https://foodeus.truet.net/${item.image_url}`}
                           alt={item.item_name}
                           onError={(e) => {
                             e.currentTarget.src =
-                              "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                           }}
                           className="w-12 h-12 object-cover rounded-md border"
                         />

@@ -314,7 +314,7 @@ export default function MenuDetailPage() {
                           alt={item.name || "Item"}
                           onError={(e) => {
                             e.currentTarget.src =
-                              "http://https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                           }}
                           fill
                           className="object-fit-cover rounded"
