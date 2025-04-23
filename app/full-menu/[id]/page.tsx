@@ -273,7 +273,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -296,14 +295,14 @@ interface FullMenu {
 }
 
 export default function FullMenuPage() {
-const searchParams = useSearchParams();
-const menuId = searchParams.get("menuId");
+  const searchParams = useSearchParams();
+  const menuId = searchParams.get("menuId");
   const { id } = useParams();
   const { language } = useLanguage();
   const [restaurantName, setRestaurantName] = useState<string>("");
   const [fullMenu, setFullMenu] = useState<FullMenu>({});
   const [activeTab, setActiveTab] = useState<string>("");
-
+  const MENU_TAB_ORDER = ["Starters", "Main Course", "Beverages", "Desserts"];
   useEffect(() => {
     if (!menuId) return;
 
@@ -317,7 +316,9 @@ const menuId = searchParams.get("menuId");
               title: item.item_name || "",
               price: `€${item.price ?? "0.00"}`,
               description: item.description || "",
-              image: item.image_url || "/Images/fallback.jpg",
+              image:
+                item.image_url ||
+                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg",
             };
 
             const type = item.item_type?.trim() || "Other";
@@ -333,7 +334,7 @@ const menuId = searchParams.get("menuId");
           setFullMenu(menuGrouped);
 
           // Set the first tab as active
-          const types = Object.keys(menuGrouped);
+          const types = MENU_TAB_ORDER.filter((type) => menuGrouped[type]);
           if (types.length > 0) {
             setActiveTab(types[0]);
           }
@@ -368,8 +369,21 @@ const menuId = searchParams.get("menuId");
       </h1>
 
       {/* Tabs */}
-      <ul className="nav nav-tabs mb-3">
+      {/* <ul className="nav nav-tabs mb-3">
         {Object.keys(fullMenu).map((menuType) => (
+          <li className="nav-item" key={menuType}>
+            <button
+              className={`nav-link ${activeTab === menuType ? "active" : ""}`}
+              onClick={() => setActiveTab(menuType)}
+            >
+              {menuType}
+            </button>
+          </li>
+        ))}
+      </ul> */}
+
+      <ul className="nav nav-tabs mb-3">
+        {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map((menuType) => (
           <li className="nav-item" key={menuType}>
             <button
               className={`nav-link ${activeTab === menuType ? "active" : ""}`}
@@ -383,8 +397,7 @@ const menuId = searchParams.get("menuId");
 
       {/* Menu List */}
       <div className="tab-content">
-        {Object.keys(fullMenu).map(
-          (menuType) =>
+      {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map((menuType) =>
             activeTab === menuType && (
               <div key={menuType} className="tab-pane show active">
                 <div className="list-group">
@@ -406,7 +419,8 @@ const menuId = searchParams.get("menuId");
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
-                              target.src = "/Images/fallback.jpg";
+                              target.src =
+                                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                             }}
                             className="object-fit-cover rounded"
                           />

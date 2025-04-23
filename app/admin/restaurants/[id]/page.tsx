@@ -557,7 +557,7 @@ console.log(items," aarti dffmsk items")
                               alt={item.name}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                target.src = "/Images/fallback.jpg";
+                                target.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                               }}
                               className="h-full w-full object-cover"
                             />
@@ -727,7 +727,7 @@ console.log(items," aarti dffmsk items")
                             alt={item.item_name}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = "/Images/fallback.jpg";
+                              target.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                             }}
                             className="h-full w-full object-cover"
                           />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,8 +41,8 @@ const calculateDistance = (
   lat2?: number,
   lng2?: number
 ) => {
-  if (!lat2 || !lng2) return Number.MAX_VALUE; 
-  const R = 6371; 
+  if (!lat2 || !lng2) return Number.MAX_VALUE;
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
@@ -72,7 +72,7 @@ export default function MenuDetailPage() {
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
 
   const searchParams = useSearchParams();
-  const menuId = searchParams.get("menuId");
+  const menuId = useMemo(() => searchParams.get("menuId"), [searchParams]);
   useEffect(() => {
     if (id) {
       getRestaurantById(`${id}`)
@@ -98,7 +98,7 @@ export default function MenuDetailPage() {
                 es: menu.description || "",
               },
               image: menu.image_url || "",
-              items: menu.item_list || [], 
+              items: menu.item_list || [],
               price: {
                 en: `€${Number(menu.price).toFixed(2)}`,
                 es: `€${Number(menu.price).toFixed(2)}`,
@@ -227,8 +227,9 @@ export default function MenuDetailPage() {
             alt={menuItem?.title[language]}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.onerror = null; 
-              target.src = "/Images/fallback.jpg";
+              target.onerror = null;
+              target.src =
+                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
             }}
             fill
             className="object-cover"
@@ -356,7 +357,7 @@ export default function MenuDetailPage() {
               <Link
                 href={{
                   pathname: `/full-menu/${id}`,
-                  query: { menuId: menuId },
+                  query: menuId ? { menuId } : {},
                 }}
               >
                 <button className="btn btn-outline-primary w-100">

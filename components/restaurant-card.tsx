@@ -220,7 +220,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
               <Image
                 src={src}
                 alt={restaurant?.menu.title[language]}
-                onError={() => setSrc("/Images/fallback.jpg")}
+                onError={() => setSrc("https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg")}
                 loading="lazy"
                 fill
                 className=""
