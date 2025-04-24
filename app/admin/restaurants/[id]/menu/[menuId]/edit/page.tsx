@@ -62,15 +62,15 @@ export default function EditMenuItemPage() {
     description: "",
     price: "",
     menu_type: "Today's Special",
-    item_list: [] as string[], 
+    item_list: [] as string[],
     image: null as File | null,
   });
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [items, setItems] = useState<any[]>([]); 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [isDataLoaded, setIsDataLoaded] = useState(false); 
+  const [items, setItems] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] =
-   useState<number>(-1);
+    useState<number>(-1);
   const itemNameInputRef = useRef<HTMLInputElement>(null);
   // Debounced API call to reduce requests
   const fetchSuggestions = debounce(async (query: string) => {
@@ -98,14 +98,14 @@ export default function EditMenuItemPage() {
         description: parsed.description || "",
         price: parsed.price || "",
         menu_type: parsed.category || "",
-        item_list: parsed.item_list || [], 
+        item_list: parsed.item_list || [],
         image: null,
       });
       const normalized = getMenuImagePath(parsed.cover_image || parsed.image);
       setImagePreview(normalized);
       const initialSelectedItems = new Set(
         parsed.item_list.map((item: any) => item.id.toString())
-      ); 
+      );
       setSelectedItems(initialSelectedItems);
     }
   }, []);
@@ -143,8 +143,8 @@ export default function EditMenuItemPage() {
   };
 
   const handleEditClick = (item: any) => {
-    setEditingItem(item); 
-    setIsModalOpen(true); 
+    setEditingItem(item);
+    setIsModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -197,8 +197,39 @@ export default function EditMenuItemPage() {
     }
   };
   const updateEditedItem = async () => {
-    console.log(editingItem.image)
+    console.log(editingItem.image);
     if (!editingItem) return;
+
+    const trimmedName = editingItem.item_name.trim();
+    const trimmedDesc = editingItem.description?.trim() || "";
+
+    // 🔒 Validations
+    if (!trimmedName) {
+      toast({
+        title: "Validation Error",
+        description: "Item name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (trimmedName.length > 50) {
+      toast({
+        title: "Validation Error",
+        description: "Item name cannot exceed 50 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (trimmedDesc.length > 100) {
+      toast({
+        title: "Validation Error",
+        description: "Description cannot exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
@@ -258,7 +289,7 @@ export default function EditMenuItemPage() {
       } catch (error) {
         console.error("Error fetching items", error);
       } finally {
-        setIsDataLoaded(true); 
+        setIsDataLoaded(true);
       }
     };
     fetchItems();
@@ -266,6 +297,33 @@ export default function EditMenuItemPage() {
 
   const handleAddMenuItem = async () => {
     try {
+      const trimmedName = newItemData.item_name.trim();
+      const trimmedDesc = newItemData.description.trim();
+      if (!newItemData.item_name.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Item name is required.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (trimmedName.length > 50) {
+        toast({
+          title: "Validation Error",
+          description: "Item name cannot exceed 50 characters.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (trimmedDesc.length > 100) {
+        toast({
+          title: "Validation Error",
+          description: "Description cannot exceed 100 characters.",
+          variant: "destructive",
+        });
+        return;
+      }
       const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("item_name", newItemData.item_name.trim());
@@ -291,7 +349,7 @@ export default function EditMenuItemPage() {
         });
 
         const newItem = response.data.data;
-        setItems((prev) => [...prev, newItem]); 
+        setItems((prev) => [...prev, newItem]);
         const newId = newItem?.id?.toString();
         if (newId) {
           const updatedSet = new Set(selectedItems);
@@ -325,20 +383,20 @@ export default function EditMenuItemPage() {
   const toggleItemSelection = (itemId: string) => {
     const newSelectedItems = new Set(selectedItems);
     if (newSelectedItems.has(itemId)) {
-      newSelectedItems.delete(itemId); 
+      newSelectedItems.delete(itemId);
     } else {
       newSelectedItems.add(itemId);
     }
 
-    setSelectedItems(newSelectedItems); 
+    setSelectedItems(newSelectedItems);
     setFormData((prev) => ({
       ...prev,
-      item_list: Array.from(newSelectedItems), 
+      item_list: Array.from(newSelectedItems),
     }));
   };
 
   if (!isDataLoaded) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
   return (
     <div className="full-width-container space-y-6">
@@ -409,7 +467,7 @@ export default function EditMenuItemPage() {
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   target.value = target.value
-                    .replace(/[^a-zA-Z0-9\s]/g, "") 
+                    .replace(/[^a-zA-Z0-9\s]/g, "")
                     .replace(/^\s+/g, "");
                 }}
               />
@@ -568,12 +626,14 @@ export default function EditMenuItemPage() {
                           editingItem.imagePreview ||
                           `https://foodeus.truet.net/${editingItem.image_url}`
                         }
-                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                        onError={(
+                          e: React.SyntheticEvent<HTMLImageElement, Event>
+                        ) => {
                           const target = e.target as HTMLImageElement;
                           target.onerror = null;
-                          target.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                          target.src =
+                            "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                         }}
-                        
                         alt="Preview"
                         className="max-h-32 object-cover rounded-md mx-auto"
                       />

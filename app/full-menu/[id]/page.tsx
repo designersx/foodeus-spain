@@ -304,6 +304,12 @@ export default function FullMenuPage() {
   const [activeTab, setActiveTab] = useState<string>("");
   const MENU_TAB_ORDER = ["Starters", "Main Course", "Beverages", "Desserts"];
   useEffect(() => {
+    if (menuId) {
+      localStorage.setItem("lastMenuId", menuId); // ✅ Store in localStorage
+    }
+  }, [menuId]);
+
+  useEffect(() => {
     if (!menuId) return;
 
     getRestaurantMenuById(`${menuId}`)
@@ -397,7 +403,8 @@ export default function FullMenuPage() {
 
       {/* Menu List */}
       <div className="tab-content">
-      {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map((menuType) =>
+        {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map(
+          (menuType) =>
             activeTab === menuType && (
               <div key={menuType} className="tab-pane show active">
                 <div className="list-group">
