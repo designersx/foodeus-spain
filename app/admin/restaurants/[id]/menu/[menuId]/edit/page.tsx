@@ -272,7 +272,7 @@ export default function EditMenuItemPage() {
       console.error(err);
     }
   };
-  // Fetch menu items for selection
+  // Fetch menu items
   useEffect(() => {
     const fetchItems = async () => {
       try {
