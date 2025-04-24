@@ -568,6 +568,12 @@ export default function EditMenuItemPage() {
                           editingItem.imagePreview ||
                           `https://foodeus.truet.net/${editingItem.image_url}`
                         }
+                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                        }}
+                        
                         alt="Preview"
                         className="max-h-32 object-cover rounded-md mx-auto"
                       />
