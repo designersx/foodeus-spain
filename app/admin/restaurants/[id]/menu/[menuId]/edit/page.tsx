@@ -197,6 +197,7 @@ export default function EditMenuItemPage() {
     }
   };
   const updateEditedItem = async () => {
+    console.log(editingItem.image)
     if (!editingItem) return;
     try {
       const token = localStorage.getItem("token");
