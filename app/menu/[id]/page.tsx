@@ -72,7 +72,7 @@ export default function MenuDetailPage() {
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
 
   const searchParams = useSearchParams();
-  const menuId = useMemo(() => searchParams.get("menuId"), [searchParams]);
+  const menuId = searchParams.get("menuId"); 
   useEffect(() => {
     if (id) {
       getRestaurantById(`${id}`)
@@ -357,7 +357,7 @@ export default function MenuDetailPage() {
               <Link
                 href={{
                   pathname: `/full-menu/${id}`,
-                  query: menuId ? { menuId } : {},
+                  query: menuId,
                 }}
               >
                 <button className="btn btn-outline-primary w-100">
