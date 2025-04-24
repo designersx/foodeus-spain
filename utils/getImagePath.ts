@@ -1,7 +1,7 @@
 import {API_BASE_URL} from "@/services/apiService";
 export const getMenuImagePath = (imagePath?: string | null): string => {
 
-  if (!imagePath) return "/Images/fallback.jpg";
+  if (!imagePath) return "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
 
    try {
     const isValidUrl = /^https?:\/\//.test(imagePath);
@@ -13,6 +13,6 @@ export const getMenuImagePath = (imagePath?: string | null): string => {
       return `${API_BASE_URL}/${imagePath.replace(/\\/g, "/")}`;
     }
   } catch (error) {
-    return "/fallback.jpg";
+    return "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
   }
 };
