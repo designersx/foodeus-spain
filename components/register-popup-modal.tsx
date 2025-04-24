@@ -68,6 +68,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
       if (success) setShowOtp(true);
     }
   };
+  
 
   const handleOtpChange = (index: number, value: string) => {
     const updatedOtp = [...inputOtp];
