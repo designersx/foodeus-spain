@@ -225,9 +225,9 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 fill
                 className=""
               />
-<span className="dishPrice"> $20
- 
-</span>
+            <span className="dishPrice"> € {restaurant?.menu?.price}
+            
+            </span>
 
             </div>
             <div className="dishContent">

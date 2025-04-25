@@ -3900,6 +3900,12 @@ span.small {
   overflow: hidden;
 }
 
+.cardOverflow {
+  /* Allows long words to break and wrap */
+  overflow-wrap: break-word; /* Ensures the text wraps to prevent overflow */
+  word-break: break-word; /* Ensures long words are properly broken */
+}
+
 .restDistance {
   display: flex;
   align-items: center;
@@ -4135,3 +4141,24 @@ span.small {
       overflow: auto; */
     }
   }
+  
+  /* Make sure text does not overflow the card */
+.card-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit description to 3 lines */
+  -webkit-box-orient: vertical;
+}
+
+/* For expanding/collapsing description */
+.expandable-description {
+  max-height: 5rem; /* Set height to allow truncation */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expandable-description.expanded {
+  max-height: none;
+  overflow: visible;
+}

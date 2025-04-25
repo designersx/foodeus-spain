@@ -22,6 +22,7 @@ export default function MapPage() {
   }
   return (
     <>
+    
       <RestaurantMap restaurants={restaurants} />      {/* <MapView /> */}
       <Footer />
     </>

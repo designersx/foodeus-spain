@@ -14,16 +14,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { boolean } from "yup";
 import RegisterPromptModal from "./register-popup-modal";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import PopUp from "./ui/custom-toast";
 interface Menu {
   title: { en: string; es: string };
   description: { en: string; es: string };
   image: string;
   items?: string;
-  updated_at?: any
+  updated_at?: any;
   menu_id?: string | number;
   menu_type?: any;
+  price?: string | number;
 }
 interface Restaurant {
   id: string;
@@ -32,7 +33,7 @@ interface Restaurant {
   coordinates: { lat: number; lng: number };
   menu: Menu;
   distance?: number;
-  rating?: string | number;  // 👈 add or confirm this field
+  rating?: string | number; // 👈 add or confirm this field
   ratings?: string | number;
   updatedToday?: boolean;
 }
@@ -55,9 +56,9 @@ const calculateDistance = (
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-    Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
@@ -78,13 +79,15 @@ export function ListView() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterBy, setFilterBy] = useState("all");
   const [locationError, setLocationError] = useState<string>("");
-  const { restaurants, setRestaurants, hasFetched, setHasFetched } = useRestaurantStore(); // Use zustand store
+  const { restaurants, setRestaurants, hasFetched, setHasFetched } =
+    useRestaurantStore(); // Use zustand store
   const [visibleCount, setVisibleCount] = useState(5);
   const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<string>("")
+  const [isLoggedIn, setIsLoggedIn] = useState<string>("");
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const router = useRouter();
+
   useEffect(() => {
     // Check if we're on the client side before accessing localStorage
     if (typeof window !== "undefined") {
@@ -215,10 +218,8 @@ export function ListView() {
 
   //   }, [hasFetched]);
 
-
   // Utility to format date to just yyyy-mm-dd
-  const formatDate = (date: Date) =>
-    date.toISOString().split("T")[0];
+  const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
   useEffect(() => {
     setLoading(true);
@@ -229,7 +230,6 @@ export function ListView() {
           console.error("API response is not an array:", data);
           return;
         }
-
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -240,57 +240,76 @@ export function ListView() {
         const todaySpecialRestaurants: Restaurant[] = [];
 
         data.data.forEach((restaurant: any) => {
-          const allMenus = restaurant.menus || [];
+  const allMenus = restaurant.menus || [];
 
-          // const todaysSpecialMenus = allMenus.filter(
-          //   (menu: any) => menu.menu_type === "Today's Special"
-          // );
-          const todaysSpecialMenus = allMenus; // No filter, show all menus
-          todaysSpecialMenus.forEach((menu: any) => {
-            todaySpecialRestaurants.push({
-              id: restaurant.restaurant_id?.toString() || "",
-              name: restaurant.name || "",
-              location: restaurant.address || "",
-              coordinates: {
-                lat: Number(restaurant.location?.latitude) || 0,
-                lng: Number(restaurant.location?.longitude) || 0,
-              },
-              rating: restaurant.ratings?.toString() || "",
-              category: restaurant.category,
-              menu: {
-                title: {
-                  en: menu.item_name || "",
-                  es: menu.item_name || "",
-                },
-                description: {
-                  en: menu.description || "",
-                  es: menu.description || "",
-                },
-                image: menu.image_url || "",
-                items: menu.item_list,
-                updated_at: menu.updated_at,
-                menu_type: menu.menu_type,
-                menu_id: menu.menu_id,
-              },
-            });
-          });
+  // No filter, show all menus
+  const todaysSpecialMenus = allMenus;
+
+  // Sort menus by the updated_at field in descending order
+// const sortedMenus = todaysSpecialMenus
+//   .filter(menu => menu.item_list && menu.item_list.length > 0) // Filter out menus with empty item_list
+//   .sort((a, b) => {
+//     const dateA = new Date(a.updated_at).getTime();
+//     const dateB = new Date(b.updated_at).getTime();
+//     return dateB - dateA; // Sort in descending order (latest first)
+//   });
+const sortedMenus = todaysSpecialMenus.sort((a, b) => {
+  const dateA = new Date(a.updated_at).getTime();
+  const dateB = new Date(b.updated_at).getTime();
+  return dateB - dateA; // Sort in descending order (latest first)
+});
+  // Push only the latest updated menu into the array
+  if (sortedMenus.length > 0 ) {
+    const latestMenu = sortedMenus[0]; // Get the first item (latest updated)
+    todaySpecialRestaurants.push({
+      id: restaurant.restaurant_id?.toString() || "",
+      name: restaurant.name || "",
+      location: restaurant.address || "",
+      coordinates: {
+        lat: Number(restaurant.location?.latitude) || 0,
+        lng: Number(restaurant.location?.longitude) || 0,
+      },
+      rating: restaurant.ratings?.toString() || "",
+      category: restaurant.category,
+      menu: {
+        title: {
+          en: latestMenu.item_name || "",
+          es: latestMenu.item_name || "",
+        },
+        description: {
+          en: latestMenu.description || "",
+          es: latestMenu.description || "",
+        },
+        image: latestMenu.image_url || "",
+        items: latestMenu.item_list,
+        updated_at: latestMenu.updated_at,
+        menu_type: latestMenu.menu_type,
+        menu_id: latestMenu.menu_id,
+        price: latestMenu.price,
+      },
+    });
+  }
         });
 
         // ✅ Sort today's special menus: today > yesterday > older
-        todaySpecialRestaurants.sort((a, b) => {
-          const aDate = formatDate(new Date(a.menu.updated_at));
-          const bDate = formatDate(new Date(b.menu.updated_at));
+        // todaySpecialRestaurants.sort((a, b) => {
+        //   const aDate = formatDate(new Date(a.menu.updated_at));
+        //   const bDate = formatDate(new Date(b.menu.updated_at));
 
-          if (aDate === formattedToday && bDate !== formattedToday) return -1;
-          if (aDate !== formattedToday && bDate === formattedToday) return 1;
+        //   if (aDate === formattedToday && bDate !== formattedToday) return -1;
+        //   if (aDate !== formattedToday && bDate === formattedToday) return 1;
 
-          if (aDate === formattedYesterday && bDate !== formattedYesterday) return -1;
-          if (aDate !== formattedYesterday && bDate === formattedYesterday) return 1;
+        //   if (aDate === formattedYesterday && bDate !== formattedYesterday)
+        //     return -1;
+        //   if (aDate !== formattedYesterday && bDate === formattedYesterday)
+        //     return 1;
 
-          // Fallback: sort latest first
-          return new Date(b.menu.updated_at).getTime() - new Date(a.menu.updated_at).getTime();
-        });
-
+        //   // Fallback: sort latest first
+        //   return (
+        //     new Date(b.menu.updated_at).getTime() -
+        //     new Date(a.menu.updated_at).getTime()
+        //   );
+        // });
         setRestaurants(todaySpecialRestaurants);
         setHasFetched(true);
       } catch (err) {
@@ -317,7 +336,8 @@ export function ListView() {
         const updatedDate = latestUpdate?.split(" ")[0];
 
         const updatedToday =
-          updatedDate === today && restaurant?.menu?.menu_type === "Today's Special";
+          updatedDate === today &&
+          restaurant?.menu?.menu_type === "Today's Special";
 
         return {
           ...restaurant,
@@ -442,26 +462,33 @@ export function ListView() {
       status: true,
     };
     try {
-      const response = await apiClient.post('/mobileUsers/createMobileUser', userDetails);
+      const response = await apiClient.post(
+        "/mobileUsers/createMobileUser",
+        userDetails
+      );
       if (response) {
         setToast({
-          show: true, message: "OTP sent successfully",
-          type: 'success',
+          show: true,
+          message: "OTP sent successfully",
+          type: "success",
         });
         return true;
-
       }
       return false;
     } catch (error) {
       console.error("Error registering user", error.response);
-      setToast({ show: true, message: error.response.data.message, type: 'error' });
+      setToast({
+        show: true,
+        message: error.response.data.message,
+        type: "error",
+      });
       return false;
     }
   };
   //handle close
   const handleClose = () => {
-    setShowRegisterModal(false)
-  }
+    setShowRegisterModal(false);
+  };
   // serachbar go on top
   const searchRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
@@ -474,7 +501,7 @@ export function ListView() {
 
     if (element) {
       const y = element.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
 
     setFocused(true);
@@ -499,8 +526,8 @@ export function ListView() {
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, focused]);
 
   const retryGeolocation = () => {
@@ -521,7 +548,9 @@ export function ListView() {
         console.error("Retry location error:", error);
 
         if (error.code === error.PERMISSION_DENIED) {
-          setLocationError("Location access is still denied. Please enable it in your browser settings.");
+          setLocationError(
+            "Location access is still denied. Please enable it in your browser settings."
+          );
         } else {
           setLocationError("Unable to access your location.");
         }
@@ -531,18 +560,15 @@ export function ListView() {
     );
   };
 
-
-  
-
   if (loading) {
     return (
       <div
         className="position-absolute top-50 start-50 translate-middle"
         style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
         }}
       >
         <div className="spinner-border text-primary" role="status">
@@ -551,7 +577,7 @@ export function ListView() {
       </div>
     );
   }
-  const pathname = usePathname()
+  const pathname = usePathname();
   return (
     <div className="pb-5">
       {/* <HeroSlideshow /> */}
@@ -559,107 +585,130 @@ export function ListView() {
         <div className=" SearchBox  g-4 align-items-center">
           {/* Search Input */}
           <div className=" MenuType">
-          <div className="MeneSequence">
-            <span className="Starter" style={{backgroundColor:'#EEE7D0',}}>Starter</span>
-            <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Main Dish</span>
-            <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Desert</span>
-            <span className="Drinks" style={{backgroundColor:'#EED0D0',}} >Drinks</span>
-          </div>
+            <div className="MeneSequence">
+              <span className="Starter" style={{ backgroundColor: "#EEE7D0" }}>
+                Starter
+              </span>
+              <span
+                className="Main-Dish"
+                style={{ backgroundColor: "#D7EED0" }}
+              >
+                Main Dish
+              </span>
+              <span className="Desert" style={{ backgroundColor: "#D0E1EE" }}>
+                Desert
+              </span>
+              <span className="Drinks" style={{ backgroundColor: "#EED0D0" }}>
+                Drinks
+              </span>
+            </div>
 
-          <div className="InputSearch">
-            <input
-              ref={searchRef}
-              type="text"
-              placeholder={
-                language === "es"
-                  ? "Buscar restaurantes, cocina o ubicación"
-                  : "Search restaurants, cuisine, or location"
-              }
-              className={`form-control w-full p-2 border rounded-md transition-all duration-300 ${isSticky ? 'sticky top-0 z-50 bg-white shadow-md' : ''
+            <div className="InputSearch">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder={
+                  language === "es"
+                    ? "Buscar restaurantes, cocina o ubicación"
+                    : "Search restaurants, cuisine, or location"
+                }
+                className={`form-control w-full p-2 border rounded-md transition-all duration-300 ${
+                  isSticky ? "sticky top-0 z-50 bg-white shadow-md" : ""
                 }`}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
           <div className="MapIcon">
             <Link
               href="/map"
-
-              className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/map" ? "text-primary" : "text-secondary"
-                }`}
+              className={`text-decoration-none d-flex flex-column align-items-center ${
+                pathname === "/map" ? "text-primary" : "text-secondary"
+              }`}
             >
-<div className="svgControler">
+              <div className="svgControler">
+                <svg
+                  width="37"
+                  height="37"
+                  viewBox="0 0 37 37"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="18.2609"
+                    cy="18.2609"
+                    r="18.2609"
+                    fill="#F1582E"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M26.1876 9.29969C24.2049 7.34128 21.5664 6.26172 18.763 6.26172C15.9587 6.26172 13.3213 7.34125 11.3373 9.29969C9.35464 11.2581 8.26172 13.8632 8.26172 16.6335C8.26172 19.4035 9.35461 22.0086 11.3373 23.9672C12.6436 25.2575 13.9543 26.5422 15.2653 27.8268C16.4036 28.9434 17.543 30.0588 18.6779 31.1788L18.7619 31.2617L18.8458 31.1788C19.9807 30.06 21.1179 28.9457 22.2561 27.8303C23.568 26.5445 24.88 25.2587 26.1873 23.9684C28.17 22.01 29.2617 19.4048 29.2617 16.6346C29.2617 13.8635 28.1702 11.2583 26.1876 9.29969ZM18.7618 21.6197C15.978 21.6197 13.7127 19.3833 13.7127 16.6323C13.7127 13.8825 15.9779 11.6449 18.7618 11.6449C21.5458 11.6449 23.811 13.8824 23.811 16.6323C23.811 19.3833 21.5458 21.6197 18.7618 21.6197Z"
+                    fill="white"
+                  />
+                </svg>
 
-              <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="18.2609" cy="18.2609" r="18.2609" fill="#F1582E"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M26.1876 9.29969C24.2049 7.34128 21.5664 6.26172 18.763 6.26172C15.9587 6.26172 13.3213 7.34125 11.3373 9.29969C9.35464 11.2581 8.26172 13.8632 8.26172 16.6335C8.26172 19.4035 9.35461 22.0086 11.3373 23.9672C12.6436 25.2575 13.9543 26.5422 15.2653 27.8268C16.4036 28.9434 17.543 30.0588 18.6779 31.1788L18.7619 31.2617L18.8458 31.1788C19.9807 30.06 21.1179 28.9457 22.2561 27.8303C23.568 26.5445 24.88 25.2587 26.1873 23.9684C28.17 22.01 29.2617 19.4048 29.2617 16.6346C29.2617 13.8635 28.1702 11.2583 26.1876 9.29969ZM18.7618 21.6197C15.978 21.6197 13.7127 19.3833 13.7127 16.6323C13.7127 13.8825 15.9779 11.6449 18.7618 11.6449C21.5458 11.6449 23.811 13.8824 23.811 16.6323C23.811 19.3833 21.5458 21.6197 18.7618 21.6197Z" fill="white"/>
-</svg>
-
-<div className="circles">
-  <div className="circle1"></div>
-  <div className="circle2"></div>
-  <div className="circle3"></div>
-</div>
-</div>
+                <div className="circles">
+                  <div className="circle1"></div>
+                  <div className="circle2"></div>
+                  <div className="circle3"></div>
+                </div>
+              </div>
 
               <span className="small">{t("mapView")}</span>
             </Link>
           </div>
-
-
         </div>
       </div>
 
       <div className="text-center mt-4">
-        {loading ?
-          (
-            <div
-              className="position-absolute top-50 start-50 translate-middle"
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
+        {loading ? (
+          <div
+            className="position-absolute top-50 start-50 translate-middle"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
+          </div>
+        ) : userLocation && !locationError && filteredRestaurants.length > 0 ? (
+          filteredRestaurants.map((restaurant, index) => (
+            <div key={index} onClick={() => handleRestaurantClick(restaurant)}>
+              <RestaurantCard
+                key={restaurant?.id}
+                restaurant={restaurant}
+                distance={restaurant?.distance}
+              />
+            </div>
+          ))
+        ) : (
+          userLocation &&
+          locationError && (
+            <p className="text-center text-gray-500">No restaurants found.</p>
           )
-          : (
-            userLocation && !locationError && filteredRestaurants.length > 0 ? (
-              filteredRestaurants.map((restaurant, index) => (
-                <div key={index} onClick={() => handleRestaurantClick(restaurant)} >
-                  <RestaurantCard
-                    key={restaurant?.id}
-                    restaurant={restaurant}
-                    distance={restaurant?.distance}
-
-                  />
-                </div>
-
-              ))
-            ) : (
-              userLocation && locationError && <p className="text-center text-gray-500">No restaurants found.</p>
-            )
-          )}
-
-
+        )}
       </div>
 
       {locationError && (
         <div className="alert alert-warning mt-3">
           {locationError} <br />
           <small className="text-muted">
-            You can click the lock icon in your browser’s address bar to enable location access manually.
+            You can click the lock icon in your browser’s address bar to enable
+            location access manually.
           </small>
           <div className="mt-2">
-            <button className="btn btn-sm btn-outline-primary" onClick={retryGeolocation}>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={retryGeolocation}
+            >
               Try Again
             </button>
           </div>
@@ -670,7 +719,7 @@ export function ListView() {
           show={showRegisterModal}
           onClose={handleClose}
           onRegister={handleRegister}
-        // modalView={false}
+          // modalView={false}
         />
       )}
       {toast.show && (

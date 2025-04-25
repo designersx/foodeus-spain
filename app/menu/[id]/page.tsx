@@ -208,165 +208,203 @@ export default function MenuDetailPage() {
   // console.log('sss',mapUrl)
   return (
     <>
-      <div className="pb-5 mb-5">
-        {/* Back button */}
-        <Link
-          href="/"
-          className="d-inline-flex align-items-center text-decoration-none mb-3"
-        >
-          <i className="bi bi-chevron-left me-1"></i>
-          Back
-        </Link>
+      <div className="w-full min-h-screen overflow-hidden">
+        <div className="pb-5 mb-5">
+          {/* Back button */}
+          <Link
+            href="/"
+            className="d-inline-flex align-items-center text-decoration-none mb-3"
+          >
+            <i className="bi bi-chevron-left me-1"></i>
+            Back
+          </Link>
 
-        {/* Hero image */}
-        <div
-          className="position-relative rounded overflow-hidden mb-4"
-          style={{ height: "250px" }}
-        >
-          <Image
-            src={getMenuImagePath(src)}
-            alt={menuItem?.title[language]}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src =
-                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-            }}
-            fill
-            className="object-cover"
-            style={{ filter: "brightness(75%)" }}
-            loading="lazy"
-          />
-          <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
-            <h1 className="text-white fs-3 fw-bold mb-0 text-capitalize">
-              {menuItem?.title[language]
-                ? menuItem?.title[language]
-                : language === "en"
-                ? "Menu not Available"
-                : "Menú no disponible"}
-            </h1>
-            <div className="d-flex align-items-center text-white-50 small mt-1">
-              <i className="bi bi-geo-alt me-1"></i>
-              {menuItems?.name} - {menuItems?.location}
-            </div>
-          </div>
-        </div>
-
-        {/* Price */}
-        <div className="flex justify-between align-items-center mb-1">
-          <div className="fs-3 fw-bold text-primary">
-            {}
-            {menuItem?.price[language]
-              ? menuItem?.price[language]
-              : language === "en"
-              ? "Not Available"
-              : "No Disponible"}
-          </div>
-
-          {distanceToRestaurant !== null && (
-            <div className="text-muted text-sm">
-              <i className="bi bi-geo-alt me-1"></i>
-              {language === "es" ? "Distancia" : "Distance"}:{" "}
-              {distanceToRestaurant?.toFixed(1)} km
-            </div>
-          )}
-        </div>
-
-        {/* ratings & Description */}
-        <div className="mb-4">
-          <span className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Star
-              className="h-3 w-3"
-              style={{ color: "#FFD700", fill: "#FFD700" }}
+          {/* Hero image */}
+          <div
+            className="position-relative rounded overflow-hidden mb-4"
+            style={{ height: "250px" }}
+          >
+            <Image
+              src={getMenuImagePath(src)}
+              alt={menuItem?.title[language]}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src =
+                  "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+              }}
+              fill
+              className="object-cover"
+              style={{ filter: "brightness(75%)" }}
+              loading="lazy"
             />
-            {data?.ratings}{" "}
-            {`(${formatTotalRatings(Number(data?.totalRating))} ${
-              language === "es" ? "valoraciones" : "ratings"
-            })`}
-          </span>
-          <h2 className="fs-4 fw-semibold mb-2">
-            {language === "en" ? "Description" : "Descripción"}
-          </h2>
-          <p className="text-secondary">
-            {menuItem.description[language]
-              ? menuItem.description[language]
-              : language === "en"
-              ? "Not Available"
-              : "No Disponible"}
-          </p>
-        </div>
+            <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
+              <h1
+                className="text-white fs-3 fw-bold mb-0 text-capitalize resName"
+                style={{
+                  wordBreak: "break-all", // Breaks long words that have no spaces
+                  overflowWrap: "break-word", // Handles text wrapping
+                  whiteSpace: "normal", // Allows text to wrap normally
+                }}
+              >
+                {menuItem?.title[language]
+                  ? menuItem?.title[language]
+                  : language === "en"
+                  ? "Menu not Available"
+                  : "Menú no disponible"}
+              </h1>
+              <div className="d-flex align-items-center text-white-50 small mt-1">
+                <i className="bi bi-geo-alt me-1"></i>
+                {menuItems?.name} - {menuItems?.location}
+              </div>
+            </div>
+          </div>
 
-        {/* Menu items */}
-        <div className="mb-4">
-          <h2 className="fs-4 fw-semibold mb-2">
-            {language === "en" ? "Includes" : "Incluye"}
-          </h2>
-          <ul className="list-unstyled">
-            {menuItem.items.length > 0 ? (
-              menuItem.items?.map((item: any, index: number) => (
-                <div className="card mb-3" key={index}>
-                  <div className="card-body">
-                    <div className="d-flex gap-3">
-                      <div
-                        className="position-relative"
-                        style={{ width: "60px", height: "60px", flexShrink: 0 }}
-                      >
-                        <Image
-                          src={getMenuImagePath(item.image)}
-                          alt={item.name || "Item"}
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+          {/* Price */}
+          <div className="flex justify-between align-items-center mb-1">
+            <div className="fs-3 fw-bold text-primary">
+              {}
+              {menuItem?.price[language]
+                ? menuItem?.price[language]
+                : language === "en"
+                ? "Not Available"
+                : "No Disponible"}
+            </div>
+
+            {distanceToRestaurant !== null && (
+              <div className="text-muted text-sm">
+                <i className="bi bi-geo-alt me-1"></i>
+                {language === "es" ? "Distancia" : "Distance"}:{" "}
+                {distanceToRestaurant?.toFixed(1)} km
+              </div>
+            )}
+          </div>
+
+          {/* ratings & Description */}
+          <div className="mb-4">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Star
+                className="h-3 w-3"
+                style={{ color: "#FFD700", fill: "#FFD700" }}
+              />
+              {data?.ratings}{" "}
+              {`(${formatTotalRatings(Number(data?.totalRating))} ${
+                language === "es" ? "valoraciones" : "ratings"
+              })`}
+            </span>
+            <h2 className="fs-4 fw-semibold mb-2">
+              {language === "en" ? "Description" : "Descripción"}
+            </h2>
+            <p
+              className="text-secondary "
+              style={{
+                wordBreak: "break-all", // Breaks long words that have no spaces
+                overflowWrap: "anywhere", // Handles text wrapping
+                whiteSpace: "normal", // Allows text to wrap normally
+              }}
+            >
+              {menuItem.description[language] &&
+              menuItem.description[language].length > 150
+                ? `${menuItem.description[language].substring(0, 150)}...`
+                : menuItem.description[language] ||
+                  (language === "en" ? "Not Available" : "No Disponible")}
+            </p>
+          </div>
+
+          {/* Menu items */}
+          <div className="mb-4">
+            <h2 className="fs-4 fw-semibold mb-2">
+              {language === "en" ? "Includes" : "Incluye"}
+            </h2>
+            <ul className="list-unstyled">
+              {menuItem.items.length > 0 ? (
+                menuItem.items?.map((item: any, index: number) => (
+                  <div className="card mb-3" key={index}>
+                    <div className="card-body">
+                      <div className="d-flex gap-3">
+                        <div
+                          className="position-relative"
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            flexShrink: 0,
                           }}
-                          fill
-                          className="object-fit-cover rounded"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div>
-                        <h5 className="fs-6 fw-bold">{item.name}</h5>
-                        <p className="small text-secondary mb-1">
-                          {item.description}
-                        </p>
-                        {/* <p className="text-primary fw-medium mb-0">{item.price}</p> */}
+                        >
+                          <Image
+                            src={getMenuImagePath(item.image)}
+                            alt={item.name || "Item"}
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                            }}
+                            fill
+                            className="object-fit-cover rounded"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="flex-grow-1">
+                          <h5 className="fs-6 fw-bold resName">
+                            {" "}
+                            {item.name.length > 20
+                              ? `${item.name.substring(0, 20)}...`
+                              : item.name}{" "}
+                            {item.name.length > 20
+                              ? `${item.name.substring(0, 20)}...`
+                              : item.name}
+                          </h5>
+                          <p
+                            className="small text-secondary mb-1 resName "
+                            style={{
+                              wordBreak: "break-all", // Breaks long words that have no spaces
+                              overflowWrap: "break-word", // Handles text wrapping
+                              whiteSpace: "normal", // Allows text to wrap normally
+                            }}
+                          >
+                            {item.description}{" "}
+                            {item.name.description > 20
+                              ? `${item.description.substring(0, 150)}...`
+                              : item.description}
+                          </p>
+                          {/* <p className="text-primary fw-medium mb-0">{item.price}</p> */}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <li className="text-muted">
-                {language === "en" ? "Not Available" : "No Disponible"}
-              </li>
-            )}
-          </ul>
+                ))
+              ) : (
+                <li className="text-muted">
+                  {language === "en" ? "Not Available" : "No Disponible"}
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
-      </div>
-      <div className="fixed-bottom bg-white border-top p-3">
-        <div className="container p-0">
-          <div className="row g-2">
-            <div className="col-sm-6 col-6">
-              <button
-                type="button"
-                onClick={() => window.open(mapUrl, "_blank")}
-                className="btn btn-primary w-100"
-              >
-                {language === "en" ? "Take Me There" : "Llévame Allí"}
-              </button>
-            </div>
-            <div className="col-sm-6 col-6">
-              <Link
-                href={{
-                  pathname: `/full-menu/${id}`,
-                  query: { menuId },
-                }}
-              >
-                <button className="btn btn-outline-primary w-100">
-                  {language === "en"
-                    ? "Show Full Menu"
-                    : "Mostrar Menú Completo"}
+        <div className="fixed-bottom bg-white border-top p-3">
+          <div className="container p-0">
+            <div className="row g-2">
+              <div className="col-sm-6 col-6">
+                <button
+                  type="button"
+                  onClick={() => window.open(mapUrl, "_blank")}
+                  className="btn btn-primary w-100"
+                >
+                  {language === "en" ? "Take Me There" : "Llévame Allí"}
                 </button>
-              </Link>
+              </div>
+              <div className="col-sm-6 col-6">
+                <Link
+                  href={{
+                    pathname: `/full-menu/${id}`,
+                    query: { menuId },
+                  }}
+                >
+                  <button className="btn btn-outline-primary w-100">
+                    {language === "en"
+                      ? "Show Full Menu"
+                      : "Mostrar Menú Completo"}
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

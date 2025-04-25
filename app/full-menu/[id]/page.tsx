@@ -388,9 +388,15 @@ export default function FullMenuPage() {
         ))}
       </ul> */}
 
-      <ul className="nav nav-tabs mb-3">
+      <ul className="nav nav-tabs mb-3"           style={{
+      display: "flex",        // Ensures the list items are arranged horizontally
+      overflowX: "auto",      // Enables horizontal scrolling
+      paddingBottom: "10px",   // Adds padding at the bottom for styling (optional)
+      listStyleType: "none",   // Removes bullet points (if any)
+      margin: 0,              // Removes the default margin
+    }}>
         {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map((menuType) => (
-          <li className="nav-item" key={menuType}>
+          <li className="nav-item" key={menuType} style={{ flex: "0 0 auto" }}>
             <button
               className={`nav-link ${activeTab === menuType ? "active" : ""}`}
               onClick={() => setActiveTab(menuType)}
@@ -402,7 +408,9 @@ export default function FullMenuPage() {
       </ul>
 
       {/* Menu List */}
-      <div className="tab-content">
+   
+
+      <div className="tab-content w-full min-h-screen overflow-hidden">
         {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map(
           (menuType) =>
             activeTab === menuType && (
@@ -449,6 +457,7 @@ export default function FullMenuPage() {
             )
         )}
       </div>
+    
     </div>
   );
 }
