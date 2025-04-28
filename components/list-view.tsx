@@ -11,16 +11,17 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useRestaurantStore } from "@/store/restaurantStore";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+
 import { boolean } from "yup";
 import RegisterPromptModal from "./register-popup-modal";
 import { useRouter } from "next/navigation";
 import PopUp from "./ui/custom-toast";
+import { usePathname } from "next/navigation";
 interface Menu {
   title: { en: string; es: string };
   description: { en: string; es: string };
   image: string;
-  items?: string;
+  items?: [];
   updated_at?: any;
   menu_id?: string | number;
   menu_type?: any;
@@ -56,9 +57,9 @@ const calculateDistance = (
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
@@ -86,14 +87,15 @@ export function ListView() {
   const [isLoggedIn, setIsLoggedIn] = useState<string>("");
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [selectedMenu, setSelectedMenu] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     // Check if we're on the client side before accessing localStorage
     if (typeof window !== "undefined") {
       const locationVar = localStorage.getItem("userLocation") || "{}";
-      const userLocation = JSON.parse(locationVar);
-      setUserLocationFromStorage(userLocation);
+      const userLocation2 = JSON.parse(locationVar);
+      setUserLocationFromStorage(userLocation2);
     }
   }, []);
 
@@ -135,88 +137,6 @@ export function ListView() {
       setLoading(false);
     };
   }, []);
-  // correct code
-  //   useEffect(() => {
-  //     setLoading(true);
-  //     const fetchRestaurants = async () => {
-  //       try {
-  //         const data = await getRestaurantsWithMenus();
-  //         console.log("API Response:", data);
-  //         if (!Array.isArray(data.data)) {
-  //           console.error("API response is not an array:", data);
-  //           return;
-  //         }
-  //         const formattedRestaurants: Restaurant[] = data.data.map((restaurant: any) => {
-  //           const sortedMenus = restaurant.menus
-  //             ? [...restaurant.menus].sort((a, b) => {
-  //               const today = new Date().toDateString();
-  //               console.log(today,"today")
-  // console.log(...restaurant.menus,"...restaurant.menus")
-  //               const isATodaySpecial =
-  //                 a.menu_type === "Today's Special" &&
-  //                 new Date(a.updated_at).toDateString() === today;
-  //   console.log(isATodaySpecial,"isATodaySpecial")
-  //               const isBTodaySpecial =
-  //                 b.menu_type === "Today's Special" &&
-  //                 new Date(b.updated_at).toDateString() === today;
-
-  //               if (isATodaySpecial && !isBTodaySpecial) return -1;
-  //               if (!isATodaySpecial && isBTodaySpecial) return 1;
-
-  //               return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-  //             })
-  //             : [];
-
-  //           return {
-  //             id: restaurant.restaurant_id?.toString() || "",
-  //             name: restaurant.name || "",
-  //             location: restaurant.address || "",
-  //             coordinates: {
-  //               lat: Number(restaurant.location?.latitude) || 0,
-  //               lng: Number(restaurant.location?.longitude) || 0,
-  //             },
-  //             rating: restaurant.ratings?.toString() || "",
-  //             category: restaurant.category,
-  //             menu:
-  //               sortedMenus.length > 0
-  //                 ? {
-  //                   title: {
-  //                     en: sortedMenus[0].item_name || "",
-  //                     es: sortedMenus[0].item_name || "",
-  //                   },
-  //                   description: {
-  //                     en: sortedMenus[0].description || "",
-  //                     es: sortedMenus[0].description || "",
-  //                   },
-  //                   image: sortedMenus[0]?.image_url || "",
-  //                   items: sortedMenus[0]?.item_list,
-  //                   updated_at: sortedMenus[0]?.updated_at,
-  //                   menu_type: sortedMenus[0]?.menu_type,
-  //                   menu_id: sortedMenus[0]?.menu_id,
-  //                 }
-  //                 : {
-  //                   title: { en: "", es: "" },
-  //                   description: { en: "", es: "" },
-  //                   image: "",
-  //                 },
-  //           };
-  //         });
-  //         setRestaurants(formattedRestaurants);
-  //         setHasFetched(true);
-  //       } catch (err) {
-  //         console.error("Error fetching restaurants:", err);
-  //         setLoading(false);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-
-  //     // Only run the fetch once when data is not fetched
-  //     if (!hasFetched) {
-  //       fetchRestaurants();
-  //     }
-
-  //   }, [hasFetched]);
 
   // Utility to format date to just yyyy-mm-dd
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
@@ -230,6 +150,7 @@ export function ListView() {
           console.error("API response is not an array:", data);
           return;
         }
+        console.log("Fetched restaurants:", data.data);
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -240,76 +161,52 @@ export function ListView() {
         const todaySpecialRestaurants: Restaurant[] = [];
 
         data.data.forEach((restaurant: any) => {
-  const allMenus = restaurant.menus || [];
+          if (restaurant.menus.some((menu: any) => menu.items.length === 0)) {
+            return; // This will skip the current iteration
+          }
+          const allMenus = restaurant.menus || [];
 
-  // No filter, show all menus
-  const todaysSpecialMenus = allMenus;
+          // No filter, show all menus
+          const todaysSpecialMenus = allMenus;
 
-  // Sort menus by the updated_at field in descending order
-// const sortedMenus = todaysSpecialMenus
-//   .filter(menu => menu.item_list && menu.item_list.length > 0) // Filter out menus with empty item_list
-//   .sort((a, b) => {
-//     const dateA = new Date(a.updated_at).getTime();
-//     const dateB = new Date(b.updated_at).getTime();
-//     return dateB - dateA; // Sort in descending order (latest first)
-//   });
-const sortedMenus = todaysSpecialMenus.sort((a, b) => {
-  const dateA = new Date(a.updated_at).getTime();
-  const dateB = new Date(b.updated_at).getTime();
-  return dateB - dateA; // Sort in descending order (latest first)
-});
-  // Push only the latest updated menu into the array
-  if (sortedMenus.length > 0 ) {
-    const latestMenu = sortedMenus[0]; // Get the first item (latest updated)
-    todaySpecialRestaurants.push({
-      id: restaurant.restaurant_id?.toString() || "",
-      name: restaurant.name || "",
-      location: restaurant.address || "",
-      coordinates: {
-        lat: Number(restaurant.location?.latitude) || 0,
-        lng: Number(restaurant.location?.longitude) || 0,
-      },
-      rating: restaurant.ratings?.toString() || "",
-      category: restaurant.category,
-      menu: {
-        title: {
-          en: latestMenu.item_name || "",
-          es: latestMenu.item_name || "",
-        },
-        description: {
-          en: latestMenu.description || "",
-          es: latestMenu.description || "",
-        },
-        image: latestMenu.image_url || "",
-        items: latestMenu.item_list,
-        updated_at: latestMenu.updated_at,
-        menu_type: latestMenu.menu_type,
-        menu_id: latestMenu.menu_id,
-        price: latestMenu.price,
-      },
-    });
-  }
+          const sortedMenus = todaysSpecialMenus.sort((a, b) => {
+            const dateA = new Date(a.updated_at).getTime();
+            const dateB = new Date(b.updated_at).getTime();
+            return dateB - dateA;
+          });
+
+          if (sortedMenus.length > 0) {
+            const latestMenu = sortedMenus[0];
+            todaySpecialRestaurants.push({
+              id: restaurant.restaurant_id?.toString() || "",
+              name: restaurant.name || "",
+              location: restaurant.address || "",
+              coordinates: {
+                lat: Number(restaurant.location?.latitude) || 0,
+                lng: Number(restaurant.location?.longitude) || 0,
+              },
+              rating: restaurant.ratings?.toString() || "",
+              category: restaurant.category,
+              menu: {
+                title: {
+                  en: latestMenu.item_name || "",
+                  es: latestMenu.item_name || "",
+                },
+                description: {
+                  en: latestMenu.description || "",
+                  es: latestMenu.description || "",
+                },
+                image: latestMenu.image_url || "",
+                items: latestMenu.items,
+                updated_at: latestMenu.updated_at,
+                menu_type: latestMenu.menu_type,
+                menu_id: latestMenu.menu_id,
+                price: latestMenu.price,
+              },
+            });
+          }
         });
 
-        // ✅ Sort today's special menus: today > yesterday > older
-        // todaySpecialRestaurants.sort((a, b) => {
-        //   const aDate = formatDate(new Date(a.menu.updated_at));
-        //   const bDate = formatDate(new Date(b.menu.updated_at));
-
-        //   if (aDate === formattedToday && bDate !== formattedToday) return -1;
-        //   if (aDate !== formattedToday && bDate === formattedToday) return 1;
-
-        //   if (aDate === formattedYesterday && bDate !== formattedYesterday)
-        //     return -1;
-        //   if (aDate !== formattedYesterday && bDate === formattedYesterday)
-        //     return 1;
-
-        //   // Fallback: sort latest first
-        //   return (
-        //     new Date(b.menu.updated_at).getTime() -
-        //     new Date(a.menu.updated_at).getTime()
-        //   );
-        // });
         setRestaurants(todaySpecialRestaurants);
         setHasFetched(true);
       } catch (err) {
@@ -328,7 +225,7 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
   // correct Code
   useEffect(() => {
     if (!restaurants.length) return;
-    if (userLocationFromStorage) {
+    if (userLocationFromStorage || userLocation) {
       const today = new Date().toISOString().split("T")[0];
       const withDistance = restaurants.map((restaurant) => {
         const hasMenu = !!restaurant.menu?.updated_at;
@@ -342,8 +239,8 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
         return {
           ...restaurant,
           distance: calculateDistance(
-            userLocationFromStorage?.lat,
-            userLocationFromStorage?.lng,
+            userLocationFromStorage?.lat || userLocation?.lat,
+            userLocationFromStorage?.lng || userLocation?.lng,
             restaurant.coordinates.lat,
             restaurant.coordinates.lng
           ),
@@ -434,16 +331,44 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
     const results = restaurantsWithDistance?.filter((restaurant) => {
       if (!term) return true;
 
-      return (
+      // Check if restaurant name or location matches
+      const isRestaurantMatch =
         restaurant?.name?.toLowerCase().includes(term) ||
-        restaurant?.location?.toLowerCase().includes(term) ||
-        restaurant?.menu?.title?.en?.toLowerCase().includes(term) ||
-        restaurant?.menu?.items?.toLowerCase().includes(term)
+        restaurant?.location?.toLowerCase().includes(term);
+
+      // Check if the menu title matches
+      const isMenuMatch = restaurant?.menu?.title?.en
+        ?.toLowerCase()
+        .includes(term);
+
+      // Check if any item_name in the items array matches
+      const isItemMatch = restaurant?.menu?.items?.some((item) =>
+        item.item_name?.toLowerCase().includes(term)
       );
+
+      return isRestaurantMatch || isMenuMatch || isItemMatch;
     });
 
     setFilteredRestaurants(results);
   }, [searchTerm, restaurantsWithDistance, filterBy]);
+
+  const handleMenuClick = (menuType: any) => {
+    if (selectedMenu === menuType) {
+      // If the same menu type is clicked, remove the filter and show all items
+      setSelectedMenu(""); // Clear the selected menu
+      setFilteredRestaurants(restaurantsWithDistance); // Show all items again
+    } else {
+      // If a new menu type is selected, filter the data
+      setSelectedMenu(menuType);
+      const filteredItems = restaurantsWithDistance.filter((restaurant) => {
+        const isItemTypeMatch = restaurant?.menu?.items?.some((item) =>
+          item.item_type?.includes(menuType)
+        );
+        return isItemTypeMatch;
+      });
+      setFilteredRestaurants(filteredItems);
+    }
+  };
 
   const handleRestaurantClick = (restaurant: Restaurant) => {
     const isLoginUser = localStorage.getItem("isLoggedIn");
@@ -586,20 +511,37 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
           {/* Search Input */}
           <div className=" MenuType">
             <div className="MeneSequence">
-              <span className="Starter" style={{ backgroundColor: "#EEE7D0" }}>
-                Starter
+              <span
+                className={`Starter ${selectedMenu === "Starter" ? "selected" : ""
+                  }`}
+                style={{ backgroundColor: "#EEE7D0" }}
+                onClick={() => handleMenuClick("Starter")}
+              >
+                {t("Starter")}
               </span>
               <span
-                className="Main-Dish"
+                className={`Main Dish ${selectedMenu === "MainDish" ? "selected" : ""
+                  }`}
                 style={{ backgroundColor: "#D7EED0" }}
+                onClick={() => handleMenuClick("MainDish")}
               >
-                Main Dish
+                {t("MainDish")}
               </span>
-              <span className="Desert" style={{ backgroundColor: "#D0E1EE" }}>
-                Desert
+              <span
+                className={`Desert ${selectedMenu === "Dessert" ? "selected" : ""
+                  }`}
+                style={{ backgroundColor: "#D0E1EE" }}
+                onClick={() => handleMenuClick("Dessert")}
+              >
+                {t("Dessert")}
               </span>
-              <span className="Drinks" style={{ backgroundColor: "#EED0D0" }}>
-                Drinks
+              <span
+                className={`Drinks ${selectedMenu === "Drinks" ? "selected" : ""
+                  }`}
+                style={{ backgroundColor: "#EED0D0" }}
+                onClick={() => handleMenuClick("Drinks")}
+              >
+                {t("Drinks")}
               </span>
             </div>
 
@@ -612,22 +554,21 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
                     ? "Buscar restaurantes, cocina o ubicación"
                     : "Search restaurants, cuisine, or location"
                 }
-                className={`form-control w-full p-2 border rounded-md transition-all duration-300 ${
-                  isSticky ? "sticky top-0 z-50 bg-white shadow-md" : ""
-                }`}
+                className={`form-control w-full p-2 border rounded-md transition-all duration-300 ${isSticky ? "sticky top-0 z-50 bg-white shadow-md" : ""
+                  }`}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ fontSize: "0.8rem" }}
               />
             </div>
           </div>
           <div className="MapIcon">
             <Link
               href="/map"
-              className={`text-decoration-none d-flex flex-column align-items-center ${
-                pathname === "/map" ? "text-primary" : "text-secondary"
-              }`}
+              className={`text-decoration-none d-flex flex-column align-items-center ${pathname === "/map" ? "text-primary" : "text-secondary"
+                }`}
             >
               <div className="svgControler">
                 <svg
@@ -679,7 +620,7 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : userLocation && !locationError && filteredRestaurants.length > 0 ? (
+        ) : userLocationFromStorage && !locationError && filteredRestaurants.length > 0 ? (
           filteredRestaurants.map((restaurant, index) => (
             <div key={index} onClick={() => handleRestaurantClick(restaurant)}>
               <RestaurantCard
@@ -690,12 +631,24 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
             </div>
           ))
         ) : (
-          userLocation &&
+          userLocationFromStorage &&
           locationError && (
-            <p className="text-center text-gray-500">No restaurants found.</p>
+            <p className="text-center text-gray-500">{language == 'en' ? "No restaurants found." : "No se encontraron restaurantes."}</p>
           )
         )}
       </div>
+
+      {
+        selectedMenu && !loading && filteredRestaurants.length === 0 && (
+          <div className="text-center mt-4">
+            <p className="text-gray-500">
+              {language === "en"
+                ? "No restaurants found. Please try again later."
+                : "No se encontraron restaurantes. Por favor, inténtelo de nuevo más tarde."}
+            </p>
+          </div>
+        )
+      }
 
       {locationError && (
         <div className="alert alert-warning mt-3">
@@ -719,7 +672,7 @@ const sortedMenus = todaysSpecialMenus.sort((a, b) => {
           show={showRegisterModal}
           onClose={handleClose}
           onRegister={handleRegister}
-          // modalView={false}
+        // modalView={false}
         />
       )}
       {toast.show && (

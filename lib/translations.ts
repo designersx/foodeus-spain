@@ -20,10 +20,13 @@ export const translations = {
     registerHeading:"Register",
     loginHeading:"Login",
     sendOtpButton1:"Submit OTP",
-    sendOtpButtonSending:"Sending...."
-    ,
-    verifyOtpHeading:"Verify OTP"
-
+    sendOtpButtonSending:"Sending...."    ,
+    verifyOtpHeading:"Verify OTP",
+    Starter: "Starter",
+    MainDish: "Main Dish",
+    Dessert: "Dessert",
+    Drinks: "Drinks",
+    BackButton: "Back"
   },
   es: {
     aboutUs: "Sobre Nosotros",
@@ -48,7 +51,11 @@ export const translations = {
     sendOtpButton1: "Enviar OTP",
     sendOtpButtonSending: "Enviando....",
     verifyOtpHeading: "Verificar OTP",
-
+    Starter: "Entrante",
+    MainDish: "Plato Principal",
+    Dessert: "Postre",
+    Drinks: "Bebidas",
+    BackButton: "Atrás"
 
 
 

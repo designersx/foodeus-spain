@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/context/language-context";
 import { ArrowLeft, Upload, ChevronDownIcon } from "lucide-react";
 import {
   Dialog,
@@ -42,6 +43,7 @@ export default function AddMenuItemPage() {
   const [isModalLoading, setModalLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set()); // Use Set for unique items
   const [items, setItems] = useState<any[]>([]); // API-fetched items
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for item selection
@@ -57,7 +59,7 @@ export default function AddMenuItemPage() {
   });
   const [newItems, setNewItems] = useState<any[]>([]);
   const currentItems = [...newItems];
-  console.log("Current Items:", currentItems); // Debugging line
+  // console.log("Current Items:", currentItems); // Debugging line
 
   const [modalImagePreview, setModalImagePreview] = useState<string | null>(
     null
@@ -115,7 +117,7 @@ export default function AddMenuItemPage() {
     }
   };
 
-  console.log("Selected Items:", formData, selectedItems); // Debugging line
+  // console.log("Selected Items:", formData, selectedItems); // Debugging line
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
@@ -144,7 +146,7 @@ export default function AddMenuItemPage() {
       const token = localStorage.getItem("token");
       const data = new FormData();
 
-      console.log(formData.item_list, "itemList");
+      // console.log(formData.item_list, "itemList");
       if (!formData.menu_type) {
         toast({
           title: "Warning !",
@@ -191,7 +193,7 @@ export default function AddMenuItemPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data, "response data");
+      // console.log(response.data, "response data");
       if (response.data.success) {
         toast({
           title: "Menu added",
@@ -382,7 +384,6 @@ export default function AddMenuItemPage() {
     }
   };
   
-
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -569,10 +570,22 @@ export default function AddMenuItemPage() {
                     {/* <ChevronDownIcon className="w-5 h-5 ml-2" /> */}
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Starters">Starters</SelectItem>
-                    <SelectItem value="Main Course">Main Course</SelectItem>
-                    <SelectItem value="Desserts">Desserts</SelectItem>
-                    <SelectItem value="Beverages">Beverages</SelectItem>
+                  <SelectItem value="Starter"    onClick={() => {
+                    setSelectedItem("Starter");
+                    setIsModalOpen(true);
+                  }}>{t('Starter')}</SelectItem>
+                  <SelectItem value="MainDish"    onClick={() => {
+                    setSelectedItem("MainDish");
+                    setIsModalOpen(true);
+                  }}>{t('MainDish')}</SelectItem>
+                  <SelectItem value="Dessert"    onClick={() => {
+                    setSelectedItem("Dessert");
+                    setIsModalOpen(true);
+                  }}>{t('Dessert')}</SelectItem>
+                  <SelectItem value="Drinks"    onClick={() => {
+                    setSelectedItem("Drinks");
+                    setIsModalOpen(true);
+                  }}>{t('Drinks')}</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -757,7 +770,7 @@ export default function AddMenuItemPage() {
                 Add Menu Item
               </DialogTitle>
               <DialogDescription className="text-gray-600 text-center mt-1">
-                Add Item Details
+               {`Add ${selectedItem=="MainDish"?" Main Dish" : selectedItem} Item Details`}  
               </DialogDescription>
             </DialogHeader>
 
@@ -796,6 +809,12 @@ export default function AddMenuItemPage() {
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.item_name}
                   onChange={handleModalChange}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
 
@@ -817,6 +836,12 @@ export default function AddMenuItemPage() {
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.description}
                   onChange={handleModalChange}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
             </div>

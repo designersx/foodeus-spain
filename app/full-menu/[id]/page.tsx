@@ -298,11 +298,12 @@ export default function FullMenuPage() {
   const searchParams = useSearchParams();
   const menuId = searchParams.get("menuId");
   const { id } = useParams();
-  const { language } = useLanguage();
+  const { t,language } = useLanguage();
   const [restaurantName, setRestaurantName] = useState<string>("");
   const [fullMenu, setFullMenu] = useState<FullMenu>({});
   const [activeTab, setActiveTab] = useState<string>("");
-  const MENU_TAB_ORDER = ["Starters", "Main Course", "Beverages", "Desserts"];
+  const MENU_TAB_ORDER = ["Starter", "MainDish", "Drinks", "Dessert"];
+
   useEffect(() => {
     if (menuId) {
       localStorage.setItem("lastMenuId", menuId); // ✅ Store in localStorage
@@ -367,7 +368,7 @@ export default function FullMenuPage() {
         href={`/menu/${id}`}
         className="d-inline-flex align-items-center text-decoration-none mb-3"
       >
-        <i className="bi bi-chevron-left me-1"></i>Back
+        <i className="bi bi-chevron-left me-1"></i>{language === "en" ? "Back" : "Atrás"}
       </Link>
 
       <h1 className="fs-3 fw-bold mb-4">
@@ -388,12 +389,13 @@ export default function FullMenuPage() {
         ))}
       </ul> */}
 
-      <ul className="nav nav-tabs mb-3"           style={{
-      display: "flex",        // Ensures the list items are arranged horizontally
-      overflowX: "auto",      // Enables horizontal scrolling
-      paddingBottom: "10px",   // Adds padding at the bottom for styling (optional)
-      listStyleType: "none",   // Removes bullet points (if any)
-      margin: 0,              // Removes the default margin
+      <ul className="nav nav-tabs mb-3"           
+      style={{
+      display: "flex",        
+      overflowX: "auto",      
+      paddingBottom: "10px",  
+      listStyleType: "none",  
+      margin: 0,             
     }}>
         {MENU_TAB_ORDER.filter((type) => fullMenu[type]).map((menuType) => (
           <li className="nav-item" key={menuType} style={{ flex: "0 0 auto" }}>
@@ -401,7 +403,7 @@ export default function FullMenuPage() {
               className={`nav-link ${activeTab === menuType ? "active" : ""}`}
               onClick={() => setActiveTab(menuType)}
             >
-              {menuType}
+              {t(menuType)}
             </button>
           </li>
         ))}

@@ -90,14 +90,14 @@ export default function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          {/* <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/update-HeroSection"}>
               <Link href="/admin/update-HeroSection" className="nav-link-admin">
                 <Camera className="h-4 w-4" />
                 <span>Manage Hero Section</span>
               </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem>
+          </SidebarMenuItem> */}
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/users"}>
               <Link href="/admin/users" className="nav-link-admin">

@@ -4079,6 +4079,11 @@ span.small {
 
   
 }
+.selected {
+  border: 2px solid #000; /* Add border to highlight the selected item */
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Optional: adds a shadow effect to the selected item */
+}
 
 .MeneSequence span{
   padding: 5px 10px;
@@ -4095,6 +4100,13 @@ span.small {
   /* overflow: auto; */
 }
 
+.item-label {
+  display: block;  /* Ensures the span takes up the full width */
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden;   /* Hides the overflow text */
+  text-overflow: ellipsis;  /* Adds the ellipsis when the text overflows */
+  max-width: 100%;  /* Ensures the width of the span is limited */
+}
 
 .foodDescription .MeneSequence {
   display: flex;

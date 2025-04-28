@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useLanguage } from "@/context/language-context";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { ArrowLeft, Upload, ChevronDownIcon } from "lucide-react";
@@ -50,6 +51,7 @@ export default function EditMenuItemPage() {
   const menuItemId = params.menuId as string;
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { t } = useLanguage();
   const [newItemData, setNewItemData] = useState({
     item_name: "",
     description: "",
@@ -68,6 +70,8 @@ export default function EditMenuItemPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [items, setItems] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] =
     useState<number>(-1);
@@ -398,6 +402,60 @@ export default function EditMenuItemPage() {
   if (!isDataLoaded) {
     return <div>Loading...</div>;
   }
+
+  const handleOpenDialog = (itemId: string) => {
+    setSelectedItemId(itemId);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedItemId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedItemId) {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await apiClient.delete(
+          `/menuitems/deleteRestaurantMenuItem/${selectedItemId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Check if the deletion was successful
+        if (response.data.success) {
+          // Show success toast
+          toast({
+            title: "Menu item deleted",
+            description: "The menu item has been deleted successfully",
+          });
+
+          setItems((prevItems) =>
+            prevItems.filter((item) => item.id !== selectedItemId)
+          );
+
+          // Optionally, refresh the item list or update the local state
+          // Example: fetchItemList(); // This could refetch the list of items or update the local state
+        } else {
+          throw new Error(response.data.message || "Failed to delete item");
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "There was an error deleting the menu item.",
+          variant: "destructive",
+        });
+        console.error("Delete error:", error);
+      }
+
+      setIsDialogOpen(false); // Close the dialog after confirming
+    }
+  };
   return (
     <div className="full-width-container space-y-6">
       <Button variant="ghost" size="sm" asChild>
@@ -481,7 +539,7 @@ export default function EditMenuItemPage() {
                 value={formData.description}
                 placeholder="Description"
                 onChange={handleChange}
-                maxLength={200}
+                maxLength={150}
                 required
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
@@ -525,10 +583,10 @@ export default function EditMenuItemPage() {
                     <SelectValue placeholder="Select Category from List" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Starters">Starters</SelectItem>
-                    <SelectItem value="Main Course">Main Course</SelectItem>
-                    <SelectItem value="Desserts">Desserts</SelectItem>
-                    <SelectItem value="Beverages">Beverages</SelectItem>
+                    <SelectItem value="Starter">{t("Starter")}</SelectItem>
+                    <SelectItem value="MainDish">{t("MainDish")}</SelectItem>
+                    <SelectItem value="Dessert">{t("Dessert")}</SelectItem>
+                    <SelectItem value="Drinks">{t("Drinks")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>{" "}
@@ -568,7 +626,10 @@ export default function EditMenuItemPage() {
                             className="w-12 h-12 object-cover rounded-md border"
                           />
                           <div>
-                            <h4 className="font-semibold text-sm text-gray-900">
+                            <h4
+                              className="font-semibold text-sm text-gray-900"
+                              style={{ overflowWrap: "anywhere" }}
+                            >
                               {item.item_name}
                             </h4>
                             <p className="text-xs text-gray-500">
@@ -576,11 +637,22 @@ export default function EditMenuItemPage() {
                             </p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-700 mb-1">
+                        <p
+                          className="text-sm text-gray-700 mb-1 "
+                          style={{ overflowWrap: "anywhere" }}
+                        >
                           {item.description || (
                             <em className="text-gray-400">No description</em>
                           )}
                         </p>
+                        <div className="flex justify-end mt-2">
+                          <span
+                            className="text-xs text-danger"
+                            onClick={() => handleOpenDialog(item.id)}
+                          >
+                            Remove
+                          </span>
+                        </div>
                       </div>
                     ) : null
                   )}
@@ -674,6 +746,7 @@ export default function EditMenuItemPage() {
               <div>
                 <Label>Item Name</Label>
                 <Input
+                  maxLength={50}
                   value={editingItem.item_name}
                   onChange={(e) =>
                     setEditingItem({
@@ -681,18 +754,31 @@ export default function EditMenuItemPage() {
                       item_name: e.target.value,
                     })
                   }
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
               <div>
                 <Label>Description</Label>
                 <Textarea
                   value={editingItem.description}
+                  maxLength={100}
                   onChange={(e) =>
                     setEditingItem({
                       ...editingItem,
                       description: e.target.value,
                     })
                   }
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
             </div>
@@ -859,6 +945,36 @@ export default function EditMenuItemPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+          <DialogHeader>
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
+              Confirm Deletion
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 text-center mt-1">
+              Are you sure you want to delete this menu item?
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-5 flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handleCloseDialog}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              className="w-full sm:w-auto"
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

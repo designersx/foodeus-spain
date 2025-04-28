@@ -216,7 +216,7 @@ export default function MenuDetailPage() {
             className="d-inline-flex align-items-center text-decoration-none mb-3"
           >
             <i className="bi bi-chevron-left me-1"></i>
-            Back
+            {language === "en" ? "Back" : "Atrás"}
           </Link>
 
           {/* Hero image */}
