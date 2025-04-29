@@ -288,9 +288,13 @@ export default function MenuDetailPage() {
                 style={{ color: "#FFD700", fill: "#FFD700" }}
               />
               {data?.ratings}{" "}
-              {`(${formatTotalRatings(Number(data?.totalRating))} ${
-                language === "es" ? "valoraciones" : "ratings"
-              })`}
+
+              {data?.totalRating != null && data.totalRating !== "" && (
+                <>
+                  {data.totalRating}{" "}
+                  ({formatTotalRatings(Number(data.totalRating))} {language === "es" ? "valoraciones" : "ratings"})
+                </>
+              )}
             </span>
             <h2 className="fs-4 fw-semibold mb-2">
               {language === "en" ? "Description" : "Descripción"}

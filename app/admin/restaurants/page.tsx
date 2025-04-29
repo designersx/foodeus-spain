@@ -106,7 +106,10 @@ export default function RestaurantsPage() {
                 <div className="flex justify-between items-start">
                   <div>
                    
-                    <h3 className="font-semibold text-lg">{restaurant.name}</h3>
+                    <h3 className="font-semibold text-lg resName"     style={{
+                              wordBreak: "break-all", // Breaks long words that have no spaces
+                              whiteSpace: "normal", // Allows text to wrap normally
+                            }}>{restaurant.name}</h3>
                     <p className="text-sm text-muted-foreground">{restaurant.address}</p>
                     <p className="text-sm text-muted-background">Restaurent ID : {restaurant.id}</p>
                   </div>

@@ -484,7 +484,7 @@ export default function EditMenuItemPage() {
                       <img
                         src={imagePreview}
                         alt="Item preview"
-                        className="max-h-full max-w-full object-fill"
+                        className="mx-auto max-h-[200px] rounded-md object-cover"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
                         <p className="text-white font-medium">Change Image</p>
@@ -627,8 +627,11 @@ export default function EditMenuItemPage() {
                           />
                           <div>
                             <h4
-                              className="font-semibold text-sm text-gray-900"
-                              style={{ overflowWrap: "anywhere" }}
+                              className="font-semibold text-sm text-gray-900 resName"
+                              style={{
+                                wordBreak: "break-all", 
+                                whiteSpace: "normal", 
+                              }}
                             >
                               {item.item_name}
                             </h4>
@@ -639,7 +642,10 @@ export default function EditMenuItemPage() {
                         </div>
                         <p
                           className="text-sm text-gray-700 mb-1 "
-                          style={{ overflowWrap: "anywhere" }}
+                          style={{
+                            wordBreak: "break-all", // Breaks long words that have no spaces
+                            whiteSpace: "normal", // Allows text to wrap normally
+                          }}
                         >
                           {item.description || (
                             <em className="text-gray-400">No description</em>
@@ -822,6 +828,7 @@ export default function EditMenuItemPage() {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -843,6 +850,7 @@ export default function EditMenuItemPage() {
                 <Input
                   ref={itemNameInputRef}
                   value={newItemData.item_name}
+                  maxLength={50}
                   onChange={async (e) => {
                     const value = e.target.value;
                     setNewItemData({ ...newItemData, item_name: value });
@@ -924,6 +932,7 @@ export default function EditMenuItemPage() {
               </div>
               <Label>Description</Label>
               <Textarea
+              maxLength={100}
                 value={newItemData.description}
                 onChange={(e) =>
                   setNewItemData({

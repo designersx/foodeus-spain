@@ -352,8 +352,11 @@ console.log(items," aarti dffmsk items")
               <div className="flex justify-between items-start">
                 <div className="truncate w-full">
                   <CardTitle
-                    className=""
-                    style={{ overflowWrap: "break-word" }}
+                    className="resName"
+                    style={{
+                      wordBreak: "break-all", // Breaks long words that have no spaces
+                      whiteSpace: "normal", // Allows text to wrap normally
+                    }}
                   >
                     {restaurant?.name}
                   </CardTitle>
@@ -388,12 +391,12 @@ console.log(items," aarti dffmsk items")
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium">Website</h4>
+                  <h4 className="text-sm font-medium" >Website</h4>
                   <p
-                    className="text-sm text-muted-foreground"
+                    className="text-sm text-muted-foreground resName"
                     style={{
-                      overflowWrap: "break-word",
-                      textDecoration: "none",
+                      wordBreak: "break-all", // Breaks long words that have no spaces
+                      whiteSpace: "normal", // Allows text to wrap normally
                     }}
                   >
                     {restaurant?.website ? (
@@ -493,7 +496,7 @@ console.log(items," aarti dffmsk items")
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-1 mb-4">
               <span></span>
               {/* <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="menu" className="flex-1 sm:flex-initial">
@@ -524,6 +527,19 @@ console.log(items," aarti dffmsk items")
                   {activeTab === "menu" ? "Add Menu" : "Add Item"}
                 </Link>
               </Button>
+
+              <Button asChild>
+                <Link
+                  href={`/admin/restaurants/${restaurant?.id}/upload-menu`}
+                  onClick={() => {
+                    sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
+                  }}
+                >
+                  <Clipboard className="h-4 w-4 mr-2" />
+                  Upload Menu
+                </Link>
+                  
+              </Button>
             </div>
 
             <TabsContent value="menu" className="space-y-4">
@@ -545,136 +561,7 @@ console.log(items," aarti dffmsk items")
                 filteredMenus?.length > 0 &&
                 filteredMenus?.map((item) => {
                   const normalized = getMenuImagePath(item.image);
-                  // console.log('normalized1', normalized)
-                  // let src=isValidUrl(item.image) ?item.image :`${API_BASE_URL}/${item.image}`
                   return (
-                    // <Card key={item.id} className="overflow-hidden">
-                    //   <div className="flex flex-col sm:flex-row">
-                    //     <div className="sm:w-1/4">
-                    //       <div className="aspect-square w-full overflow-hidden">
-                    //         <img
-                    //           src={normalized}
-                    //           alt={item.name}
-                    //           onError={(e) => {
-                    //             const target = e.target as HTMLImageElement;
-                    //             target.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-                    //           }}
-                    //           className="h-full w-full object-cover"
-                    //         />
-                    //       </div>
-                    //     </div>
-                    //     <div className="flex-1 p-4">
-                    //       <div className="flex justify-end mb-2">
-                    //         {item.updated_at && (
-                    //           <span className="text-sm text-end">
-                    //             {" "}
-                    //             Updated{" "}
-                    //             {formatDistanceToNow(
-                    //               new Date(item?.updated_at),
-                    //               { addSuffix: true }
-                    //             )}
-                    //           </span>
-                    //         )}
-                    //       </div>
-                    //       <div className="flex justify-between items-start">
-                    //         <div>
-                    //           <h3 className="font-semibold">{item.name}</h3>
-                    //           <p className="text-sm text-muted-foreground">
-                    //             {item?.description}
-                    //           </p>
-                    //         </div>
-                    //         <div className="text-right">
-                    //           <div className="font-medium">€{item?.price}</div>
-                    //           {/* <Badge variant="outline">{item.category}</Badge> */}
-                    //           {/* {item.updated_at && <Badge className="ml-2"> Updated {formatDistanceToNow(new Date(item?.updated_at), { addSuffix: true })}
-                    //         </Badge>} */}
-                    //         </div>
-                    //       </div>
-                    //       {/* Display item list */}
-                    //       {item.item_list && item.item_list?.length > 0 && (
-                    //         <div className="mt-4">
-                    //           <h4 className="font-semibold text-lg">
-                    //             Item List
-                    //           </h4>
-                    //           <ul
-                    //             className="space-y-2 mt-2"
-                    //             style={{ paddingLeft: "0rem" }}
-                    //           >
-                    //             {item.item_list.map((menuItem, index) => (
-                    //               <li
-                    //                 key={index}
-                    //                 className="flex justify-between items-center"
-                    //               >
-                    //                 <div className="flex items-center gap-2">
-                    //                   {menuItem.image && (
-                    //                     <img
-                    //                       src={getMenuImagePath(menuItem.image)}
-                    //                       alt={menuItem.name}
-                    //                       className="w-8 h-8 rounded-full object-cover"
-                    //                       onError={(e) => {
-                    //                         e.currentTarget.src =
-                    //                           "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-                    //                       }}
-                    //                     />
-                    //                   )}
-                    //                   <span className="text-sm text-gray-800">
-                    //                     {menuItem.name}
-                    //                   </span>
-                    //                 </div>
-                    //                 {/* <div className="font-medium">€{menuItem.price}</div> */}
-                    //               </li>
-                    //             ))}
-                    //           </ul>
-                    //         </div>
-                    //       )}
-                    //       <div className="mt-4 flex justify-end gap-2">
-                    //         <Button
-                    //           variant="outline"
-                    //           size="sm"
-                    //           onClick={() => {
-                    //             sessionStorage.setItem(
-                    //               "editMenuItem",
-                    //               JSON.stringify(item)
-                    //             );
-                    //             router.push(
-                    //               `/admin/restaurants/${restaurant?.id}/menu/${item?.id}/edit`
-                    //             );
-                    //             sessionStorage.setItem("activeTab", activeTab);
-                    //           }}
-                    //         >
-                    //           <Edit className="h-3.5 w-3.5 mr-1" /> Edit
-                    //         </Button>
-                    //         <Dialog>
-                    //           <DialogTrigger asChild>
-                    //             <Button variant="ghost" size="sm">
-                    //               <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
-                    //             </Button>
-                    //           </DialogTrigger>
-                    //           <DialogContent>
-                    //             <DialogHeader>
-                    //               <DialogTitle>Delete Menu</DialogTitle>
-                    //               <DialogDescription>
-                    //                 Are you sure you want to delete {item.name}?
-                    //                 This action cannot be undone.
-                    //               </DialogDescription>
-                    //             </DialogHeader>
-                    //             <DialogFooter>
-                    //               <DialogClose asChild>
-                    //                 <Button variant="outline">Cancel</Button>
-                    //               </DialogClose>
-                    //               <Button
-                    //                 variant="destructive"
-                    //                 onClick={() => handleDeleteMenu(item.id)}
-                    //               >
-                    //                 Delete
-                    //               </Button>
-                    //             </DialogFooter>
-                    //           </DialogContent>
-                    //         </Dialog>
-                    //       </div>
-                    //     </div>
-                    //   </div>
-                    // </Card>
                     <Card key={item.id} className="overflow-hidden">
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/4">
@@ -736,7 +623,10 @@ console.log(items," aarti dffmsk items")
                                         }}
                                       />
                                     )}
-                                    <span className="text-sm text-gray-800">{menuItem.name}</span>
+                                    <span className="text-sm text-gray-800 resName"    style={{
+                                wordBreak: "break-all", 
+                                whiteSpace: "normal", 
+                              }}>{menuItem.name}</span>
                                   </div>
                                 </li>
                               ))}

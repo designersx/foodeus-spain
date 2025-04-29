@@ -589,11 +589,11 @@ export default function AddMenuItemPage() {
                   </SelectContent>
                 </Select>
 
-                {selectedItem && (
+                {/* {selectedItem && (
                   <div className="text-sm text-muted-foreground">
                     Selected Item: {selectedItem}
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -671,7 +671,10 @@ export default function AddMenuItemPage() {
                   />
                   <div className="flex flex-col">
                     {/* Item Name */}
-                    <h4 className="font-semibold text-sm text-gray-900 truncate">
+                    <h4 className="font-semibold text-sm text-gray-900 resName"     style={{
+                                wordBreak: "break-all", // Breaks long words that have no spaces
+                                whiteSpace: "normal", // Allows text to wrap normally
+                              }}>
                       {item.item_name}
                     </h4>
                     <p className="text-xs text-gray-500">{item.item_type}</p>
@@ -679,7 +682,10 @@ export default function AddMenuItemPage() {
                 </div>
 
                 {/* Item Description */}
-                <CardDescription className="text-sm text-gray-700 mb-1 card-description">
+                <CardDescription className="text-sm text-gray-700 mb-1 "     style={{
+                                wordBreak: "break-all", // Breaks long words that have no spaces
+                                whiteSpace: "normal", // Allows text to wrap normally
+                              }}>
                   {item.description || <em className="text-gray-400">No description</em>}
                 </CardDescription>
 
@@ -729,26 +735,6 @@ export default function AddMenuItemPage() {
         </DialogContent>
       </Dialog>
 
-
-
-            {/* Select Items */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
-              <Button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="w-full justify-start"
-              >
-                {selectedItems.size > 0
-                  ? `${selectedItems.size} item(s) selected`
-                  : "Select Items from List"}
-              </Button>
-              {selectedItems.size > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Selected: {Array.from(selectedItems).join(", ")}
-                </div>
-              )}
-            </div> */}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild >
@@ -763,7 +749,13 @@ export default function AddMenuItemPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}  className="transition-opacity duration-500 ease-in-out opacity-0">
+        <Dialog open={isModalOpen}   onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
+          }
+        }} 
+        className="transition-opacity duration-500 ease-in-out opacity-0">
           <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">

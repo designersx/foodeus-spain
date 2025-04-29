@@ -160,8 +160,8 @@ export function ListView() {
 
         const todaySpecialRestaurants: Restaurant[] = [];
 
-        data.data.forEach((restaurant: any) => {
-          if (restaurant.menus.some((menu: any) => menu.items.length === 0)) {
+        data?.data?.forEach((restaurant: any) => {
+          if (restaurant.menus.some((menu: any) => menu?.items?.length === 0)) {
             return; // This will skip the current iteration
           }
           const allMenus = restaurant.menus || [];
@@ -175,7 +175,7 @@ export function ListView() {
             return dateB - dateA;
           });
 
-          if (sortedMenus.length > 0) {
+          if (sortedMenus?.length > 0) {
             const latestMenu = sortedMenus[0];
             todaySpecialRestaurants.push({
               id: restaurant.restaurant_id?.toString() || "",
@@ -224,7 +224,7 @@ export function ListView() {
 
   // correct Code
   useEffect(() => {
-    if (!restaurants.length) return;
+    if (!restaurants?.length) return;
     if (userLocationFromStorage || userLocation) {
       const today = new Date().toISOString().split("T")[0];
       const withDistance = restaurants.map((restaurant) => {
@@ -362,7 +362,7 @@ export function ListView() {
       setSelectedMenu(menuType);
       const filteredItems = restaurantsWithDistance.filter((restaurant) => {
         const isItemTypeMatch = restaurant?.menu?.items?.some((item) =>
-          item.item_type?.includes(menuType)
+          item?.item_type?.includes(menuType)
         );
         return isItemTypeMatch;
       });
@@ -620,7 +620,7 @@ export function ListView() {
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : userLocationFromStorage && !locationError && filteredRestaurants.length > 0 ? (
+        ) : userLocationFromStorage && !locationError && filteredRestaurants?.length > 0 ? (
           filteredRestaurants.map((restaurant, index) => (
             <div key={index} onClick={() => handleRestaurantClick(restaurant)}>
               <RestaurantCard
@@ -639,7 +639,7 @@ export function ListView() {
       </div>
 
       {
-        selectedMenu && !loading && filteredRestaurants.length === 0 && (
+        selectedMenu && !loading && filteredRestaurants?.length === 0 && (
           <div className="text-center mt-4">
             <p className="text-gray-500">
               {language === "en"

@@ -65,8 +65,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarInset className="h-full overflow-y-auto">
             <AdminHeader />
             <main className="admin-content overflow-x-hidden">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">{children}</div>
-            </main>
+            <div className="w-full px-4 sm:px-6 lg:px-8">
+              {children}
+            </div>
+          </main>
           </SidebarInset>
         </div>
       </div>
