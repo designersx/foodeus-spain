@@ -77,7 +77,8 @@ export function ListView() {
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(
     []
   );
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
   const [filterBy, setFilterBy] = useState("all");
   const [locationError, setLocationError] = useState<string>("");
   const { restaurants, setRestaurants, hasFetched, setHasFetched } =
@@ -101,6 +102,7 @@ export function ListView() {
 
   useEffect(() => {
     if (navigator.geolocation) {
+      setLoadingLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = {
@@ -112,7 +114,7 @@ export function ListView() {
 
           localStorage.setItem("userLocation", JSON.stringify(userPos));
 
-          setLoading(false);
+          setLoadingLocation(false);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -125,16 +127,16 @@ export function ListView() {
             setLocationError("Unable to access your location.");
           }
 
-          setLoading(false);
+          setLoadingLocation(false);
         }
       );
     } else {
       setLocationError("Geolocation is not supported by your browser.");
-      setLoading(false);
+      setLoadingLocation(false);
     }
 
     return () => {
-      setLoading(false);
+      setLoadingLocation(false);
     };
   }, []);
 
@@ -142,15 +144,16 @@ export function ListView() {
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
   useEffect(() => {
-    setLoading(true);
+    
     const fetchRestaurants = async () => {
+      setLoading(true);
       try {
         const data = await getRestaurantsWithMenus();
         if (!Array.isArray(data.data)) {
           console.error("API response is not an array:", data);
           return;
         }
-        console.log("Fetched restaurants:", data.data);
+        // console.log("Fetched restaurants:", data.data);
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -226,6 +229,7 @@ export function ListView() {
   useEffect(() => {
     if (!restaurants?.length) return;
     if (userLocationFromStorage || userLocation) {
+      setLoading(true);
       const today = new Date().toISOString().split("T")[0];
       const withDistance = restaurants.map((restaurant) => {
         const hasMenu = !!restaurant.menu?.updated_at;
@@ -435,7 +439,6 @@ export function ListView() {
     setFocused(false);
     setIsSticky(false);
   };
-
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -481,11 +484,17 @@ export function ListView() {
         }
 
         setLoading(false);
-      }
+      },{ timeout: 10000 }
     );
   };
-
-  if (loading) {
+if (
+  loadingLocation &&
+  (
+    userLocationFromStorage == null || 
+    Object.keys(userLocationFromStorage).length === 0
+  )
+) { 
+  
     return (
       <div
         className="position-absolute top-50 start-50 translate-middle"
@@ -497,11 +506,13 @@ export function ListView() {
         }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">Loading Location...</span>
         </div>
       </div>
     );
   }
+
+
   const pathname = usePathname();
   return (
     <div className="pb-5">
