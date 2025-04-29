@@ -6,9 +6,8 @@ interface Menu {
   description: { en: string; es: string };
   image: string;
   items?: string;
-
   menu_type: any;
-  updated_at?: any
+  updated_at?: any;
 }
 
 interface Restaurant {
@@ -18,7 +17,7 @@ interface Restaurant {
   coordinates: { lat: number; lng: number };
   menu: Menu;
   distance?: number;
-  rating?: string|number;
+  rating?: string | number;
   updatedToday?: boolean;
 }
 
@@ -39,11 +38,7 @@ export const useRestaurantStore = create(
     }),
     {
       name: "restaurant-store", // storage key
-      storage: {
-        getItem: () => null, 
-        setItem: () => {},
-        removeItem: () => {},
-      },
+      storage: typeof window !== "undefined" ? sessionStorage : undefined, // Only use sessionStorage on the client-side
     }
   )
 );

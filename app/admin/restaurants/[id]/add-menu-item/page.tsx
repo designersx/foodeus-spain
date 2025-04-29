@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/context/language-context";
 import { ArrowLeft, Upload, ChevronDownIcon } from "lucide-react";
 import {
   Dialog,
@@ -39,14 +40,18 @@ export default function AddMenuItemPage() {
   const params = useParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalLoading, setModalLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set()); // Use Set for unique items
   const [items, setItems] = useState<any[]>([]); // API-fetched items
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for item selection
   // const [isEmptyItemPromptOpen, setIsEmptyItemPromptOpen] = useState(false); // Empty item list modal state
   const [loadingItems, setLoadingItems] = useState(true); // Add loading state for item fetch
   const [selectedItem, setSelectedItem] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [modalFormData, setModalFormData] = useState({
     item_name: "",
     description: "",
@@ -54,6 +59,7 @@ export default function AddMenuItemPage() {
   });
   const [newItems, setNewItems] = useState<any[]>([]);
   const currentItems = [...newItems];
+  // console.log("Current Items:", currentItems); // Debugging line
 
   const [modalImagePreview, setModalImagePreview] = useState<string | null>(
     null
@@ -111,7 +117,7 @@ export default function AddMenuItemPage() {
     }
   };
 
-  console.log("Selected Items:", formData, selectedItems); // Debugging line
+  // console.log("Selected Items:", formData, selectedItems); // Debugging line
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
@@ -140,7 +146,7 @@ export default function AddMenuItemPage() {
       const token = localStorage.getItem("token");
       const data = new FormData();
 
-      console.log(formData.item_list, "itemList");
+      // console.log(formData.item_list, "itemList");
       if (!formData.menu_type) {
         toast({
           title: "Warning !",
@@ -187,7 +193,7 @@ export default function AddMenuItemPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-
+      // console.log(response.data, "response data");
       if (response.data.success) {
         toast({
           title: "Menu added",
@@ -244,7 +250,7 @@ export default function AddMenuItemPage() {
       });
       return;
     }
-
+    setModalLoading(true);
     const token = localStorage.getItem("token");
     const data = new FormData();
     data.append("restaurant_id", restaurantId);
@@ -254,8 +260,7 @@ export default function AddMenuItemPage() {
     if (modalFormData.image) {
       data.append("menuItemImg", modalFormData.image);
     }
-
-    try {
+     try {
       const response = await apiClient.post(
         `/menuitems/addRestaurantMenuItem/${restaurantId}`,
         data,
@@ -308,6 +313,9 @@ export default function AddMenuItemPage() {
         variant: "destructive",
       });
     }
+    finally {
+      setModalLoading(false);
+    }
   };
 
   const toggleItemSelection = (itemId: string) => {
@@ -324,6 +332,58 @@ export default function AddMenuItemPage() {
     }));
   };
 
+  const handleOpenDialog = (itemId: string) => {
+    setSelectedItemId(itemId);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedItemId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedItemId) {
+      try {
+        const token = localStorage.getItem("token");
+  
+        const response = await apiClient.delete(
+          `/menuitems/deleteRestaurantMenuItem/${selectedItemId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        // Check if the deletion was successful
+        if (response.data.success) {
+          // Show success toast
+          toast({
+            title: "Menu item deleted",
+            description: "The menu item has been deleted successfully",
+          });
+
+          setNewItems((prevItems) => prevItems.filter(item => item.id !== selectedItemId));
+  
+          // Optionally, refresh the item list or update the local state
+          // Example: fetchItemList(); // This could refetch the list of items or update the local state
+        } else {
+          throw new Error(response.data.message || "Failed to delete item");
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "There was an error deleting the menu item.",
+          variant: "destructive",
+        });
+        console.error("Delete error:", error);
+      }
+  
+      setIsDialogOpen(false); // Close the dialog after confirming
+    }
+  };
+  
   return (
     <div className="full-width-container space-y-6">
       <div className="flex items-center gap-2">
@@ -510,18 +570,30 @@ export default function AddMenuItemPage() {
                     {/* <ChevronDownIcon className="w-5 h-5 ml-2" /> */}
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Starters">Starters</SelectItem>
-                    <SelectItem value="Main Course">Main Course</SelectItem>
-                    <SelectItem value="Desserts">Desserts</SelectItem>
-                    <SelectItem value="Beverages">Beverages</SelectItem>
+                  <SelectItem value="Starter"    onClick={() => {
+                    setSelectedItem("Starter");
+                    setIsModalOpen(true);
+                  }}>{t('Starter')}</SelectItem>
+                  <SelectItem value="MainDish"    onClick={() => {
+                    setSelectedItem("MainDish");
+                    setIsModalOpen(true);
+                  }}>{t('MainDish')}</SelectItem>
+                  <SelectItem value="Dessert"    onClick={() => {
+                    setSelectedItem("Dessert");
+                    setIsModalOpen(true);
+                  }}>{t('Dessert')}</SelectItem>
+                  <SelectItem value="Drinks"    onClick={() => {
+                    setSelectedItem("Drinks");
+                    setIsModalOpen(true);
+                  }}>{t('Drinks')}</SelectItem>
                   </SelectContent>
                 </Select>
 
-                {selectedItem && (
+                {/* {selectedItem && (
                   <div className="text-sm text-muted-foreground">
                     Selected Item: {selectedItem}
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -542,7 +614,7 @@ export default function AddMenuItemPage() {
             {/* Menu Items Preview */}
 
             {/* Menu Items Preview */}
-            {currentItems.length > 0 && (
+            {/* {currentItems.length > 0 && (
               <div className="mt-6 space-y-4">
                 <Label className="text-sm font-semibold text-gray-800">
                   Existing Menu Items
@@ -581,29 +653,91 @@ export default function AddMenuItemPage() {
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* Select Items */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="item_list">Item List <span className="text-danger">*</span></Label>
-              <Button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="w-full justify-start"
-              >
-                {selectedItems.size > 0
-                  ? `${selectedItems.size} item(s) selected`
-                  : "Select Items from List"}
-              </Button>
-              {selectedItems.size > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Selected: {Array.from(selectedItems).join(", ")}
+            )} */}
+          {currentItems.length > 0 && (
+        <div className="mt-6 space-y-4">
+          <Label className="text-sm font-semibold text-gray-800">Existing Menu Items</Label>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {currentItems.map((item) => (
+              <div key={item.id} className="border rounded-lg p-4 shadow-sm bg-white flex flex-col">
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={`https://foodeus.truet.net/${item.image_url}`}
+                    alt={item.item_name}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                    }}
+                    className="w-12 h-12 object-cover rounded-md border"
+                  />
+                  <div className="flex flex-col">
+                    {/* Item Name */}
+                    <h4 className="font-semibold text-sm text-gray-900 resName"     style={{
+                                wordBreak: "break-all", // Breaks long words that have no spaces
+                                whiteSpace: "normal", // Allows text to wrap normally
+                              }}>
+                      {item.item_name}
+                    </h4>
+                    <p className="text-xs text-gray-500">{item.item_type}</p>
+                  </div>
                 </div>
-              )}
-            </div> */}
+
+                {/* Item Description */}
+                <CardDescription className="text-sm text-gray-700 mb-1 "     style={{
+                                wordBreak: "break-all", // Breaks long words that have no spaces
+                                whiteSpace: "normal", // Allows text to wrap normally
+                              }}>
+                  {item.description || <em className="text-gray-400">No description</em>}
+                </CardDescription>
+
+                {/* Button to remove item */}
+                <div className="flex justify-end mt-2">
+                  <button
+                    className="text-xs text-danger"
+                    onClick={() => handleOpenDialog(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Dialog for confirming item deletion */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+          <DialogHeader>
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
+              Confirm Deletion
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 text-center mt-1">
+              Are you sure you want to delete this menu item?
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-5 flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handleCloseDialog}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              className="w-full sm:w-auto"
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild >
               <Link href={`/admin/restaurants/${restaurantId}`}>Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
@@ -615,14 +749,20 @@ export default function AddMenuItemPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog open={isModalOpen}   onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
+          }
+        }} 
+        className="transition-opacity duration-500 ease-in-out opacity-0">
           <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
                 Add Menu Item
               </DialogTitle>
               <DialogDescription className="text-gray-600 text-center mt-1">
-                Add Item Details
+               {`Add ${selectedItem=="MainDish"?" Main Dish" : selectedItem} Item Details`}  
               </DialogDescription>
             </DialogHeader>
 
@@ -656,10 +796,17 @@ export default function AddMenuItemPage() {
                   type="text"
                   id="item-name"
                   name="item_name"
+                  maxLength={60}
                   placeholder="Enter item name"
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.item_name}
                   onChange={handleModalChange}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
 
@@ -676,10 +823,17 @@ export default function AddMenuItemPage() {
                   id="item-description"
                   name="description"
                   rows={3}
+                  maxLength={150}
                   placeholder="Enter item description"
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.description}
                   onChange={handleModalChange}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                      .replace(/[^a-zA-Z0-9\s]/g, "") // Remove invalid characters (anything that's not a letter, number, or space)
+                      .replace(/^\s+/g, "");
+                  }}
                 />
               </div>
             </div>
@@ -690,14 +844,16 @@ export default function AddMenuItemPage() {
                 variant="outline"
                 className="w-full"
                 onClick={handleModalSubmit}
-                disabled={isLoading}
+                disabled={isModalLoading}
               >
-                {isLoading ? "Adding..." : "Add Item"}
+                {isModalLoading ? "Adding..." : "Add Item"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
+
+
 
       {/* Empty Item Prompt Modal */}
       {/* {isEmptyItemPromptOpen && (

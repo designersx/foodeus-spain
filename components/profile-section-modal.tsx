@@ -126,7 +126,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
                 className="w-full border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                <p className="text-danger text-xs mt-1">{errors.name}</p>
               )}
             </>
           ) : (
@@ -153,7 +153,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
                 className="w-full border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                <p className="text-danger text-xs mt-1">{errors.email}</p>
               )}
             </>
           ) : (

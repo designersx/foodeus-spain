@@ -225,30 +225,85 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 fill
                 className=""
               />
-<span className="dishPrice"> $20
- 
-</span>
+            <span className="dishPrice"> € {restaurant?.menu?.price}
+            
+            </span>
 
             </div>
             <div className="dishContent">
 
               <div className="card-body h-100 foodDescription  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
-                <div className="MeniList">
+                <div className="MeniList">  
 
                 <div className="MeneSequence">
-            <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Risoto <span className="DishQuanty">+3</span></span>
+            {/* <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Risoto <span className="DishQuanty">+3</span></span>
             <span className="Starter" style={{backgroundColor:'#EEE7D0',}}>Lentil Soup</span>
             <span className="Drinks" style={{backgroundColor:'#EED0D0',}} >Soft Drink</span>
-            <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Pancake red</span>
+            <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Pancake red</span> */}
+              {['MainDish', 'Starter', 'Drinks', 'Dessert'].map((type) => {
+              // Filter items based on type
+              const itemsOfType = restaurant?.menu?.items?.filter(
+                (item) => item.item_type === type
+              );
+
+              if (itemsOfType?.length > 0) {
+                // Track if we have already displayed the first item of this type
+                let isFirstItemDisplayed = false;
+
+                return (
+                  <div key={type}>
+                    {/* Render a section for each type */}
+                    <div className="flex gap-3 flex-wrap">
+                      {itemsOfType.map((item, index) => {
+                        // Display only the first item for each type
+                        if (!isFirstItemDisplayed) {
+                          isFirstItemDisplayed = true; // Mark the first item as displayed
+
+                          // Count how many times this item appears in the items list
+                          const itemCount = restaurant.menu.items.filter(
+                            (i) => i.item_type === type
+                          ).length;
+
+                          return (
+                            <span
+                              className="item-label"
+                              style={{
+                                backgroundColor:
+                                  type === "MainDish"
+                                    ? "#D7EED0"
+                                    : type === "Starter"
+                                    ? "#EEE7D0"
+                                    : type === "Drinks"
+                                    ? "#EED0D0"
+                                    : "#D0E1EE",
+                              }}
+                              key={`${type}-${index}`}
+                            >
+                               {item.item_name}
+                              {/* If more than one item with the same name, show quantity */}
+                              {type === "Main Course" && itemCount > 1 && (
+                                <span className="DishQuanty">+{itemCount - 1}</span>
+                              )}
+                            </span>
+                          );
+                        }
+                        return null; // Skip rendering any subsequent items of the same type
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              return null; // Skip rendering the section if there are no items of this type
+            })}
           </div>
 
-                  {/* <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
-                    {restaurant?.menu.title[language]
-                      ? restaurant.menu.title[language]
-                      : language === "en"
-                        ? "Menu not Available"
-                        : "Menú no disponible"}
-                  </h5> */}
+                {/* <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
+                  {restaurant?.menu.title[language]
+                    ? restaurant.menu.title[language]
+                    : language === "en"
+                      ? "Menu not Available"
+                      : "Menú no disponible"}
+                </h5> */}
                 </div>
                 <div className="resturantLoc  w-100">
                   <div>

@@ -172,6 +172,13 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
                     setName(e.target.value);
                     setErrors(prev => ({ ...prev, name: "" }));
                   }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
+                  }}
                 />
                 {errors.name && <p style={{color:"red"}} className="text-red-500 text-sm mt-1 text-left">{errors.name}</p>}
               </div>
@@ -185,10 +192,17 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
                   setEmail(e.target.value);
                   setErrors(prev => ({ ...prev, email: "" }));
                 }}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  target.value = target.value
+                  .replace(/[^a-zA-Z0-9\s@.]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                  .replace(/^\s+/g, ""); 
+
+                }}
               />
               {errors.email && <p style={{ color: "red" }} className="text-red-500 text-sm mt-1 text-left">{errors.email}</p>}
             </div>
-            <Button onClick={handleSend} className="w-full !bg-transparent bgSecondary !bg-[#FAC584]">
+            <Button onClick={handleSend} className="w-full !bg-transparent bgSecondary !bg-[#FAC584]" disabled={isSending}>
               {isSending ? `${t("sendOtpButtonSending")}` : `${t("sendOtpButton1")}`}
             </Button>
           </>
@@ -209,7 +223,14 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
                   }}
                   ref={(el) => (inputRefs.current[index] = el)}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
-                  className="text-center text-lg h-10 w-11 border rounded-md"
+                  className="text-center text-lg h-10 w-11 border rounded-md text-black"
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = target.value
+                    .replace(/[^a-zA-Z0-9\s]/g, "")   // Remove invalid characters (anything that's not a letter, number, or space)
+                    .replace(/^\s+/g, ""); 
+  
+                  }}
                 />
               ))}
             </div>
