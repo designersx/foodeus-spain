@@ -97,8 +97,8 @@ export default function AddMenuItemPage() {
     if (file) {
       if (!file.type.startsWith("image/")) {
         toast({
-          title: "Invalid file type",
-          description: "Please upload an image file.",
+          title: t("ToastInvalidFileTypeTitle"),
+          description: t("ToastInvalidFileTypeMessage"),
           variant: "destructive",
         });
         return;
@@ -123,8 +123,8 @@ export default function AddMenuItemPage() {
     if (file) {
       if (!file.type.startsWith("image/")) {
         toast({
-          title: "Invalid file type",
-          description: "Please upload an image file.",
+          title: t("ToastInvalidFileTypeTitle"),
+          description: t("ToastInvalidFileTypeMessage"),
           variant: "destructive",
         });
         return;
@@ -149,16 +149,16 @@ export default function AddMenuItemPage() {
       // console.log(formData.item_list, "itemList");
       if (!formData.menu_type) {
         toast({
-          title: "Warning !",
-          description: "Please select menu category",
+          title: t("ToastMenuCategoryMissingTitle"),
+          description: t("ToastMenuCategoryMissingMessage"),
           variant: "destructive",
         });
         return;
       }
       if (!formData.image) {
         toast({
-          title: "Warning !",
-          description: "Please upload Dish Image",
+          title: t("ToastDishImageMissingTitle"),
+          description: t("ToastDishImageMissingMessage"),
           variant: "destructive",
         });
         return;
@@ -196,17 +196,18 @@ export default function AddMenuItemPage() {
       // console.log(response.data, "response data");
       if (response.data.success) {
         toast({
-          title: "Menu added",
-          description: "The menu has been added successfully",
+          title: t("ToastMenuAddSuccessTitle"),
+          description: t("ToastMenuAddSuccessMessage"),
         });
+
         router.push(`/admin/restaurants/${restaurantId}`);
       } else {
         throw new Error("Failed to add menu ");
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "There was an error adding the menu",
+        title: t("ToastMenuAddErrorTitle"),
+        description: t("ToastMenuAddErrorMessage"),
         variant: "destructive",
       });
       console.error("Add Menu Error:", error);
@@ -245,7 +246,7 @@ export default function AddMenuItemPage() {
   const handleModalSubmit = async () => {
     if (!modalFormData.item_name.trim()) {
       toast({
-        title: "Item name is required",
+        title: t("ToastItemNameMissingTitle"),
         variant: "destructive",
       });
       return;
@@ -260,7 +261,7 @@ export default function AddMenuItemPage() {
     if (modalFormData.image) {
       data.append("menuItemImg", modalFormData.image);
     }
-     try {
+    try {
       const response = await apiClient.post(
         `/menuitems/addRestaurantMenuItem/${restaurantId}`,
         data,
@@ -274,8 +275,8 @@ export default function AddMenuItemPage() {
 
       if (response.data.success) {
         toast({
-          title: "Item added",
-          description: "New item added to the menu.",
+          title: t("ToastItemAddSuccessTitle"),
+          description: t("ToastItemAddSuccessMessage"),
         });
 
         // Add to selecteItems
@@ -308,12 +309,11 @@ export default function AddMenuItemPage() {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to add item.",
+        title: t("ToastItemAddErrorTitle"),
+        description: t("ToastItemAddErrorMessage"),
         variant: "destructive",
       });
-    }
-    finally {
+    } finally {
       setModalLoading(false);
     }
   };
@@ -346,7 +346,7 @@ export default function AddMenuItemPage() {
     if (selectedItemId) {
       try {
         const token = localStorage.getItem("token");
-  
+
         const response = await apiClient.delete(
           `/menuitems/deleteRestaurantMenuItem/${selectedItemId}`,
           {
@@ -355,17 +355,19 @@ export default function AddMenuItemPage() {
             },
           }
         );
-  
+
         // Check if the deletion was successful
         if (response.data.success) {
           // Show success toast
           toast({
-            title: "Menu item deleted",
-            description: "The menu item has been deleted successfully",
+            title: t("ToastItemDeleteSuccessTitle"),
+            description: t("ToastItemDeleteSuccessMessage"),
           });
 
-          setNewItems((prevItems) => prevItems.filter(item => item.id !== selectedItemId));
-  
+          setNewItems((prevItems) =>
+            prevItems.filter((item) => item.id !== selectedItemId)
+          );
+
           // Optionally, refresh the item list or update the local state
           // Example: fetchItemList(); // This could refetch the list of items or update the local state
         } else {
@@ -373,45 +375,43 @@ export default function AddMenuItemPage() {
         }
       } catch (error) {
         toast({
-          title: "Error",
-          description: "There was an error deleting the menu item.",
+          title: t("ToastItemDeleteErrorTitle"),
+          description: t("ToastItemDeleteErrorMessage"),
           variant: "destructive",
         });
         console.error("Delete error:", error);
       }
-  
+
       setIsDialogOpen(false); // Close the dialog after confirming
     }
   };
-  
+
   return (
     <div className="full-width-container space-y-6 responsive-container">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/admin/restaurants/${restaurantId}`}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurant
+            <ArrowLeft className="h-4 w-4 mr-1" /> {t("BackToRestaurant")}
           </Link>
         </Button>
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add Menu</h1>
-        <p className="text-muted-foreground">
-          Add a new menu to this restaurant
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("AddMenu")}</h1>
+        <p className="text-muted-foreground">{t("AddMenuDescription")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Menu Item Details</CardTitle>
-            <CardDescription>Enter the details of the new menu</CardDescription>
+            <CardTitle>{t("MenuItemDetails")}</CardTitle>
+            <CardDescription>{t("MenuItemDetailsDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Menu Image */}
             <div className="space-y-2">
               <Label>
-                Menu Image <span className="text-danger">*</span>
+                {t("MenuImage")} <span className="text-danger">*</span>
               </Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
@@ -425,14 +425,16 @@ export default function AddMenuItemPage() {
                       className="mx-auto max-h-[200px] rounded-md object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                      <p className="text-white font-medium">Change Image</p>
+                      <p className="text-white font-medium">
+                        {t("ChangeImage")}
+                      </p>
                     </div>
                   </div>
                 ) : (
                   <div className="py-4 flex flex-col items-center">
                     <Upload className="h-10 w-10 text-muted-foreground mb-2" />
                     <p className="text-sm font-medium">
-                      Click to upload item image
+                      {t("UploadItemImage")}
                     </p>
                   </div>
                 )}
@@ -451,12 +453,12 @@ export default function AddMenuItemPage() {
             {/* Menu Name */}
             <div className="space-y-2">
               <Label htmlFor="item_name">
-                Menu Name <span className="text-danger">*</span>
+                {t("MenuName")} <span className="text-danger">*</span>
               </Label>
               <Input
                 id="item_name"
                 name="item_name"
-                placeholder="Enter item name"
+                placeholder={t("EnterMenuName")}
                 value={formData.item_name}
                 onChange={handleChange}
                 maxLength={60}
@@ -473,12 +475,12 @@ export default function AddMenuItemPage() {
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">
-                Description <span className="text-danger">*</span>
+                {t("Description")} <span className="text-danger">*</span>
               </Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Enter item description"
+                placeholder={t("EnterItemDescription")}
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
@@ -497,14 +499,14 @@ export default function AddMenuItemPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price">
-                  Price € <span className="text-danger">*</span>
+                  {t("Price")} € <span className="text-danger">*</span>
                 </Label>
                 <Input
                   id="price"
                   name="price"
                   type="text"
                   inputMode="decimal"
-                  placeholder="e.g. 12.99"
+                  placeholder={t("PricePlaceholder")}
                   value={formData.price}
                   onChange={handleChange}
                   required
@@ -555,7 +557,7 @@ export default function AddMenuItemPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="item_list">
-                  Category List <span className="text-danger">*</span>
+                  {t("CategoryList")} <span className="text-danger">*</span>
                 </Label>
 
                 <Select
@@ -566,26 +568,46 @@ export default function AddMenuItemPage() {
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Category from List" />
+                    <SelectValue placeholder={t("SelectCategoryFromList")} />
                     {/* <ChevronDownIcon className="w-5 h-5 ml-2" /> */}
                   </SelectTrigger>
                   <SelectContent>
-                  <SelectItem value="Starter"    onClick={() => {
-                    setSelectedItem("Starter");
-                    setIsModalOpen(true);
-                  }}>{t('Starter')}</SelectItem>
-                  <SelectItem value="MainDish"    onClick={() => {
-                    setSelectedItem("MainDish");
-                    setIsModalOpen(true);
-                  }}>{t('MainDish')}</SelectItem>
-                  <SelectItem value="Dessert"    onClick={() => {
-                    setSelectedItem("Dessert");
-                    setIsModalOpen(true);
-                  }}>{t('Dessert')}</SelectItem>
-                  <SelectItem value="Drinks"    onClick={() => {
-                    setSelectedItem("Drinks");
-                    setIsModalOpen(true);
-                  }}>{t('Drinks')}</SelectItem>
+                    <SelectItem
+                      value="Starter"
+                      onClick={() => {
+                        setSelectedItem("Starter");
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      {t("Starter")}
+                    </SelectItem>
+                    <SelectItem
+                      value="MainDish"
+                      onClick={() => {
+                        setSelectedItem("MainDish");
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      {t("MainDish")}
+                    </SelectItem>
+                    <SelectItem
+                      value="Dessert"
+                      onClick={() => {
+                        setSelectedItem("Dessert");
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      {t("Dessert")}
+                    </SelectItem>
+                    <SelectItem
+                      value="Drinks"
+                      onClick={() => {
+                        setSelectedItem("Drinks");
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      {t("Drinks")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -598,7 +620,7 @@ export default function AddMenuItemPage() {
             </div>
 
             {/* Custom Menu Type */}
-            {formData.menu_type === "Other" && (
+            {/* {formData.menu_type === "Other" && (
               <div className="space-y-2">
                 <Label htmlFor="custom_menu_type">Custom Menu Type</Label>
                 <Input
@@ -609,7 +631,7 @@ export default function AddMenuItemPage() {
                   required
                 />
               </div>
-            )}
+            )} */}
 
             {/* Menu Items Preview */}
 
@@ -654,94 +676,113 @@ export default function AddMenuItemPage() {
                 </div>
               </div>
             )} */}
-          {currentItems.length > 0 && (
-        <div className="mt-6 space-y-4">
-          <Label className="text-sm font-semibold text-gray-800">Existing Menu Items</Label>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {currentItems.map((item) => (
-              <div key={item.id} className="border rounded-lg p-4 shadow-sm bg-white flex flex-col">
-                <div className="flex items-center gap-3 mb-2">
-                  <img
-                    src={`https://foodeus.truet.net/${item.image_url}`}
-                    alt={item.item_name}
-                    onError={(e) => {
-                      e.currentTarget.src = "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-                    }}
-                    className="w-12 h-12 object-cover rounded-md border"
-                  />
-                  <div className="flex flex-col">
-                    {/* Item Name */}
-                    <h4 className="font-semibold text-sm text-gray-900 resName"     style={{
-                                wordBreak: "break-all", // Breaks long words that have no spaces
-                                whiteSpace: "normal", // Allows text to wrap normally
-                              }}>
-                      {item.item_name}
-                    </h4>
-                    <p className="text-xs text-gray-500">{item.item_type}</p>
-                  </div>
-                </div>
+            {currentItems.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <Label className="text-sm font-semibold text-gray-800">
+                  {t("ExistingMenuItems")}
+                </Label>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {currentItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border rounded-lg p-4 shadow-sm bg-white flex flex-col"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src={`https://foodeus.truet.net/${item.image_url}`}
+                          alt={item.item_name}
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                          }}
+                          className="w-12 h-12 object-cover rounded-md border"
+                        />
+                        <div className="flex flex-col">
+                          {/* Item Name */}
+                          <h4
+                            className="font-semibold text-sm text-gray-900 resName"
+                            style={{
+                              wordBreak: "break-all", // Breaks long words that have no spaces
+                              whiteSpace: "normal", // Allows text to wrap normally
+                            }}
+                          >
+                            {item.item_name}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {t(item.item_type)}
+                          </p>
+                        </div>
+                      </div>
 
-                {/* Item Description */}
-                <CardDescription className="text-sm text-gray-700 mb-1 "     style={{
-                                wordBreak: "break-all", // Breaks long words that have no spaces
-                                whiteSpace: "normal", // Allows text to wrap normally
-                              }}>
-                  {item.description || <em className="text-gray-400">No description</em>}
-                </CardDescription>
+                      {/* Item Description */}
+                      <CardDescription
+                        className="text-sm text-gray-700 mb-1 "
+                        style={{
+                          wordBreak: "break-all", // Breaks long words that have no spaces
+                          whiteSpace: "normal", // Allows text to wrap normally
+                        }}
+                      >
+                        {item.description || (
+                          <em className="text-gray-400">
+                            {t("NoDescription")}
+                          </em>
+                        )}
+                      </CardDescription>
 
-                {/* Button to remove item */}
-                <div className="flex justify-end mt-2">
-                  <button
-                    className="text-xs text-danger"
-                    onClick={() => handleOpenDialog(item.id)}
-                  >
-                    Remove
-                  </button>
+                      {/* Button to remove item */}
+                      <div className="flex justify-end mt-2">
+                        <button
+                          className="text-xs text-danger"
+                          onClick={() => handleOpenDialog(item.id)}
+                        >
+                          {t("Remove")}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            )}
 
-      {/* Dialog for confirming item deletion */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-              Confirm Deletion
-            </DialogTitle>
-            <DialogDescription className="text-gray-600 text-center mt-1">
-              Are you sure you want to delete this menu item?
-            </DialogDescription>
-          </DialogHeader>
+            {/* Dialog for confirming item deletion */}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+                <DialogHeader>
+                  <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
+                  {t("ConfirmDeletion")}
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-600 text-center mt-1">
+                    {t("DeleteMenuItemPrompt")}
+                  </DialogDescription>
+                </DialogHeader>
 
-          <DialogFooter className="mt-5 flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handleCloseDialog}
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              className="w-full sm:w-auto"
-            >
-              Confirm Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+                <DialogFooter className="mt-5 flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={handleCloseDialog}
+                    className="w-full sm:w-auto"
+                  >
+                    {t("Cancel")}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleConfirmDelete}
+                    className="w-full sm:w-auto"
+                  >
+                    {t("ConfirmDeletion")}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" asChild >
-              <Link href={`/admin/restaurants/${restaurantId}`}>Cancel</Link>
+            <Button variant="outline" asChild>
+              <Link href={`/admin/restaurants/${restaurantId}`}>
+                {t("Cancel")}
+              </Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Menu"}
+              {isLoading ? t("Adding") : t("AddMenu")}
             </Button>
           </CardFooter>
         </Card>
@@ -749,31 +790,37 @@ export default function AddMenuItemPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <Dialog open={isModalOpen}   onOpenChange={(open) => {
-          setIsModalOpen(open);
-          if (!open) {
-            setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
-          }
-        }} 
-        className="transition-opacity duration-500 ease-in-out opacity-0">
+        <Dialog
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            if (!open) {
+              setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
+            }
+          }}
+          className="transition-opacity duration-500 ease-in-out opacity-0"
+        >
           <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-                Add Menu Item
+                {t('AddMenuItem')}
               </DialogTitle>
               <DialogDescription className="text-gray-600 text-center mt-1">
-               {`Add ${selectedItem=="MainDish"?" Main Dish" : selectedItem} Item Details`}  
+                {/* {`Add ${
+                  selectedItem == "MainDish" ? " Main Dish" : selectedItem
+                } Item Details`} */}
+                {t('AddItemDetails').replace("{item}", selectedItem)}
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4 mt-4">
-              Image Upload
+              {t("ImageUpload")}
               <div>
                 <Label
                   htmlFor="item-image"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Upload Image
+                  {t("UploadImage")}
                 </Label>
                 <input
                   type="file"
@@ -790,14 +837,14 @@ export default function AddMenuItemPage() {
                   htmlFor="item-name"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Item Name
+                  {t("ItemName")}
                 </Label>
                 <input
                   type="text"
                   id="item-name"
                   name="item_name"
                   maxLength={60}
-                  placeholder="Enter item name"
+                  placeholder={t("EnterItemName")}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.item_name}
                   onChange={handleModalChange}
@@ -816,15 +863,17 @@ export default function AddMenuItemPage() {
                   htmlFor="item-description"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Description{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
+                  {t("Description")}{" "}
+                  <span className="text-gray-400 font-normal">
+                    ({t("Optional")})
+                  </span>
                 </Label>
                 <textarea
                   id="item-description"
                   name="description"
                   rows={3}
                   maxLength={150}
-                  placeholder="Enter item description"
+                  placeholder={t("EnterItemDescription")}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   value={modalFormData.description}
                   onChange={handleModalChange}
@@ -846,14 +895,12 @@ export default function AddMenuItemPage() {
                 onClick={handleModalSubmit}
                 disabled={isModalLoading}
               >
-                {isModalLoading ? "Adding..." : "Add Item"}
+                {isModalLoading ? t("Adding") : t("AddItem")}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
-
-
 
       {/* Empty Item Prompt Modal */}
       {/* {isEmptyItemPromptOpen && (

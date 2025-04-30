@@ -5,10 +5,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/auth-context";
 import { useState } from "react";
+import { useLanguage } from "@/context/language-context"
 
 export default function AdminHeader() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(true);
+  const { t } = useLanguage();
 
   const toggleSidebar = () => setIsOpen((prev) => !prev);
 
@@ -19,7 +21,7 @@ export default function AdminHeader() {
           <SidebarTrigger onClick={toggleSidebar} />
         </TooltipTrigger>
         <TooltipContent side="right">
-          {isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+          {isOpen ? t("CollapseSidebar") : t("ExpandSidebar")}
         </TooltipContent>
       </Tooltip>
       <div className="flex-1" />

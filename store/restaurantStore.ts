@@ -43,9 +43,8 @@
 //   )
 // );
 
-
+// store/restaurantStore.ts
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface Menu {
   title: { en: string; es: string };
@@ -74,22 +73,9 @@ interface RestaurantState {
   setHasFetched: (fetched: boolean) => void;
 }
 
-export const useRestaurantStore = create(
-  persist<RestaurantState>(
-    (set) => ({
-      restaurants: [],
-      hasFetched: false,
-      setRestaurants: (data) => set({ restaurants: data }),
-      setHasFetched: (fetched) => set({ hasFetched: fetched }),
-    }),
-    {
-      name: "restaurant-store",
-      storage: typeof window !== "undefined" ? sessionStorage : undefined,
-      partialize: (state) => ({
-        restaurants: state.restaurants,
-        hasFetched: state.hasFetched,
-      }),
-      skipHydration: true, // ✅ avoid SSR hydration mismatch (new)
-    }
-  )
-);
+export const useRestaurantStore = create<RestaurantState>((set) => ({
+  restaurants: [],
+  hasFetched: false,
+  setRestaurants: (data) => set({ restaurants: data }),
+  setHasFetched: (fetched) => set({ hasFetched: fetched }),
+}));

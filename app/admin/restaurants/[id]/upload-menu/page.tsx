@@ -29,6 +29,7 @@ import { FileText, Info, Upload, Download, ArrowLeft } from "lucide-react";
 import { apiClient } from "@/services/apiService";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/context/language-context";
 
 interface XLSXRow {
   Sr_No: number;
@@ -43,6 +44,7 @@ interface XLSXRow {
 const VALID_CATEGORIES = ["Starter", "Main Dish", "Dessert", "Drinks"];
 
 export default function ImportMenuXLSX() {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [xlsxData, setXlsxData] = useState<XLSXRow[]>([]);
@@ -72,7 +74,31 @@ export default function ImportMenuXLSX() {
         defval: "",
       });
 
+    
+      const expectedHeaders = [
+        "Sr_No",
+        "Menu_Name",
+        "Price",
+        "Menu_Description",
+        "Category",
+        "Item_Name",
+        "Item_Description",
+      ];
       const headers = data[0] as string[];
+      // const isHeaderValid =
+      //   headers?.length === expectedHeaders.length &&
+      //   expectedHeaders.every((header, index) => headers[index] === header);
+      
+      // if (!isHeaderValid) {
+      //   toast({
+      //     title: "Invalid Columns",
+      //     description: `Uploaded file has incorrect columns. Expected columns: ${expectedHeaders.join(", ")}`,
+      //     variant: "destructive",
+      //   });
+      //   return;
+      // }
+
+      
       if (
         headers &&
         headers.includes("Menu_Name") &&
@@ -103,17 +129,22 @@ export default function ImportMenuXLSX() {
         setXlsxData(formattedData);
         setActiveTab("preview");
         setSelectedFile(file);
+        // toast({
+        //   title: "Menu Uploaded",
+        //   description: `Successfully loaded ${formattedData.length} rows.${
+        //     isValid ? "" : " Some rows have invalid data."
+        //   }`,
+        // });
         toast({
-          title: "Menu Uploaded",
-          description: `Successfully loaded ${formattedData.length} rows.${
-            isValid ? "" : " Some rows have invalid data."
-          }`,
+          title: t("MenuUploadedTitle"),
+          description: isValid
+            ? t("MenuUploadedDescValid").replace("{count}", formattedData?.length)
+            : t("MenuUploadedDescInvalid").replace("{count}", formattedData?.length),
         });
       } else {
         toast({
-          title: "Invalid File",
-          description:
-            "The uploaded file must have headers: Menu_Name, Price, Category.",
+          title: t("InvalidFileTitle"),
+          description: t("InvalidFileDesc"),
           variant: "destructive",
         });
       }
@@ -278,8 +309,8 @@ export default function ImportMenuXLSX() {
   const handleUpload = async () => {
     if (xlsxData.length === 0) {
       toast({
-        title: "No Data",
-        description: "Please upload an XLSX file first.",
+        title: t("NoDataTitle"),
+        description: t("NoDataDesc"),
         variant: "destructive",
       });
       return;
@@ -345,9 +376,13 @@ export default function ImportMenuXLSX() {
         throw new Error("Server responded with an error.");
       }
 
+      // toast({
+      //   title: "Success",
+      //   description: `Successfully imported ${xlsxData.length} menu items.`,
+      // });
       toast({
-        title: "Success",
-        description: `Successfully imported ${xlsxData.length} menu items.`,
+        title: t("UploadSuccessTitle"),
+        description: t("UploadSuccessDesc").replace("{count}", xlsxData.length),
       });
 
       setXlsxData([]);
@@ -357,8 +392,8 @@ export default function ImportMenuXLSX() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to upload XLSX file. Please try again.",
+        title: t("UploadErrorTitle"),
+        description: t("UploadErrorDesc"),
         variant: "destructive",
       });
       console.error(error);

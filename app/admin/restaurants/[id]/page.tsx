@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL, getRestaurantByIdforAdmin } from "@/services/apiService";
+import { useLanguage } from "@/context/language-context";
 
 // types/item.ts
 export interface RestaurantItem {
@@ -100,9 +101,10 @@ export default function RestaurantDetailPage() {
   const [searchQueryMenuItem, setsearchQueryMenuItem] = useState("");
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [activeTab, setActiveTab] = useState("menu");
+  const { t } = useLanguage();
   // const [items, setItems] = useState<RestaurantItem[]>([]);
   const [items, setItems] = useState<RestaurantItem[]>([]);
-console.log(items," aarti dffmsk items")
+
   const fetchItemList = async () => {
     setLoading(true);
     try {
@@ -128,7 +130,7 @@ console.log(items," aarti dffmsk items")
         setItems(sotedItems);
       }
     } catch (error) {
-      // console.error("Error fetching restaurant:", error);
+      console.error("Error fetching restaurant:", error);
       setItems([]);
     } finally {
       setLoading(false);
@@ -175,12 +177,12 @@ console.log(items," aarti dffmsk items")
   if (!restaurant && !loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
-        <h2 className="text-2xl font-bold">Restaurant not found</h2>
+        <h2 className="text-2xl font-bold">{t('RestaurantNotFound')}</h2>
         <p className="text-muted-foreground mb-4">
-          The restaurant you're looking for doesn't exist
+          {t('RestaurantNotExist')}
         </p>
         <Button asChild>
-          <Link href="/admin/restaurants">Back to Restaurants</Link>
+          <Link href="/admin/restaurants">{t('BackToRestaurants')}</Link>
         </Button>
       </div>
     );
@@ -189,7 +191,7 @@ console.log(items," aarti dffmsk items")
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
-        <h2 className="text-2xl font-bold">Loading restaurant...</h2>
+        <h2 className="text-2xl font-bold">{t('LoadingRestaurant')}</h2>
       </div>
     );
   }
@@ -324,12 +326,18 @@ console.log(items," aarti dffmsk items")
     : "/Images/restaurent-fall.jpg";
 
   // console.log('filteredMenus', filteredMenus)
+
+  const toISOStringFromSQL = (timestamp: string) => {
+    
+    return timestamp.replace(" ", "T") + "Z";
+  };
+  
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/admin/restaurants">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> {t('Back')}
           </Link>
         </Button>
       </div>
@@ -370,7 +378,7 @@ console.log(items," aarti dffmsk items")
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium">Description</h4>
+                  <h4 className="text-sm font-medium">{t('Description')}</h4>
                   <p
                     className="text-sm text-muted-foreground "
                     style={{ overflowWrap: "break-word" }}
@@ -379,19 +387,19 @@ console.log(items," aarti dffmsk items")
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium">Cuisine</h4>
+                  <h4 className="text-sm font-medium">{t('Cuisine')}</h4>
                   <p className="text-sm text-muted-foreground">
                     {restaurant?.category ? restaurant?.category : "NA"}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium">Phone</h4>
+                  <h4 className="text-sm font-medium">{t('Phone')}</h4>
                   <p className="text-sm text-muted-foreground">
                     {restaurant?.phone ? restaurant?.phone : "NA"}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium" >Website</h4>
+                  <h4 className="text-sm font-medium" >{t('Website')}</h4>
                   <p
                     className="text-sm text-muted-foreground resName"
                     style={{
@@ -419,7 +427,7 @@ console.log(items," aarti dffmsk items")
                     className="text-sm font-medium"
                     style={{ overflowWrap: "break-word" }}
                   >
-                    Hours
+                    {t('OpenHours')}
                   </h4>
                   <p
                     className="text-sm text-muted-foreground"
@@ -449,7 +457,7 @@ console.log(items," aarti dffmsk items")
                   }
                 }}
               >
-                <Edit className="h-4 w-4 mr-2" /> Edit
+                <Edit className="h-4 w-4 mr-2" /> {t('Edit')}
               </Button>
 
               <Dialog
@@ -458,15 +466,16 @@ console.log(items," aarti dffmsk items")
               >
                 <DialogTrigger asChild>
                   <Button variant="destructive" className="w-full sm:w-[48%]">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                    <Trash2 className="h-4 w-4 mr-2" /> {t('Delete')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Delete Restaurant</DialogTitle>
+                    <DialogTitle>{t('DeleteRestaurant')}</DialogTitle>
                     <DialogDescription>
-                      Are you sure you want to delete {restaurant?.name}? This
-                      action cannot be undone.
+                    {t('ConfirmDeleteRestaurant')?.replace("{name}", restaurant?.name || "")}
+                      {/* Are you sure you want to delete {restaurant?.name}? This
+                      action cannot be undone. */}
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -474,13 +483,13 @@ console.log(items," aarti dffmsk items")
                       variant="outline"
                       onClick={() => setDeleteDialogOpen(false)}
                     >
-                      Cancel
+                      {t('Cancel')}
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={() => handleDeleteRestaurant(restaurant!.id)}
                     >
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -524,7 +533,7 @@ console.log(items," aarti dffmsk items")
                   }}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {activeTab === "menu" ? "Add Menu" : "Add Item"}
+                  {activeTab === "menu" ? t('AddMenu') : "Add Item"}
                 </Link>
               </Button>
 
@@ -536,7 +545,7 @@ console.log(items," aarti dffmsk items")
                   }}
                 >
                   <Clipboard className="h-4 w-4 mr-2" />
-                  Upload Menu
+                  {t('UploadMenu')}
                 </Link>
                   
               </Button>
@@ -547,7 +556,7 @@ console.log(items," aarti dffmsk items")
                 <div className="relative flex-1">
                   <Input
                     type="search"
-                    placeholder="Search Menu or category"
+                    placeholder={t('SearchMenuPlaceholder')}
                     className="pl-8 w-full"
                     value={searchQuery}
                     onChange={(e) => {
@@ -591,9 +600,9 @@ console.log(items," aarti dffmsk items")
                           </div>
                           <div className="text-right">
                             {item.updated_at && (
-                              <span className="text-sm text-muted-foreground">
-                                Updated{" "}
-                                {formatDistanceToNow(new Date(item?.updated_at), {
+                              <span className="text-sm text-muted-foreground">                               
+                                {t('Updated')}{" "}
+                                {formatDistanceToNow(new Date(toISOStringFromSQL(item?.updated_at)).toLocaleString(), {
                                   addSuffix: true,
                                 })}
                               </span>
@@ -607,7 +616,7 @@ console.log(items," aarti dffmsk items")
                         {/* Item List */}
                         {item.item_list && item.item_list.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-lg">Item List</h4>
+                            <h4 className="font-semibold text-lg">{t('ItemList')}</h4>
                             <ul className="space-y-2 mt-2">
                               {item.item_list.map((menuItem, index) => (
                                 <li key={index} className="flex justify-between items-center">
@@ -635,7 +644,7 @@ console.log(items," aarti dffmsk items")
                         )}
 
                         {/* Action buttons (Edit, Delete) */}
-                        <div className="mt-4 flex justify-end gap-4">
+                        <div className="mt-4 flex justify-end gap-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -647,31 +656,33 @@ console.log(items," aarti dffmsk items")
                               sessionStorage.setItem("activeTab", activeTab);
                             }}
                           >
-                            <Edit className="h-4 w-4 mr-1" /> Edit
+                            <Edit className="h-4 w-4 mr-1" /> {t('Edit')}
                           </Button>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="h-4 w-4 mr-1" /> Delete
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4 mr-1" /> {t('Delete')}
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Delete Menu Item</DialogTitle>
+                                <DialogTitle>{t('DeleteMenuItem')}</DialogTitle>
                                 <DialogDescription>
-                                  Are you sure you want to delete {item.name}? This action cannot
-                                  be undone.
+                                  {/* Are you sure you want to delete {item.name}? This action cannot
+                                  be undone. */}
+                                  {t('ConfirmDeleteMenuItem')?.replace("{name}", item?.name || "")}
+                               
                                 </DialogDescription>
                               </DialogHeader>
                               <DialogFooter>
                                 <DialogClose asChild>
-                                  <Button variant="outline">Cancel</Button>
+                                  <Button variant="outline">{t('Cancel')}</Button>
                                 </DialogClose>
                                 <Button
                                   variant="destructive"
                                   onClick={() => handleDeleteMenu(item.id)}
                                 >
-                                  Delete
+                                  {t('Delete')}
                                 </Button>
                               </DialogFooter>
                             </DialogContent>
@@ -688,12 +699,12 @@ console.log(items," aarti dffmsk items")
               {filteredMenus?.length <= 0 && (
                 <>
                   <div className="text-center text-muted-foreground py-8">
-                    <p>No menu found.</p>
+                    <p>{t('NoMenuFound')}</p>
                   </div>
                 </>
               )}
-            </TabsContent>
-            <TabsContent value="itemsList" className="space-y-4">
+             </TabsContent>
+            {/*<TabsContent value="itemsList" className="space-y-4">
               <div className="flex items-center gap-2 w-full">
                 <div className="relative flex-1">
                   <Input
@@ -826,7 +837,7 @@ console.log(items," aarti dffmsk items")
                   </p>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>

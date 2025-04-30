@@ -271,55 +271,6 @@ export function ListView() {
     }
   }, [restaurants, userLocation]);
 
-  //fake code
-  // useEffect(() => {
-  //   if (!restaurants.length) return;
-
-  //   if (userLocationFromStorage) {
-  //     const today = new Date().toISOString().split("T")[0];
-
-  //     const withDistance = restaurants.map((restaurant) => {
-  //       const latestUpdate = restaurant.menu?.updated_at || "";
-  //       const updatedDate = latestUpdate.split("T")[0]; // ISO format
-
-  //       const updatedToday =
-  //         updatedDate === today &&
-  //         restaurant?.menu?.menu_type === "Today's Special";
-
-  //       return {
-  //         ...restaurant,
-  //         distance: calculateDistance(
-  //           userLocationFromStorage.lat,
-  //           userLocationFromStorage.lng,
-  //           restaurant.coordinates.lat,
-  //           restaurant.coordinates.lng
-  //         ),
-  //         updatedToday,
-  //         hasMenu: !!restaurant.menu?.updated_at,
-  //         rating: restaurant.rating || 3,
-  //       };
-  //     });
-
-  //     // ✅ Sort primarily by distance, then updatedToday, then hasMenu
-  //     withDistance.sort((a, b) => {
-  //       const distanceDiff = (a.distance || 0) - (b.distance || 0);
-  //       if (distanceDiff !== 0) return distanceDiff;
-
-  //       if (a.updatedToday && !b.updatedToday) return -1;
-  //       if (!a.updatedToday && b.updatedToday) return 1;
-
-  //       if (a.hasMenu && !b.hasMenu) return -1;
-  //       if (!a.hasMenu && b.hasMenu) return 1;
-
-  //       return 0;
-  //     });
-
-  //     setRestaurantsWithDistance(withDistance);
-  //     setFilteredRestaurants(withDistance);
-  //     setLoading(false);
-  //   }
-  // }, [restaurants, userLocation]);
-
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
   };
@@ -487,6 +438,7 @@ export function ListView() {
       },{ timeout: 10000 }
     );
   };
+
 if (
   loadingLocation &&
   (
@@ -494,7 +446,7 @@ if (
     Object.keys(userLocationFromStorage).length === 0
   )
 ) { 
-  
+  console.log("Loading location............................");
     return (
       <div
         className="position-absolute top-50 start-50 translate-middle"
@@ -665,15 +617,17 @@ if (
         <div className="alert alert-warning mt-3">
           {locationError} <br />
           <small className="text-muted">
-            You can click the lock icon in your browser’s address bar to enable
-            location access manually.
+          {language === "en"
+            ? "You can click the lock icon in your browser’s address bar to enable location access manually."
+            : "Puede hacer clic en el ícono de candado en la barra de direcciones de su navegador para habilitar el acceso a la ubicación manualmente."}
+
           </small>
           <div className="mt-2">
             <button
               className="btn btn-sm btn-outline-primary"
               onClick={retryGeolocation}
             >
-              Try Again
+                {language === "en" ? "Try Again" : "Intentar de nuevo"}
             </button>
           </div>
         </div>

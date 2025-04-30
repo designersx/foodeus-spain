@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, MapPin, Upload } from "lucide-react"
 import { useFormik } from "formik"
 import * as Yup from "yup"
-
+import { useLanguage } from "@/context/language-context"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -16,17 +16,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/services/apiService"
 
-const validationSchema = Yup.object().shape({
-  name: Yup.string().trim().required("Restaurant name is required"),
-  category: Yup.string().trim().required("Cuisine is required"),
-  address: Yup.string().trim().required("Address is required"),
-  phone: Yup.string().required("Phone is required").matches(/^\d+$/, "Phone must be digits only").min(9).max(15),
+// const validationSchema = Yup.object().shape({
+//   name: Yup.string().trim().required("Restaurant name is required"),
+//   category: Yup.string().trim().required("Cuisine is required"),
+//   address: Yup.string().trim().required("Address is required"),
+//   phone: Yup.string().required("Phone is required").matches(/^\d+$/, "Phone must be digits only").min(9).max(15),
  
-  description: Yup.string().trim().max(200).required("Description is required"),
-  open_hours: Yup.string().trim().max(100).required("Business hours are required"),
-})
+//   description: Yup.string().trim().max(200).required("Description is required"),
+//   open_hours: Yup.string().trim().max(100).required("Business hours are required"),
+// })
 
 export default function AddRestaurantPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -35,6 +36,33 @@ export default function AddRestaurantPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedplace, setSelectedPlace] = useState<boolean>(false)
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const validationSchema = 
+    Yup.object().shape({
+      name: Yup.string()
+        .trim()
+        .required(t("ValidationRestaurantNameRequired")),
+      category: Yup.string()
+        .trim()
+        .required(t("ValidationCuisineRequired")),
+      address: Yup.string()
+        .trim()
+        .required(t("ValidationAddressRequired")),
+      phone: Yup.string()
+        .required(t("ValidationPhoneRequired"))
+        .matches(/^\d+$/, t("ValidationPhoneDigitsOnly"))
+        .min(9, t("ValidationPhoneMin"))
+        .max(15, t("ValidationPhoneMax")),
+      description: Yup.string()
+        .trim()
+        .max(200, t("ValidationDescriptionMax"))
+        .required(t("ValidationDescriptionRequired")),
+      open_hours: Yup.string()
+        .trim()
+        .max(100, t("ValidationOpenHoursMax"))
+        .required(t("ValidationOpenHoursRequired")),
+    });
+
 
   const formik = useFormik({
     initialValues: {
@@ -57,10 +85,10 @@ export default function AddRestaurantPage() {
       let hasCoordinates = coordinates.every(coord => values[coord] && values[coord] !== "");
       if (!hasCoordinates) {
         toast({
-          title: "Warning !",
-          description: "Latitude or Longitude is missing.",
+          title: t("ToastWarningTitle"),
+          description: t("ToastMissingCoordinates"),
           variant: "destructive",
-        })
+        });
         return
       }
       const formData = new FormData()
@@ -90,46 +118,20 @@ export default function AddRestaurantPage() {
         }
       } catch (error) {
         toast({
-          title: "Error",
-          description: "There was an error adding the restaurant",
+          title: t("ToastErrorTitle"),
+          description: t("ToastAddRestaurantError"),
           variant: "destructive",
-        })
+        });
+        
         console.error("Error adding restaurant:", error)
       } finally {
         setIsLoading(false)
       }
     },
   })
-  // console.log(formik.values)
-  // useEffect(() => {
-  //   if (!formik.values.address || typeof window === 'undefined' || !window.google) return
-  //   if (formik.values.address.length < 5 || !/[a-zA-Z0-9]/.test(formik.values.address)) return
+  
+ 
 
-  //   const service = new window.google.maps.places.AutocompleteService()
-  //   service.getPlacePredictions({ input: formik.values.address, types: ["geocode"] }, (predictions) => {
-  //     setSuggestions(predictions || [])
-  //   })
-  // }, [formik.values.address])
-
-  // const handleSelectPlace = (placeId: string) => {
-  //   const service = new window.google.maps.places.PlacesService(document.createElement("div"))
-  //   service.getDetails({ placeId, fields: ["formatted_address", "geometry"] }, (place, status) => {
-  //     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-  //       const lat = place?.geometry?.location?.lat()?.toString() || ""
-  //       const lng = place?.geometry?.location?.lng()?.toString() || ""
-  //       const formatted = place?.formatted_address || ""
-
-  //       formik.setValues((prev) => ({
-  //         ...prev,
-  //         address: formatted,
-  //         latitude: lat,
-  //         longitude: lng,
-  //         placeId,
-  //       }))
-  //       setSuggestions([])
-  //     }
-  //   })
-  // }
   if(formik.values.address.length === 0  && selectedplace)
   {
     setSelectedPlace(false)
@@ -198,10 +200,10 @@ export default function AddRestaurantPage() {
     if (file) {
       if (!file.type.startsWith("image/")) {
         toast({
-          title: "Invalid file type",
-          description: "Please upload an image file.",
-          variant: "destructive",
-        })
+      title: t("ToastInvalidFileTypeTitle"),
+      description: t("ToastInvalidFileTypeMessage"),
+      variant: "destructive",
+    });
           return; 
         }
       formik.setFieldValue("cover_image", file)
@@ -218,22 +220,22 @@ export default function AddRestaurantPage() {
     <div className="full-width-container space-y-6 responsive-container">
       <Button variant="ghost" size="sm" asChild>
         <Link href="/admin/restaurants">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurants
+          <ArrowLeft className="h-4 w-4 mr-1" /> {t('BackToRestaurants')}
         </Link>
       </Button>
 
-      <h1 className="text-3xl font-bold tracking-tight">Add Restaurant</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t('AddRestaurant')}</h1>
 
       <form onSubmit={formik.handleSubmit}>
         <Card>
           <CardHeader>
-            <CardTitle>Restaurant Info</CardTitle>
-            <CardDescription>Provide restaurant details</CardDescription>
+            <CardTitle>{t('RestaurantInfo')}</CardTitle>
+            <CardDescription>{t('ProvideRestaurantDetails')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Cover Image */}
             <div>
-              <Label>Cover Image</Label>
+              <Label>{t('CoverImage')}</Label>
               <div
                 className="border-dashed border-2 rounded-lg p-4 cursor-pointer hover:bg-muted/50"
                 onClick={() => fileInputRef.current?.click()}
@@ -243,7 +245,7 @@ export default function AddRestaurantPage() {
                 ) : (
                   <div className="text-center">
                     <Upload className="h-8 w-8 text-muted-foreground mb-2 mx-auto" />
-                    <p className="text-sm">Click to upload cover image</p>
+                  <p className="text-sm">{t('ClickToUploadCoverImage')}</p>
                   </div>
                 )}
                 <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
@@ -253,9 +255,9 @@ export default function AddRestaurantPage() {
             {/* Name & Cuisine */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Restaurant Name<span className="text-danger"> *</span></Label>
+                <Label>{t('RestaurantName')}<span className="text-danger"> *</span></Label>
                 <Input {...formik.getFieldProps("name")}   
-                placeholder="Enter Restaurant Name"
+                placeholder={t('EnterRestaurantName')}
                   maxLength={50}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -267,18 +269,18 @@ export default function AddRestaurantPage() {
                 {formik.touched.name && formik.errors.name && <span className="text-sm text-danger">{formik.errors.name}</span>}
               </div>
               <div>
-                <Label>Cuisine <span className="text-danger"> *</span></Label>
+                <Label>{t('Cuisine')} <span className="text-danger"> *</span></Label>
                 <Select value={formik.values.category} onValueChange={(val) => formik.setFieldValue("category", val)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select cuisine" />
+                    <SelectValue placeholder={t('SelectCuisine')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Italian">Italian</SelectItem>
-                    <SelectItem value="Mexican">Mexican</SelectItem>
-                    <SelectItem value="Indian">Indian</SelectItem>
-                    <SelectItem value="Asian">Asian</SelectItem>
-                    <SelectItem value="Spanish">Spanish</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
+                  <SelectItem value="Italian">{t('Italian')}</SelectItem>
+                  <SelectItem value="Mexican">{t('Mexican')}</SelectItem>
+                  <SelectItem value="Indian">{t('Indian')}</SelectItem>
+                  <SelectItem value="Asian">{t('Asian')}</SelectItem>
+                  <SelectItem value="Spanish">{t('Spanish')}</SelectItem>
+                    <SelectItem value="Others">{t('Others')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {formik.touched.category && formik.errors.category && <span className="text-sm text-danger">{formik.errors.category}</span>}
@@ -287,13 +289,13 @@ export default function AddRestaurantPage() {
 
             {/* Address w/ autocomplete */}
             <div className="relative space-y-2">
-              <Label>Address<span className="text-danger"> *</span></Label>
+              <Label>{t('Address')}<span className="text-danger"> *</span></Label>
               <Input
                 name="address"
                 value={formik.values.address}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder="Enter address"
+                placeholder={t('EnterAddress')}
               maxLength={100}
               onInput={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -322,11 +324,11 @@ export default function AddRestaurantPage() {
             {/* Lat/Lng Display */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Latitude</Label>
+                <Label>{t('Latitude')}</Label>
                 <Input value={formik.values.latitude} readOnly />
               </div>
               <div>
-                <Label>Longitude</Label>
+                <Label>{t('Longitude')}</Label>
                 <Input value={formik.values.longitude} readOnly />
               </div>
             </div>
@@ -334,10 +336,10 @@ export default function AddRestaurantPage() {
             {/* Contact & Details */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Phone<span className="text-danger"> *</span></Label>
+                <Label>{t('Phone')}<span className="text-danger"> *</span></Label>
                 <Input
                   name="phone"
-                  placeholder="Enter Phone Number"
+                  placeholder={t('EnterPhoneNumber')}
                   value={formik.values.phone}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -348,9 +350,9 @@ export default function AddRestaurantPage() {
                 {formik.touched.phone && formik.errors.phone && <span className="text-sm text-danger">{formik.errors.phone}</span>}
               </div>
               <div>
-                <Label>Website</Label>
+                <Label>{t('Website')}</Label>
                 <Input {...formik.getFieldProps("website")} 
-                placeholder="Enter Website URL"
+                placeholder={t('EnterWebsiteURL')}
 
                 maxLength={70} 
                 onInput={(e) => {
@@ -365,9 +367,9 @@ export default function AddRestaurantPage() {
             </div>
 
             <div>
-              <Label>Business Hours<span className="text-danger"> *</span></Label>
+              <Label>{t('OpenHours')}<span className="text-danger"> *</span></Label>
               <Input {...formik.getFieldProps("open_hours")}   
-             placeholder="Mon-Sat: 11am-10pm, Sun: 12pm-9pm"
+             placeholder={t('BusinessHoursExample')}
               maxLength={200}
               onInput={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -380,9 +382,9 @@ export default function AddRestaurantPage() {
             </div>
 
             <div>
-              <Label>Description<span className="text-danger"> *</span></Label>
+              <Label>{t('Description')}<span className="text-danger"> *</span></Label>
               <Textarea {...formik.getFieldProps("description")} rows={3}  
-              placeholder="Enter Description"
+              placeholder={t('EnterDescription')}
               maxLength={200}
                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
@@ -396,10 +398,10 @@ export default function AddRestaurantPage() {
           </CardContent>
           <CardFooter className="justify-between">
             <Button type="button" variant="outline" asChild>
-              <Link href="/admin/restaurants">Cancel</Link>
+              <Link href="/admin/restaurants">{t('Cancel')}</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Restaurant"}
+              {isLoading ? t('AddingRestaurant') : t('AddRestaurant')}
             </Button>
           </CardFooter>
         </Card>
