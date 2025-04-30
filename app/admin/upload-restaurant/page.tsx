@@ -227,7 +227,7 @@ const expectedHeaders = [
   const invalidRowsCount = csvData.filter((row) => !validateRow(row).isValid).length;
 
   return (
-        <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+        <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto">
       <Card className="shadow-lg border-0 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground p-6 text-black">

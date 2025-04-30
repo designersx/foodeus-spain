@@ -385,7 +385,7 @@ export default function AddMenuItemPage() {
   };
   
   return (
-    <div className="full-width-container space-y-6">
+    <div className="full-width-container space-y-6 responsive-container">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/admin/restaurants/${restaurantId}`}>
