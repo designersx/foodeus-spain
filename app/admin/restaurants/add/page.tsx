@@ -215,7 +215,7 @@ export default function AddRestaurantPage() {
   // console.log(formik.errors)
 
   return (
-    <div className="full-width-container space-y-6">
+    <div className="full-width-container space-y-6 responsive-container">
       <Button variant="ghost" size="sm" asChild>
         <Link href="/admin/restaurants">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Restaurants

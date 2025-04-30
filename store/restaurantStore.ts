@@ -1,3 +1,49 @@
+// import { create } from "zustand";
+// import { persist } from "zustand/middleware";
+
+// interface Menu {
+//   title: { en: string; es: string };
+//   description: { en: string; es: string };
+//   image: string;
+//   items?: string;
+//   menu_type: any;
+//   updated_at?: any;
+// }
+
+// interface Restaurant {
+//   id: string;
+//   name: string;
+//   location: string;
+//   coordinates: { lat: number; lng: number };
+//   menu: Menu;
+//   distance?: number;
+//   rating?: string | number;
+//   updatedToday?: boolean;
+// }
+
+// interface RestaurantState {
+//   restaurants: Restaurant[];
+//   hasFetched: boolean;
+//   setRestaurants: (data: Restaurant[]) => void;
+//   setHasFetched: (fetched: boolean) => void;
+// }
+
+// export const useRestaurantStore = create(
+//   persist<RestaurantState>(
+//     (set) => ({
+//       restaurants: [],
+//       hasFetched: false,
+//       setRestaurants: (data) => set({ restaurants: data }),
+//       setHasFetched: (fetched) => set({ hasFetched: fetched }),
+//     }),
+//     {
+//       name: "restaurant-store", // storage key
+//       storage: typeof window !== "undefined" ? sessionStorage : undefined, // Only use sessionStorage on the client-side
+//     }
+//   )
+// );
+
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -37,8 +83,13 @@ export const useRestaurantStore = create(
       setHasFetched: (fetched) => set({ hasFetched: fetched }),
     }),
     {
-      name: "restaurant-store", // storage key
-      storage: typeof window !== "undefined" ? sessionStorage : undefined, // Only use sessionStorage on the client-side
+      name: "restaurant-store",
+      storage: typeof window !== "undefined" ? sessionStorage : undefined,
+      partialize: (state) => ({
+        restaurants: state.restaurants,
+        hasFetched: state.hasFetched,
+      }),
+      skipHydration: true, // ✅ avoid SSR hydration mismatch (new)
     }
   )
 );

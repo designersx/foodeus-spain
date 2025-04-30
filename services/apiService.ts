@@ -1,6 +1,5 @@
 // 📂 services/apiService.ts
 import axios from "axios";
-import { useVirtualizer } from '@tanstack/react-virtual';
 import React from "react";
 // Base API URL from environment variables
 // export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
