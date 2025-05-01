@@ -209,7 +209,6 @@ export function ListView() {
             });
           }
         });
-
         setRestaurants(todaySpecialRestaurants);
         setHasFetched(true);
       } catch (err) {
@@ -231,15 +230,14 @@ export function ListView() {
     if (userLocationFromStorage || userLocation) {
       setLoading(true);
       const today = new Date().toISOString().split("T")[0];
+    
       const withDistance = restaurants.map((restaurant) => {
         const hasMenu = !!restaurant.menu?.updated_at;
-        const latestUpdate = restaurant.menu?.updated_at || "";
-        const updatedDate = latestUpdate?.split(" ")[0];
-
-        const updatedToday =
-          updatedDate === today &&
-          restaurant?.menu?.menu_type === "Today's Special";
-
+        const updatedAt = restaurant.menu?.updated_at || "";
+        const updatedDate = updatedAt.split("T")[0].split(" ")[0]; // support both formats
+    
+        const updatedToday = updatedDate === today;
+    
         return {
           ...restaurant,
           distance: calculateDistance(
@@ -250,75 +248,28 @@ export function ListView() {
           ),
           updatedToday,
           hasMenu,
+          updatedAt,
           rating: restaurant.rating || 3,
         };
       });
-
-      // Sort: 1) updatedToday=true 2) hasMenu=true 3) by distance
-      withDistance.sort((a, b) => {
-        if (a.updatedToday && !b.updatedToday) return -1;
-        if (!a.updatedToday && b.updatedToday) return 1;
-
-        if (a.hasMenu && !b.hasMenu) return -1;
-        if (!a.hasMenu && b.hasMenu) return 1;
-
-        return (a.distance || 0) - (b.distance || 0);
-      });
-
-      setRestaurantsWithDistance(withDistance);
-      setFilteredRestaurants(withDistance);
+    
+      // Split into two groups
+      const todayUpdated = withDistance
+        .filter((r) => r.updatedToday)
+        .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
+    
+      const olderUpdates = withDistance
+        .filter((r) => !r.updatedToday)
+        .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
+    
+      const sortedList = [...todayUpdated, ...olderUpdates];
+    
+      setRestaurantsWithDistance(sortedList);
+      setFilteredRestaurants(sortedList);
       setLoading(false);
     }
+    
   }, [restaurants, userLocation]);
-
-  //fake code
-  // useEffect(() => {
-  //   if (!restaurants.length) return;
-
-  //   if (userLocationFromStorage) {
-  //     const today = new Date().toISOString().split("T")[0];
-
-  //     const withDistance = restaurants.map((restaurant) => {
-  //       const latestUpdate = restaurant.menu?.updated_at || "";
-  //       const updatedDate = latestUpdate.split("T")[0]; // ISO format
-
-  //       const updatedToday =
-  //         updatedDate === today &&
-  //         restaurant?.menu?.menu_type === "Today's Special";
-
-  //       return {
-  //         ...restaurant,
-  //         distance: calculateDistance(
-  //           userLocationFromStorage.lat,
-  //           userLocationFromStorage.lng,
-  //           restaurant.coordinates.lat,
-  //           restaurant.coordinates.lng
-  //         ),
-  //         updatedToday,
-  //         hasMenu: !!restaurant.menu?.updated_at,
-  //         rating: restaurant.rating || 3,
-  //       };
-  //     });
-
-  //     // ✅ Sort primarily by distance, then updatedToday, then hasMenu
-  //     withDistance.sort((a, b) => {
-  //       const distanceDiff = (a.distance || 0) - (b.distance || 0);
-  //       if (distanceDiff !== 0) return distanceDiff;
-
-  //       if (a.updatedToday && !b.updatedToday) return -1;
-  //       if (!a.updatedToday && b.updatedToday) return 1;
-
-  //       if (a.hasMenu && !b.hasMenu) return -1;
-  //       if (!a.hasMenu && b.hasMenu) return 1;
-
-  //       return 0;
-  //     });
-
-  //     setRestaurantsWithDistance(withDistance);
-  //     setFilteredRestaurants(withDistance);
-  //     setLoading(false);
-  //   }
-  // }, [restaurants, userLocation]);
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
@@ -477,16 +428,21 @@ export function ListView() {
 
         if (error.code === error.PERMISSION_DENIED) {
           setLocationError(
-            "Location access is still denied. Please enable it in your browser settings."
+            language === "en"
+                ? "Location access was denied. Please enable it in your browser settings."
+                : "El acceso a la ubicación fue denegado. Por favor, habilítelo en la configuración de su navegador."
           );
         } else {
-          setLocationError("Unable to access your location.");
+          setLocationError(language === "en"
+            ? "Unable to access your location."
+            : "No se puede acceder a su ubicación.");
         }
 
         setLoading(false);
       },{ timeout: 10000 }
     );
   };
+
 if (
   loadingLocation &&
   (
@@ -494,7 +450,7 @@ if (
     Object.keys(userLocationFromStorage).length === 0
   )
 ) { 
-  
+  console.log("Loading location............................");
     return (
       <div
         className="position-absolute top-50 start-50 translate-middle"
@@ -665,15 +621,17 @@ if (
         <div className="alert alert-warning mt-3">
           {locationError} <br />
           <small className="text-muted">
-            You can click the lock icon in your browser’s address bar to enable
-            location access manually.
+          {language === "en"
+            ? "You can click the lock icon in your browser’s address bar to enable location access manually."
+            : "Puede hacer clic en el ícono de candado en la barra de direcciones de su navegador para habilitar el acceso a la ubicación manualmente."}
+
           </small>
           <div className="mt-2">
             <button
               className="btn btn-sm btn-outline-primary"
               onClick={retryGeolocation}
             >
-              Try Again
+                {language === "en" ? "Try Again" : "Intentar de nuevo"}
             </button>
           </div>
         </div>

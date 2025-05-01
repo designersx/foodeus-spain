@@ -9,6 +9,7 @@ interface PopUpProps {
 }
 
 const PopUp: React.FC<PopUpProps> = ({ type, message, onClose, onConfirm }) => {
+  console.log("message", message, type)
   const [show, setShow] = useState(false);
   const { t,language } = useLanguage()
   useEffect(() => {

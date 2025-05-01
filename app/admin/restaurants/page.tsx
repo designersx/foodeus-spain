@@ -3,13 +3,17 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Plus } from "lucide-react"
-
+import decodeToken from "@/lib/decode-token";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { API_BASE_URL, getRestaurantListforAdmin } from "@/services/apiService"
+import { useLanguage } from "@/context/language-context"
 import {getMenuImagePath} from "@/utils/getImagePath"
+import PopUp from "@/components/ui/custom-toast";
+import { useToast } from "@/hooks/use-toast";
+
 interface Restaurant {
   id: number;
   name: string;
@@ -30,7 +34,10 @@ export default function RestaurantsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [restaurantsData, setRestaurants] = useState<Restaurant[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-
+  const { t } = useLanguage()
+  // const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const { toast } = useToast();
+ 
   useEffect(() => {
     const fetchRestaurants = async () => {
       const response = await getRestaurantListforAdmin()
@@ -40,6 +47,40 @@ export default function RestaurantsPage() {
     fetchRestaurants()
   }, [])
 
+  useEffect(()=>{
+    const token = localStorage.getItem('token')
+    if (token) {
+     try {
+      const decoded = decodeToken(token)
+      const now = Math.floor(Date.now() / 1000); // current time in seconds
+  
+      if (decoded.exp < now) {
+        toast({
+          title: t("SessionExpired"),
+          description: t("PleaseLoginAgain"),
+          variant: "destructive",
+        });
+        localStorage.removeItem("foodeus-admin-auth")
+        // setToast({ show: true, message: t("SessionExpired"), type: "error" });
+        setTimeout(() => {
+          
+          window.location.href = "/auth/login";
+        }, 2000);
+      }
+    } catch (err) {
+      console.error("Invalid token:", err);
+      toast({
+        title: t("InvalidSession"),
+        description: t("PleaseLoginAgain"),
+        variant: "destructive",
+      });
+      // setToast({ show: true, message: t("InvalidSession"), type: "error" });
+      setTimeout(() => {
+        window.location.href = "/auth/login";
+      }, 2000);
+    }
+    }
+  },[])
   const filteredRestaurants = restaurantsData?.filter(
     (restaurant) =>
       restaurant?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
@@ -57,12 +98,12 @@ export default function RestaurantsPage() {
     <div className="w-full space-y-6 responsive-container ">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Restaurants</h1>
-          <p className="text-muted-foreground">Manage your restaurant listings</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('Restaurants')}</h1>
+          <p className="text-muted-foreground">{t('ManageRestaurants')}</p>
         </div>
         <Button asChild>
           <Link href="/admin/restaurants/add">
-            <Plus className="mr-2 h-4 w-4" /> Add Restaurant
+            <Plus className="mr-2 h-4 w-4" /> {t('AddRestaurant')}
           </Link>
         </Button>
       </div>
@@ -71,7 +112,7 @@ export default function RestaurantsPage() {
         <div className="relative flex-1">
           <Input
             type="search"
-            placeholder="Search restaurants..."
+            placeholder={t('SearchRestaurantsPlaceholder')}
             className="pl-8 w-full"
             value={searchQuery}
             onChange={(e) => {
@@ -107,16 +148,20 @@ export default function RestaurantsPage() {
                   <div>
                    
                     <h3 className="font-semibold text-lg resName"     style={{
-                              wordBreak: "break-all", // Breaks long words that have no spaces
-                              whiteSpace: "normal", // Allows text to wrap normally
+                              wordBreak: "break-all",
+                              whiteSpace: "normal", 
                             }}>{restaurant.name}</h3>
-                    <p className="text-sm text-muted-foreground">{restaurant.address}</p>
-                    <p className="text-sm text-muted-background">Restaurent ID : {restaurant.id}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-3 "  style={{
+                              minHeight: '3em',
+                              wordBreak: "break-all",
+                              whiteSpace: "normal", 
+                            }}>{restaurant.address}</p>
+                    <p className="text-sm text-muted-background">{t('RestaurantID')} : {restaurant.id}</p>
                   </div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="secondary">{restaurant.category}</Badge>
-                  <Badge variant="outline">{restaurant.menu_count} menu items</Badge>
+                  <Badge variant="outline">{restaurant.menu_count} {t('Menus')}</Badge>
                 </div>
               </CardContent>
               {/* <CardFooter className="p-4 pt-0 flex justify-between">
@@ -139,19 +184,28 @@ export default function RestaurantsPage() {
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
           >
-            Previous
+            {t('Previous')}
           </Button>
-          <span className="text-sm">Page {currentPage} of {totalPages}</span>
+          <span className="text-sm">{t('Page')} {currentPage} of {totalPages}</span>
           <Button
             variant="outline"
             size="sm"
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
           >
-            Next
+            {t('Next')}
           </Button>
         </div>
       )}
+    
+    {/* {toast.show && (
+              <PopUp
+                type={toast.type}
+                message={toast.message}
+                onClose={() => setToast({ show: false, message: "", type: "" })}
+              />
+            )} */}
     </div>
+         
   )
 }
