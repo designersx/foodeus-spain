@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { API_BASE_URL, apiClient, getRestaurantListforAdmin } from "@/services/apiService"
 import { getMenuImagePath } from "@/utils/getImagePath"
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/language-context";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +39,7 @@ interface Restaurant {
 }
 const ITEMS_PER_PAGE = 15
 export default function RestaurantsPage() {
+  const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState("")
   const [users, setUsers] = useState<Restaurant[]>([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -89,18 +91,18 @@ export default function RestaurantsPage() {
         },
       })
       if (response.data.success) {
-        toast({
-          title: "Users Updated",
-          description: "Users Status  has been updated successfully",
-        })
+          toast({
+      title: t("UsersUpdatedTitle"),
+      description: t("UsersUpdatedDesc"),
+    })
         fetchUsers()
       } else {
         throw new Error("Failed to add restaurant")
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "There was an error adding the restaurant",
+        title: t("UsersErrorTitle"),
+        description: t("UsersErrorDesc"),
         variant: "destructive",
       })
       console.error("Error adding restaurant:", error)
@@ -115,8 +117,8 @@ export default function RestaurantsPage() {
     <div className="w-full space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">Manage your users</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('UsersHeading')}</h1>
+          <p className="text-muted-foreground">{t('ManageUsers')}</p>
         </div>
 
       </div>
@@ -125,7 +127,7 @@ export default function RestaurantsPage() {
         <div className="relative flex-1">
           <Input
             type="search"
-            placeholder="Search users..."
+            placeholder={t('SearchUsersPlaceholder')}
             className="pl-8 w-full"
             value={searchQuery}
             onChange={(e) => {
@@ -152,9 +154,9 @@ export default function RestaurantsPage() {
                   <div>
 
                     <h3 className="font-semibold text-lg">{users?.name}</h3>
-                    <p className="text-sm text-muted-background">Email: {users?.email}</p>
+                    <p className="text-sm text-muted-background">{t('Email')}: {users?.email}</p>
                     <p >
-                      Status:     <b className={`text-sm ${users?.status === 1 ? 'activeStatus' : 'inactiveStatus'} text-muted-background`}> {users?.status == 1 ? "Active" : "Inactive"}</b>
+                      {t('Status')}:     <b className={`text-sm ${users?.status === 1 ? 'activeStatus' : 'inactiveStatus'} text-muted-background`}> {users?.status == 1 ? t('Active') : t('Inactive')}</b>
                     </p>
 
                   </div>
@@ -165,9 +167,9 @@ export default function RestaurantsPage() {
               <CardFooter className="p-4 pt-0 flex justify-between">
                 <div className="flex items-center gap-2">
                   {users?.status === 1 ? <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
-                    Inactive Account
+                    {t('InactiveAccount')}
                   </button> : <button onClick={() => handleInactiveAccount(users.id, "active")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
-                    Active Account
+                    {t('ActiveAccount')}
                   </button>}
                   {/* {users?.status === 0 ? "" : <button onClick={() => handleInactiveAccount(users.id, "inactive")} style={{ color: "white", backgroundColor: "#f1582e" }} className="bg-red-500  px-3 py-1 rounded hover:bg-red-600 text-sm">
                     Inactive Account
@@ -177,7 +179,7 @@ export default function RestaurantsPage() {
                     <button style={{ color: "white", backgroundColor: "#f1582e" }}
                       onClick={() => handleEditUserProfile(users)}
                       className="bg-blue-500  px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                      Edit
+                      {t('Edit')}
                     </button>
                   </Link>
                 </div>
@@ -195,7 +197,7 @@ export default function RestaurantsPage() {
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
           >
-            Previous
+            {t('Previous')}
           </Button>
           <span className="text-sm">Page {currentPage} of {totalPages}</span>
           <Button
@@ -204,7 +206,7 @@ export default function RestaurantsPage() {
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
           >
-            Next
+            {t('Next')}
           </Button>
         </div>
       )}

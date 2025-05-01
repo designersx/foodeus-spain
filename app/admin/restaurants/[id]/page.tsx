@@ -105,37 +105,38 @@ export default function RestaurantDetailPage() {
   // const [items, setItems] = useState<RestaurantItem[]>([]);
   const [items, setItems] = useState<RestaurantItem[]>([]);
 
-  const fetchItemList = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await apiClient.get(
-        `/menuitems/getRestaurantMenuItemList/${restaurantId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (Array.isArray(response.data.data)) {
-        const sotedItems = response?.data?.data
-          .filter((item: any) => item.id != null)
-          .sort(
-            (a: any, b: any) =>
-              new Date(b.updated_at).getTime() -
-              new Date(a.updated_at).getTime()
-          );
-        // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
-        setItems(sotedItems);
-      }
-    } catch (error) {
-      console.error("Error fetching restaurant:", error);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchItemList = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await apiClient.get(
+  //       `/menuitems/getRestaurantMenuItemList/${restaurantId}`,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     console.log("response", response.data);
+  //     if (Array.isArray(response.data.data)) {
+  //       const sotedItems = response?.data?.data
+  //         .filter((item: any) => item.id != null)
+  //         .sort(
+  //           (a: any, b: any) =>
+  //             new Date(b.updated_at).getTime() -
+  //             new Date(a.updated_at).getTime()
+  //         );
+  //       // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+  //       setItems(sotedItems);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching restaurant:", error);
+  //     setItems([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   useEffect(() => {
     const fetchRestaurants = async () => {
       setLoading(true);
@@ -163,7 +164,7 @@ export default function RestaurantDetailPage() {
     };
 
     fetchRestaurants();
-    fetchItemList();
+    // fetchItemList();
   }, [relod]);
 
   useEffect(() => {
@@ -320,12 +321,9 @@ export default function RestaurantDetailPage() {
   );
   // console.log("filteredItems", filteredItems)
   const normalized = getMenuImagePath(restaurant?.cover_image);
-  // console.log('normalize',normalized)
-  const src = normalized
-    ? `${API_BASE_URL}/${normalized}`
-    : "/Images/restaurent-fall.jpg";
+  const src = `${API_BASE_URL}/${restaurant?.cover_image}`;
 
-  // console.log('filteredMenus', filteredMenus)
+
 
   const toISOStringFromSQL = (timestamp: string) => {
     
@@ -368,7 +366,10 @@ export default function RestaurantDetailPage() {
                   >
                     {restaurant?.name}
                   </CardTitle>
-                  <CardDescription className="flex items-center mt-1">
+                  <CardDescription className="flex items-center mt-1"    style={{
+                      wordBreak: "break-all", // Breaks long words that have no spaces
+                      whiteSpace: "normal", // Allows text to wrap normally
+                    }}>
                     <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                     {restaurant?.address}
                   </CardDescription>

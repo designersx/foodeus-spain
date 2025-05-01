@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiClient } from "@/services/apiService";
+import { useLanguage } from "@/context/language-context";
 
 interface RestaurantCSVRow {
   placeId: string;
@@ -30,6 +31,7 @@ interface RestaurantCSVRow {
 }
 
 export default function ImportRestaurantCSV() {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [csvData, setCsvData] = useState<RestaurantCSVRow[]>([]);
@@ -64,20 +66,20 @@ const expectedHeaders = [
       const extraHeaders = headers.filter((header) => !expectedHeaders.includes(header));
   
       if (missingHeaders.length > 0) {
-        toast({ 
-          title: "Error", 
-          description: `Missing required fields: ${missingHeaders.join(", ")}`, 
-          variant: "destructive" 
+        toast({
+          title: t("MissingFieldsTitle"),
+          description: t("MissingFieldsDesc").replace("{fields}", missingHeaders.join(", ")),
+          variant: "destructive"
         });
         return;
       }
   
       if (extraHeaders.length > 0) {
-        toast({ 
-          title: "Error", 
-          description: `Extra fields detected: ${extraHeaders.join(", ")}`, 
-          variant: "destructive" 
-        });
+      toast({
+        title: t("ExtraFieldsTitle"),
+        description: t("ExtraFieldsDesc").replace("{fields}", extraHeaders.join(", ")),
+        variant: "destructive"
+      });
         return;
       }
   
@@ -104,55 +106,20 @@ const expectedHeaders = [
   
         setCsvData(data);
         setActiveTab("preview");
-        toast({ title: "CSV Loaded", description: `Successfully loaded ${data.length} rows.` });
+        toast({
+          title: t("CSVLoadedTitle"),
+          description: t("CSVLoadedDesc").replace("{count}", data.length),
+        });
       } catch (error) {
-        toast({ title: "Error", description: "Failed to parse CSV.", variant: "destructive" });
+        toast({
+          title: t("CSVParseErrorTitle"),
+          description: t("CSVParseErrorDesc"),
+          variant: "destructive"
+        });
       }
     };
     reader.readAsText(file);
   };
-//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = e.target.files?.[0];
-//     if (!file) return;
-//     setFileName(file.name);
-//     setSelectedFile(file);
-
-//     const reader = new FileReader();
-//     reader.onload = (event) => {
-//       const text = event.target?.result as string;
-//       const rows = text.split("\n").map((row) => row.trim()).filter(Boolean);
-//       const headers = rows[0].split(",").map((h) => h.trim());
-
-//       try {
-//         const data = rows.slice(1).map((row) => {
-//           const values: string[] = [];
-//           let inQuotes = false, currentValue = "";
-
-//           for (let i = 0; i < row.length; i++) {
-//             const char = row[i];
-//             if (char === '"') inQuotes = !inQuotes;
-//             else if (char === "," && !inQuotes) {
-//               values.push(currentValue);
-//               currentValue = "";
-//             } else currentValue += char;
-//           }
-//           values.push(currentValue);
-
-//           return headers.reduce((obj, header, index) => {
-//             obj[header as keyof RestaurantCSVRow] = values[index]?.replace(/^"|"$/g, "") || "";
-//             return obj;
-//           }, {} as RestaurantCSVRow);
-//         });
-
-//         setCsvData(data);
-//         setActiveTab("preview");
-//         toast({ title: "CSV Loaded", description: `Successfully loaded ${data.length} rows.` });
-//       } catch (error) {
-//         toast({ title: "Error", description: "Failed to parse CSV.", variant: "destructive" });
-//       }
-//     };
-//     reader.readAsText(file);
-//   };
 
   const handleDownloadSample = () => {
     const blob = new Blob([sampleCSV], { type: "text/csv" });
@@ -207,9 +174,9 @@ const expectedHeaders = [
         }
         // console.log(inserted, skippedRestaurants,message);
         toast({
-          title: "Import Summary",
-          description: message,
-          variant: skippedRestaurants.length > 0 ? "destructive" : "default",
+          title: t("ImportSummaryTitle"),
+          description: t("ImportSummaryDesc").replace("{message}", message),
+          variant: skippedRestaurants.length > 0 ? "destructive" : "default"
         });
       }
       setCsvData([]);
@@ -218,7 +185,11 @@ const expectedHeaders = [
       setActiveTab("upload");
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
-      toast({ title: "Upload Error", description: "Failed to upload CSV.", variant: "destructive" });
+      toast({
+        title: t("UploadErrorTitle"),
+        description: t("UploadErrorDesc"),
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -233,57 +204,57 @@ const expectedHeaders = [
         <CardHeader className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground p-6 text-black">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
             <FileText className="h-6 w-6" />
-            Import Restaurants
+            {t('ImportRestaurantsTitle')}
           </CardTitle>
           <CardDescription className="text-primary-foreground/90 mt-1">
-            Upload your restaurants data in CSV format or download our template to get started
+            {t('ImportRestaurantsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full border-b grid grid-cols-2">
               <TabsTrigger value="upload" className="data-[state=active]:border-b-2 data-[state=active]:border-primary mb-2">
-                Upload CSV
+                {t('UploadCSV')}
               </TabsTrigger>
               <TabsTrigger
                 value="preview"
                 disabled={csvData.length === 0}
                 className="data-[state=active]:border-b-2 data-[state=active]:border-primary"
               >
-                Preview Data {invalidRowsCount > 0 && <Badge variant="destructive" className="ml-2">{invalidRowsCount}</Badge>}
+                {t('PreviewData')} {invalidRowsCount > 0 && <Badge variant="destructive" className="ml-2">{invalidRowsCount}</Badge>}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload" className="p-6 space-y-6">
               <Alert>
                 <Info className="h-4 w-4" />
-                <AlertTitle>Important</AlertTitle>
-                <AlertDescription>Make sure all required fields are filled before uploading.</AlertDescription>
+                <AlertTitle>{t('ImportantNote')}</AlertTitle>
+                <AlertDescription>{t('ImportantDesc')}</AlertDescription>
               </Alert>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <Label htmlFor="csv-upload">Upload CSV File</Label>
+                  <Label htmlFor="csv-upload">{t('UploadCSVLabel')}</Label>
                   <div
                     className="border-2 border-dashed p-8 rounded-lg text-center cursor-pointer hover:bg-muted/50"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Upload className="h-8 w-8 mx-auto mb-2" />
-                    <p className="text-sm mb-1">Click to browse or drop your CSV file</p>
-                    <p className="text-xs">Supported format: .csv</p>
+                    <p className="text-sm mb-1">{t('DropCSVHint')}</p>
+                    <p className="text-xs">{t('SupportedFormat')}</p>
                     <Input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
                   </div>
-                  {fileName && <p className="text-sm mt-2">Selected File: <strong>{fileName}</strong></p>}
+                  {fileName && <p className="text-sm mt-2">{t('SelectedFile')}: <strong>{fileName}</strong></p>}
                   <div className="flex justify-between items-center pt-4">
                     <Button variant="outline" onClick={handleDownloadSample} className="gap-2">
                       <Download className="h-4 w-4" />
-                      Download Sample
+                      {t('DownloadSample')}
                     </Button>
                     <Button onClick={handleUpload} disabled={isLoading || csvData.length === 0} className="gap-2">
-                      {isLoading ? <span>Uploading...</span> : <><Upload className="h-4 w-4" />Upload Now</>}
+                      {isLoading ? <span>{t('Uploading')}</span> : <><Upload className="h-4 w-4" />{t('UploadNow')}</>}
                     </Button>
                   </div>
                 </div>
                 <div className="bg-muted/30 rounded-lg p-6">
-                  <h3 className="text-lg font-medium mb-4">Required Fields</h3>
+                  <h3 className="text-lg font-medium mb-4">{t('RequiredFieldsTitle')}</h3>
                   <ul className="text-sm space-y-2">
                     <li><strong>placeId</strong> – Google Place ID</li>
                     <li><strong>Category</strong> – e.g., Restaurant, Cafe</li>
@@ -347,14 +318,14 @@ const expectedHeaders = [
             {csvData.length === 0 ? (
               <div className="flex-1 flex items-center justify-center text-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Upload a CSV file to preview data</p>
+                <p className="text-muted-foreground">{t('NoDataToPreview')}</p>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
-                  <h3 className="text-lg font-medium">Preview</h3>
+                  <h3 className="text-lg font-medium">{t('PreviewTitle')}</h3>
                   <Button onClick={handleUpload} disabled={isLoading} className="gap-2">
-                    {isLoading ? "Uploading..." : <> <Upload className="h-4 w-4" /> Upload Now </>}
+                    {isLoading ? t('Uploading'): <> <Upload className="h-4 w-4" /> {t('UploadNow')} </>}
                   </Button>
                 </div>
 
@@ -381,9 +352,9 @@ const expectedHeaders = [
                               ))}
                               <TableCell>
                                 {isValid ? (
-                                  <Badge className="bg-green-100 text-green-800 border-green-200">Valid</Badge>
+                                  <Badge className="bg-green-100 text-green-800 border-green-200">{t('StatusValid')}</Badge>
                                 ) : (
-                                  <Badge variant="destructive">Missing Fields</Badge>
+                                  <Badge variant="destructive">{t('StatusInvalid')}</Badge>
                                 )}
                               </TableCell>
                             </TableRow>
@@ -393,7 +364,7 @@ const expectedHeaders = [
                     </Table>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2 md:hidden">
-                    👆 Swipe left/right to view all columns.
+                    {t('SwipeHint')}
                   </p>
                 </div>
               </>

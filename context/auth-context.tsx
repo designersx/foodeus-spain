@@ -19,17 +19,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
+  
 
 
   useEffect(() => {
 
     if (typeof window !== "undefined") {
+      const tk=localStorage.getItem("token")
       const storedUser = localStorage.getItem("foodeus-admin-auth")
       if (storedUser) {
         setUser(JSON.parse(storedUser))
+      }
+      if (tk) {
+        setToken(tk)
       }
     }
     

@@ -24,6 +24,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const token = localStorage.getItem("mobileToken");
   const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
+  const [loading, setLoading] = useState(true);
   const { t, language } = useLanguage()
   useEffect(() => {
     if (getUserId?.userId) {
@@ -36,6 +37,9 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         })
         .catch((err) => {
           console.error("Error fetching user data", err);
+          setToast({ show: true, message: "Error fetching user data", type: "error" });
+        }).finally(() => {
+          setLoading(false);
         });
     }
   }, []);
@@ -89,14 +93,25 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
     onClose();
   };
 
-  if (!show) return null;
+  // if (!show) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex justify-center items-center px-4 "
       style={{ backgroundColor: "#000000a3" }}
     >
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative space-y-6 ">
+    
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative space-y-6 ">
+          
+          {
+        loading ? (
+          <div className="flex justify-center items-center h-screen w-screen bg-white">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        )
+        :
+      (
+        <>
         {/* Close Button */}
         <button
           onClick={handleCloseModal}
@@ -104,8 +119,6 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         >
           &times;
         </button>
-
-
 
         {/* Heading */}
         <h2 className="text-2xl font-bold text-gray-800 text-center border-b pb-3">
@@ -179,8 +192,12 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
             {t("ProfileUpdate")}
           </Button>
         )}
+        </>  
+      )}
       </div>
 
+      
+     
       {/* Toast */}
       {toast.show && (
         <PopUp

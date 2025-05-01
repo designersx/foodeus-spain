@@ -92,6 +92,7 @@ export default function EditMenuItemPage() {
       setSuggestionss([]);
     }
   }, 300);
+  
   useEffect(() => {
     const data = sessionStorage.getItem("editMenuItem");
     if (data) {
@@ -750,7 +751,7 @@ export default function EditMenuItemPage() {
                 </div>
               </div>
               <div>
-                <Label>{t('ItemName')}</Label>
+                <Label>{t('ItemName')} <span className="text-danger">*</span></Label>
                 <Input
                   maxLength={50}
                   value={editingItem.item_name}
@@ -846,7 +847,7 @@ export default function EditMenuItemPage() {
                 />
               </div>
               <div className="relative">
-                <Label>{t('ItemName')}</Label>
+                <Label>{t('ItemName')} <span className="text-danger">*</span></Label>
                 <Input
                   ref={itemNameInputRef}
                   value={newItemData.item_name}

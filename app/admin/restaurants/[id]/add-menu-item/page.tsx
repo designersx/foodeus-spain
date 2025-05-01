@@ -557,7 +557,7 @@ export default function AddMenuItemPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="item_list">
-                  {t("CategoryList")} <span className="text-danger">*</span>
+                  {t("CategoryList")}
                 </Label>
 
                 <Select
@@ -837,7 +837,7 @@ export default function AddMenuItemPage() {
                   htmlFor="item-name"
                   className="text-sm font-medium text-gray-700"
                 >
-                  {t("ItemName")}
+                  {t("ItemName")} <span className="text-danger">*</span>
                 </Label>
                 <input
                   type="text"
