@@ -422,7 +422,7 @@ export function ListView() {
   const [isSticky, setIsSticky] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [focused, setFocused] = useState(false);
-  // Scroll to top with offset on focus
+  // Scroll to top with offset on focusds
   const handleFocus = () => {
     const element = searchRef.current;
     const offset = 10;
