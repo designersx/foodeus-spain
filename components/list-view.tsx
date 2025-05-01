@@ -225,51 +225,99 @@ export function ListView() {
   }, [hasFetched]);
 
   // correct Code
+  // useEffect(() => {
+  //   if (!restaurants?.length) return;
+  //   if (userLocationFromStorage || userLocation) {
+  //     setLoading(true);
+  //     const today = new Date().toISOString().split("T")[0];
+    
+  //     const withDistance = restaurants.map((restaurant) => {
+  //       const hasMenu = !!restaurant.menu?.updated_at;
+  //       const updatedAt = restaurant.menu?.updated_at || "";
+  //       const updatedDate = updatedAt.split("T")[0].split(" ")[0]; // support both formats
+    
+  //       const updatedToday = updatedDate === today;
+    
+  //       return {
+  //         ...restaurant,
+  //         distance: calculateDistance(
+  //           userLocationFromStorage?.lat || userLocation?.lat,
+  //           userLocationFromStorage?.lng || userLocation?.lng,
+  //           restaurant.coordinates.lat,
+  //           restaurant.coordinates.lng
+  //         ),
+  //         updatedToday,
+  //         hasMenu,
+  //         updatedAt,
+  //         rating: restaurant.rating || 3,
+  //       };
+  //     });
+    
+  //     // Split into two groups
+  //     const todayUpdated = withDistance
+  //       .filter((r) => r.updatedToday)
+  //       .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
+    
+  //     const olderUpdates = withDistance
+  //       .filter((r) => !r.updatedToday)
+  //       .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
+    
+  //     const sortedList = [...todayUpdated, ...olderUpdates];
+    
+  //     setRestaurantsWithDistance(sortedList);
+  //     setFilteredRestaurants(sortedList);
+  //     setLoading(false);
+  //   }
+    
+  // }, [restaurants, userLocation]);
   useEffect(() => {
-    if (!restaurants?.length) return;
-    if (userLocationFromStorage || userLocation) {
-      setLoading(true);
-      const today = new Date().toISOString().split("T")[0];
-    
-      const withDistance = restaurants.map((restaurant) => {
-        const hasMenu = !!restaurant.menu?.updated_at;
-        const updatedAt = restaurant.menu?.updated_at || "";
-        const updatedDate = updatedAt.split("T")[0].split(" ")[0]; // support both formats
-    
-        const updatedToday = updatedDate === today;
-    
-        return {
-          ...restaurant,
-          distance: calculateDistance(
-            userLocationFromStorage?.lat || userLocation?.lat,
-            userLocationFromStorage?.lng || userLocation?.lng,
-            restaurant.coordinates.lat,
-            restaurant.coordinates.lng
-          ),
-          updatedToday,
-          hasMenu,
-          updatedAt,
-          rating: restaurant.rating || 3,
-        };
-      });
-    
-      // Split into two groups
-      const todayUpdated = withDistance
-        .filter((r) => r.updatedToday)
-        .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
-    
-      const olderUpdates = withDistance
-        .filter((r) => !r.updatedToday)
-        .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
-    
-      const sortedList = [...todayUpdated, ...olderUpdates];
-    
-      setRestaurantsWithDistance(sortedList);
-      setFilteredRestaurants(sortedList);
-      setLoading(false);
+    if (!restaurants?.length || !userLocationFromStorage && !userLocation) return;
+  
+    const cached = sessionStorage.getItem("processedRestaurants");
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      setRestaurantsWithDistance(parsed);
+      setFilteredRestaurants(parsed);
+      return;
     }
-    
+  
+    setLoading(true);
+    const today = new Date().toISOString().split("T")[0];
+  
+    const withDistance = restaurants.map((restaurant) => {
+      const updatedAt = restaurant.menu?.updated_at || "";
+      const updatedDate = updatedAt.split("T")[0].split(" ")[0];
+  
+      return {
+        ...restaurant,
+        distance: calculateDistance(
+          userLocationFromStorage?.lat || userLocation?.lat,
+          userLocationFromStorage?.lng || userLocation?.lng,
+          restaurant.coordinates.lat,
+          restaurant.coordinates.lng
+        ),
+        updatedToday: updatedDate === today,
+        updatedAt,
+        rating: restaurant.rating || 3,
+      };
+    });
+  
+    const todayUpdated = withDistance
+      .filter((r) => r.updatedToday)
+      .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+  
+    const olderUpdates = withDistance
+      .filter((r) => !r.updatedToday)
+      .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+  
+    const sortedList = [...todayUpdated, ...olderUpdates];
+    sessionStorage.setItem("processedRestaurants", JSON.stringify(sortedList));
+  
+    setRestaurantsWithDistance(sortedList);
+    setFilteredRestaurants(sortedList);
+    setLoading(false);
   }, [restaurants, userLocation]);
+  
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
@@ -374,7 +422,7 @@ export function ListView() {
   const [isSticky, setIsSticky] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [focused, setFocused] = useState(false);
-  // Scroll to top with offset on focus
+  // Scroll to top with offset on focusds
   const handleFocus = () => {
     const element = searchRef.current;
     const offset = 10;
