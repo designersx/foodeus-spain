@@ -224,6 +224,9 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 loading="lazy"
                 fill
                 className=""
+                placeholder="blur"
+                blurDataURL="/placeholder.jpg" // or use shimmer base64
+                quality={75}
               />
             <span className="dishPrice"> € {restaurant?.menu?.price}
             
