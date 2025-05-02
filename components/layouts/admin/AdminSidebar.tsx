@@ -42,7 +42,7 @@ export default function AdminSidebar() {
   if (!isHydrated) return null // Prevent rendering during SSR
 
   return (
-    <Sidebar className="z-20">
+    <Sidebar className="z-20" >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -71,7 +71,7 @@ export default function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/restaurants"}>
-              <Link href="/admin/restaurants">
+              <Link href="/admin/restaurants" style={{ textDecoration: "none" }}>
                 <Restaurant className="h-4 w-4" />
                 <span>{t('Restaurants')}</span>
               </Link>
@@ -89,7 +89,7 @@ export default function AdminSidebar() {
 
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/upload-restaurant"}>
-              <Link href="/admin/upload-restaurant">
+              <Link href="/admin/upload-restaurant" style={{ textDecoration: "none" }}>
                 <Clipboard className="h-4 w-4" />
                 <span>{t("UploadRestaurants")}</span>
               </Link>
@@ -98,7 +98,7 @@ export default function AdminSidebar() {
 
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/admin/users"}>
-              <Link href="/admin/users">
+              <Link href="/admin/users" style={{ textDecoration: "none" }}>
                 <Users className="h-4 w-4" />
                 <span>{t('Users')}</span>
               </Link>

@@ -35,16 +35,28 @@ export default function RestaurantsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [restaurantsData, setRestaurants] = useState<Restaurant[]>([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [loading, setLoading] = useState(false)
   const { t } = useLanguage()
   // const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const { toast } = useToast();
  
   useEffect(() => {
     const fetchRestaurants = async () => {
-      const response = await getRestaurantListforAdmin()
-      const restaurants = await response
-      setRestaurants(restaurants.data)
+      setLoading(true)
+      try {
+        const response = await getRestaurantListforAdmin()
+        const restaurants = await response
+        setRestaurants(restaurants.data)
+      }
+      catch (error) {
+        
+        console.error("Error fetching restaurants:", error)
+        // setToast({ show: true, message: t("ErrorFetchingRestaurants"), type: "error" });
+      } finally {
+        setLoading(false)
+      }
     }
+  
     fetchRestaurants()
   }, [])
 
@@ -97,6 +109,22 @@ export default function RestaurantsPage() {
 
   return (
     <div className="w-full space-y-6 responsive-container ">
+      {loading?
+      (
+        <div className="flex flex-col items-center justify-center z-50 bg-white"     style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading")}</span>
+        </div>
+        <p className="text-muted-foreground mt-4">{t("Loading")}</p>
+      </div>
+  
+      ):(
+        <>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('Restaurants')}</h1>
@@ -198,6 +226,8 @@ export default function RestaurantsPage() {
           </Button>
         </div>
       )}
+      </>
+      )}
     
     {/* {toast.show && (
               <PopUp
@@ -206,6 +236,7 @@ export default function RestaurantsPage() {
                 onClose={() => setToast({ show: false, message: "", type: "" })}
               />
             )} */}
+    
     </div>
          
   )

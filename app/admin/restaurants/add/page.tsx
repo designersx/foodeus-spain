@@ -219,7 +219,7 @@ export default function AddRestaurantPage() {
   return (
     <div className="full-width-container space-y-6 responsive-container">
       <Button variant="ghost" size="sm" asChild>
-        <Link href="/admin/restaurants">
+        <Link href="/admin/restaurants" style={{ textDecoration: "none" }}>
           <ArrowLeft className="h-4 w-4 mr-1" /> {t('BackToRestaurants')}
         </Link>
       </Button>
@@ -235,7 +235,7 @@ export default function AddRestaurantPage() {
           <CardContent className="space-y-6">
             {/* Cover Image */}
             <div>
-              <Label>{t('CoverImage')}</Label>
+              <Label>{t('CoverImageClickToSelect')}</Label>
               <div
                 className="border-dashed border-2 rounded-lg p-4 cursor-pointer hover:bg-muted/50"
                 onClick={() => fileInputRef.current?.click()}
@@ -398,7 +398,7 @@ export default function AddRestaurantPage() {
           </CardContent>
           <CardFooter className="justify-between">
             <Button type="button" variant="outline" asChild>
-              <Link href="/admin/restaurants">{t('Cancel')}</Link>
+              <Link href="/admin/restaurants" style={{ textDecoration: "none" }}>{t('Cancel')}</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? t('AddingRestaurant') : t('AddRestaurant')}
