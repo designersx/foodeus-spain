@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useLanguage } from "@/context/language-context";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
+import axios from "axios";
 import { ArrowLeft, Upload, ChevronDownIcon } from "lucide-react";
 import {
   Dialog,
@@ -291,7 +292,14 @@ export default function EditMenuItemPage() {
         if (response.data.success) {
           setItems(response.data.data);
         }
-      } catch (error) {
+      } catch (error:unknown) {
+        let errorMessage = "Something went wrong.";
+        if (axios.isAxiosError(error)) {
+          errorMessage =
+            error.response?.data?.message || error.message || errorMessage;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
         console.error("Error fetching items", error);
       } finally {
         setIsDataLoaded(true);
@@ -330,6 +338,7 @@ export default function EditMenuItemPage() {
         return;
       }
       const token = localStorage.getItem("token");
+      console.log("add newItemData:", newItemData);
       const formData = new FormData();
       formData.append("item_name", newItemData.item_name.trim());
       formData.append("description", newItemData.description.trim());
@@ -352,8 +361,9 @@ export default function EditMenuItemPage() {
           title: t('ItemAddedTitle'),
           description: t('ItemAddedDescription'),
         })
-
+        console.log("Item added response:", response.data.data);
         const newItem = response.data.data;
+        console.log("New item added:", newItem,items);
         setItems((prev) => [...prev, newItem]);
         const newId = newItem?.id?.toString();
         if (newId) {
@@ -484,7 +494,7 @@ export default function EditMenuItemPage() {
                     <div className="relative h-full w-full flex items-center justify-center overflow-hidden rounded-md">
                       <img
                         src={imagePreview}
-                        alt={t('ItemPreview')}
+                        // alt={t('ItemPreview')}
                         className="mx-auto max-h-[200px] rounded-md object-cover"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">

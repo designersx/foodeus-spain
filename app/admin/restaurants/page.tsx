@@ -13,6 +13,7 @@ import { useLanguage } from "@/context/language-context"
 import {getMenuImagePath} from "@/utils/getImagePath"
 import PopUp from "@/components/ui/custom-toast";
 import { useToast } from "@/hooks/use-toast";
+import { Spinner } from "@/components/ui/Spinner";
 
 interface Restaurant {
   id: number;
@@ -101,9 +102,9 @@ export default function RestaurantsPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('Restaurants')}</h1>
           <p className="text-muted-foreground">{t('ManageRestaurants')}</p>
         </div>
-        <Button asChild>
+        <Button asChild  style={{ textDecoration: "none" }}>
           <Link href="/admin/restaurants/add">
-            <Plus className="mr-2 h-4 w-4" /> {t('AddRestaurant')}
+            <Plus className="mr-2 h-4 w-4" /> {t('AddRestaurant')} 
           </Link>
         </Button>
       </div>

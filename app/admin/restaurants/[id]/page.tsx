@@ -522,7 +522,7 @@ export default function RestaurantDetailPage() {
                   Analytics
                 </TabsTrigger>
               </TabsList> */}
-              <Button asChild>
+              <Button asChild  style={{ textDecoration: "none" }}>
                 <Link
                   href={
                     activeTab === "menu"
@@ -532,13 +532,14 @@ export default function RestaurantDetailPage() {
                   onClick={() => {
                     sessionStorage.setItem("activeTab", activeTab); // Store the active tab in sessionStorage
                   }}
+                 
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {activeTab === "menu" ? t('AddMenu') : "Add Item"}
                 </Link>
               </Button>
 
-              <Button asChild>
+              <Button asChild  style={{ textDecoration: "none" }}>
                 <Link
                   href={`/admin/restaurants/${restaurant?.id}/upload-menu`}
                   onClick={() => {

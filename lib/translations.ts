@@ -194,7 +194,7 @@ export const translations = {
     ModifyDetailsBelow: "Modify details below",
     ItemImageClickToChange: "Menu Image (click to change)",
     ClickToUploadItemImage: "Click to upload item image",
-    ItemPreview: "Item Preview",
+    ItemPreview: " Item Preview",
     UpdateMenuItem: "Update Menu Item",
     UpdateItemDetails: "Update item details below",
     ItemImage: "Item Image",
@@ -333,8 +333,8 @@ LocationUnavailable: "Unable to access your location.",
 SessionExpired: "Session Expired",
 InvalidSession: "Invalid Session",
 PleaseLoginAgain: "Please login again.",
-
-
+UploadPartialSuccessTitle: "Partial Upload Successful",
+UploadPartialSuccessDesc: "{success} item(s) uploaded successfully, {fail} failed."
 
 
 
@@ -549,7 +549,7 @@ PleaseLoginAgain: "Please login again.",
     ModifyDetailsBelow: "Modifica los detalles a continuación",
     ItemImageClickToChange: "Imagen del Menú (haz clic para cambiar)",
     ClickToUploadItemImage: "Haz clic para subir la imagen del artículo",
-    ItemPreview: "Vista previa del artículo",
+    ItemPreview: " Vista previa del artículo",
     UpdateMenuItem: "Actualizar elemento del menú",
     UpdateItemDetails: "Actualiza los detalles a continuación",
     ItemImage: "Imagen del artículo",
@@ -688,8 +688,28 @@ LocationUnavailable: "No se puede acceder a su ubicación.",
 SessionExpired: "Sesión expirada",
 InvalidSession: "Sesión inválida",
 PleaseLoginAgain: "Por favor, inicie sesión nuevamente.",
-
-
+ UploadPartialSuccessTitle: "Carga parcial exitosa",
+  UploadPartialSuccessDesc: "{success} elemento(s) cargado(s) correctamente, {fail} fallaron.",
+  ItalianFeastMenuName: "Festín Italiano",
+  ItalianFeastMenuDesc: "Menú italiano clásico",
+  BruschettaItemName: "Bruschetta",
+  BruschettaItemDesc: "Pan tostado con tomates y albahaca",
+  LasagnaItemName: "Lasaña",
+  LasagnaItemDesc: "Pasta en capas con queso y salsa",
+  TiramisuItemName: "Tiramisú",
+  TiramisuItemDesc: "Postre italiano con sabor a café",
+  LimoncelloItemName: "Limoncello",
+  LimoncelloItemDesc: "Licor de limón italiano dulce",
+  AmericanBBQMenuName: "Barbacoa Americana",
+  AmericanBBQMenuDesc: "Menú tradicional de barbacoa",
+  BuffaloWingsItemName: "Alas de Búfalo",
+  BuffaloWingsItemDesc: "Alas de pollo fritas picantes",
+  BBQRibsItemName: "Costillas BBQ",
+  BBQRibsItemDesc: "Costillas tiernas con salsa BBQ",
+  ApplePieItemName: "Pastel de Manzana",
+  ApplePieItemDesc: "Pastel de manzana con canela",
+  IcedTeaItemName: "Té Helado",
+  IcedTeaItemDesc: "Té frío refrescante con limón",
 
 
 

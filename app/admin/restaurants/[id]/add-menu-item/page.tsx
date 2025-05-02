@@ -798,7 +798,7 @@ export default function AddMenuItemPage() {
               setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
             }
           }}
-          className="transition-opacity duration-500 ease-in-out opacity-0"
+          className="transition-opacity duration-500 ease-in-out opacity-0 "
         >
           <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
             <DialogHeader>
