@@ -128,7 +128,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
 
         {showOtp ? "" : <div className="flex justify-center items-center space-x-4 bg-gray-100 p-4 rounded-t-lg ">
           <button
-            onClick={() => setIsLoginMode(false)}
+            onClick={() => {setEmail("");setIsLoginMode(false)}}
             style={{
               padding: "12px 24px",
               borderRadius: "8px",
@@ -143,7 +143,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
             {t("registerHeading")}
           </button>
           <button
-            onClick={() => setIsLoginMode(true)}
+            onClick={() => {setEmail("");setIsLoginMode(true)}}
             style={{
               padding: "12px 24px",
               borderRadius: "8px",

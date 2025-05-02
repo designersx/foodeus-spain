@@ -79,7 +79,7 @@ const addRestaurant = async (data: any) => {
     console.error('Error adding restaurant:', error);
     return { success: false, data: [] }; // Return a fallback value on error
   }
-};
+};npm 
 
 export const login = async (email: string, password: string) => {
   try {
