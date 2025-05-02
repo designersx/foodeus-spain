@@ -443,8 +443,14 @@ export default function FullMenuPage() {
                           />
                         </div>
                         <div>
-                          <h3 className="fs-5 fw-bold mb-1">{item.title}</h3>
-                          <p className="small text-secondary mb-1">
+                          <h3 className="fs-5 fw-bold mb-1 resName" style={{ 
+                            wordBreak: "break-all",
+                            overflowWrap: "break-word",
+                          }}>{item.title}</h3>
+                          <p className="small text-secondary mb-1 line-clamp-2" style={{ 
+                            wordBreak: "break-all",
+
+                          }}>
                             {item.description}
                           </p>
                           {/* <p className="text-primary fw-medium mb-0">

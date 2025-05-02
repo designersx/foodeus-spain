@@ -411,7 +411,7 @@ export default function AddMenuItemPage() {
             {/* Menu Image */}
             <div className="space-y-2">
               <Label>
-                {t("MenuImage")} <span className="text-danger">*</span>
+                {t("ItemImageClickToChange")} <span className="text-danger">*</span>
               </Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
@@ -798,9 +798,10 @@ export default function AddMenuItemPage() {
               setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
             }
           }}
-          className="transition-opacity duration-500 ease-in-out opacity-0 "
+          className="transition-opacity duration-500 ease-in-out opacity-0 " // Add this style to limit height and enable scrolling
         >
-          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+
+          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8 " style={{maxHeight: "90vh" ,overflowY: "auto"}}  >
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
                 {t('AddMenuItem')}

@@ -4174,3 +4174,8 @@ span.small {
   max-height: none;
   overflow: visible;
 }
+
+a{
+  text-decoration: none !important;
+  color: #000 !important;
+}

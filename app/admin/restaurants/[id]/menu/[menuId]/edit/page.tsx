@@ -689,7 +689,7 @@ export default function EditMenuItemPage() {
       </form>
       {isModalOpen && editingItem && (
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
                 {t('EditMenuItem')}
@@ -703,14 +703,14 @@ export default function EditMenuItemPage() {
               <div className="space-y-2">
                 <Label htmlFor="modal-image">{t('ItemImage')}</Label>
                 <div
-                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-2 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() =>
                     document.getElementById("modal-image")?.click()
                   }
                 >
                   {editingItem.imagePreview || editingItem.image_url ? (
-                    <div className="relative flex items-center justify-center">
-                      <img
+                    <div className="relative flex items-center justify-center ">
+                      {/* <img
                         src={
                           editingItem.imagePreview ||
                           `https://foodeus.truet.net/${editingItem.image_url}`
@@ -724,8 +724,24 @@ export default function EditMenuItemPage() {
                             "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
                         }}
                         alt={('Preview')}
-                        className="max-h-32 object-cover rounded-md mx-auto"
-                      />
+                        className="max-h-[200px] object-cover rounded-md mx-auto "
+                      /> */}
+                      <div className="flex justify-center items-center overflow-hidden rounded-md border " style={{width: "200px", height: "100px"}}>
+                        <img
+                          src={
+                            editingItem.imagePreview ||
+                            `https://foodeus.truet.net/${editingItem.image_url}`
+                          }
+                          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src =
+                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+                          }}
+                          alt="Preview"
+                          className="h-auto max-h-[200px] w-auto object-contain"
+                        />
+                      </div>
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
                         <span className="text-white font-medium text-sm">
                           {t('ChangeImage')}
@@ -810,7 +826,7 @@ export default function EditMenuItemPage() {
       )}
       {isAddModalOpen && (
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
             <DialogHeader>
               <DialogTitle>{t('AddNewMenuItem')}</DialogTitle>
               <DialogDescription>
@@ -820,11 +836,12 @@ export default function EditMenuItemPage() {
             <div className="space-y-4">
               <Label>{t('Image')}</Label>
               <div
-                className="border-dashed border-2 p-4 rounded cursor-pointer text-center"
+                className="border-dashed border-2 p-2 rounded cursor-pointer text-center"
                 onClick={() =>
                   document.getElementById("add-image-input")?.click()
                 }
               >
+               <div className="flex justify-center items-center overflow-hidden rounded-md border " style={{ height: "100px"}}>
                 {newItemData.imagePreview ? (
                   <img
                     src={newItemData.imagePreview}
@@ -834,6 +851,7 @@ export default function EditMenuItemPage() {
                 ) : (
                   <Upload className="mx-auto h-6 w-6 text-muted-foreground" />
                 )}
+                 </div>
                 <input
                   id="add-image-input"
                   type="file"
@@ -967,7 +985,7 @@ export default function EditMenuItemPage() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
+        <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
               {t('ConfirmDeletion')}
