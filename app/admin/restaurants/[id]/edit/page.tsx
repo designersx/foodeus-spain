@@ -37,6 +37,7 @@ export default function EditRestaurantPage() {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [selectedPlace, setSelectedPlace] = useState(false);
+  const [hasUserTyped, setHasUserTyped] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -85,6 +86,7 @@ export default function EditRestaurantPage() {
 
   useEffect(() => {
     if (
+      !hasUserTyped ||
       !formData.address ||
       typeof window === "undefined" ||
       !window.google ||
@@ -374,11 +376,13 @@ export default function EditRestaurantPage() {
               name="address"
               placeholder={t('EnterAddress')}
               value={formData.address}
-              onChange={(e) =>
+              onChange={(e) =>{
+                setHasUserTyped(true); 
                 setFormData((prev) => ({
                   ...prev,
                   address: e.target.value,
                 }))
+              }
               }
               required
               maxLength={100}
