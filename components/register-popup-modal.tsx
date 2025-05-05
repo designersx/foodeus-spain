@@ -28,6 +28,18 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const { t, language } = useLanguage()
 
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [show]);
+
   const handleSend = async () => {
     const newErrors: { name?: string; email?: string } = {};
     if (!email.trim()) {
@@ -115,26 +127,32 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
   if (!show) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w text-center relative MOdalWidth">
+    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center px-2" style={{zIndex:10000}}>
+      <div className="bg-white p-6 px-2 rounded-md shadow-lg w-[320px] max-w-full text-center relative MOdalWidth" style={{zIndex:10001}}>
         <button
           onClick={handleCloseModal}
           className="absolute top-2 right-2 text-gray-600 hover:text-black text-xl"
         >
-          &times;
+          &times; 
         </button>
 
 
 
-        {showOtp ? "" : <div className="flex justify-center items-center space-x-4 bg-gray-100 p-4 rounded-t-lg ">
-          <button
+        {showOtp ? "" : 
+        // <div className="flex justify-center items-center space-x-4 bg-gray-100 p-4 rounded-t-lg ">
+        <div className="row g-2 px-2 py-4 ">
+          <div className="col-sm-6 col-6" style={{
+            borderRadius: "6px",
+            placeContent: "center",
+            backgroundColor: !isLoginMode ? "#F1582E" : "#E5E7EB",
+            color: !isLoginMode ? "white" : "#4B5563",
+          }}>
+                    <button
             onClick={() => {setEmail("");setIsLoginMode(false)}}
             style={{
-              padding: "12px 24px",
-              borderRadius: "8px",
-              width: "128px",
-              transition: "all 0.3s ease-in-out",
-              transform: "scale(1)",
+              padding: "6px 0px",
+              // transition: "all 0.3s ease-in-out",
+              // transform: "scale(1)",
               backgroundColor: !isLoginMode ? "#F1582E" : "#E5E7EB",
               color: !isLoginMode ? "white" : "#4B5563",
             }}
@@ -142,14 +160,15 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
 
             {t("registerHeading")}
           </button>
+          </div>
+          <div className="col-sm-6 col-6">
           <button
             onClick={() => {setEmail("");setIsLoginMode(true)}}
             style={{
-              padding: "12px 24px",
-              borderRadius: "8px",
-              width: "128px",
-              transition: "all 0.3s ease-in-out",
-              transform: "scale(1)",
+              padding: "6px 10px",
+              borderRadius: "6px",
+              // transition: "all 0.3s ease-in-out",
+              // transform: "scale(1)",
               backgroundColor: isLoginMode ? "#F1582E" : "#E5E7EB",
               color: isLoginMode ? "white" : "#4B5563",
             }}
@@ -157,6 +176,7 @@ const RegisterPromptModal: React.FC<RegisterPromptModalProps> = ({
             {t("loginHeading")}
 
           </button>
+          </div>
         </div>}
         {/* Email & Name Inputs */}
         {!showOtp ? (

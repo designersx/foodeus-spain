@@ -302,7 +302,7 @@ const HeroSection = () => {
                     alt={slide.title || `hero-${slide.id}`}
                     className="object-cover w-full h-full"
                     style={{ filter: "brightness(65%)" }}
-                    loading="lazy"
+                    // loading="lazy"
                     width={800}
                     height={300}
                   />

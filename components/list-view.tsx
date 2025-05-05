@@ -63,6 +63,28 @@ const calculateDistance = (
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
+
+// calcuate distance with openstreet api accurate calcuate distance
+// const calculateDistance = async (lat1, lng1, lat2, lng2) => {
+//   if (!lat2 || !lng2) return Number.MAX_VALUE; // If coordinates are missing, set a large distance
+  
+//   const url = `http://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
+
+//   // Return the fetch Promise that resolves with distance in km
+//   return fetch(url)
+//     .then((response) => response.json())
+//     .then((data) => {
+//       if (data.routes && data.routes.length > 0) {
+//         const distance = data.routes[0].legs[0].distance; // Distance in meters
+//         return distance / 1000; // Convert to kilometers
+//       }
+//       return Number.MAX_VALUE; // Return a large value if no route is found
+//     })
+//     .catch((error) => {
+//       console.error('Error calculating distance:', error);
+//       return Number.MAX_VALUE; // Return a large value in case of error
+//     });
+// };
 export function ListView() {
   const { t, language } = useLanguage();
   const [userLocation, setUserLocation] = useState<{
@@ -102,182 +124,10 @@ export function ListView() {
     setFilteredRestaurants(restaurants);
   }, []);
 
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     console.log("Geolocation is start",new Date().toISOString());
-  //     setLoadingLocation(true);
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const userPos = {
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         };
-
-  //         setUserLocation(userPos);
-
-  //         localStorage.setItem("userLocation", JSON.stringify(userPos));
-
-  //         setLoadingLocation(false);
-  //       },
-  //       (error) => {
-  //         console.error("Error getting location:", error);
-
-  //         if (error.code === error.PERMISSION_DENIED) {
-  //           setLocationError(
-  //             "Location access was denied. Please enable it in your browser settings."
-  //           );
-  //         } else {
-  //           setLocationError("Unable to access your location.");
-  //         }
-
-  //         setLoadingLocation(false);
-  //       }
-  //     );
-  //     console.log("Geolocation is end",new Date().toISOString());
-      
-  //   } else {
-  //     setLocationError("Geolocation is not supported by your browser.");
-  //     setLoadingLocation(false);
-  //   }
-
-  //   return () => {
-  //     setLoadingLocation(false);
-  //   };
-
-  // }, []);
 
   // Utility to format date to just yyyy-mm-dd
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-  // useEffect(() => {
-  //   const fetchRestaurants = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const data = await getRestaurantsWithMenus();
-  //       if (!Array.isArray(data.data)) {
-  //         console.error("API response is not an array:", data);
-  //         return;
-  //       }
-  //       // console.log("Fetched restaurants:", data.data);
-  //       const today = new Date();
-  //       const yesterday = new Date(today);
-  //       yesterday.setDate(today.getDate() - 1);
-
-  //       const formattedToday = formatDate(today);
-  //       const formattedYesterday = formatDate(yesterday);
-
-  //       const todaySpecialRestaurants: Restaurant[] = [];
-
-  //       data?.data?.forEach((restaurant: any) => {
-  //         if (restaurant.menus.some((menu: any) => menu?.items?.length === 0)) {
-  //           return; // This will skip the current iteration
-  //         }
-  //         const allMenus = restaurant.menus || [];
-
-  //         // No filter, show all menus
-  //         const todaysSpecialMenus = allMenus;
-
-  //         const sortedMenus = todaysSpecialMenus.sort((a, b) => {
-  //           const dateA = new Date(a.updated_at).getTime();
-  //           const dateB = new Date(b.updated_at).getTime();
-  //           return dateB - dateA;
-  //         });
-
-  //         if (sortedMenus?.length > 0) {
-  //           const latestMenu = sortedMenus[0];
-  //           todaySpecialRestaurants.push({
-  //             id: restaurant.restaurant_id?.toString() || "",
-  //             name: restaurant.name || "",
-  //             location: restaurant.address || "",
-  //             coordinates: {
-  //               lat: Number(restaurant.location?.latitude) || 0,
-  //               lng: Number(restaurant.location?.longitude) || 0,
-  //             },
-  //             rating: restaurant.ratings?.toString() || "",
-  //             category: restaurant.category,
-  //             menu: {
-  //               title: {
-  //                 en: latestMenu.item_name || "",
-  //                 es: latestMenu.item_name || "",
-  //               },
-  //               description: {
-  //                 en: latestMenu.description || "",
-  //                 es: latestMenu.description || "",
-  //               },
-  //               image: latestMenu.image_url || "",
-  //               items: latestMenu.items,
-  //               updated_at: latestMenu.updated_at,
-  //               menu_type: latestMenu.menu_type,
-  //               menu_id: latestMenu.menu_id,
-  //               price: latestMenu.price,
-  //             },
-  //           });
-  //         }
-  //       });
-  //       setRestaurants(todaySpecialRestaurants);
-  //       setHasFetched(true);
-  //     } catch (err) {
-  //       console.error("Error fetching restaurants:", err);
-  //       setLoading(false);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   if (!hasFetched) {
-  //     console.log("Fetching restaurants...",new Date().toISOString());    
-  //     fetchRestaurants();
-  //     console.log("Fetched restaurants end",new Date().toISOString());
-  //   }
-  // }, [hasFetched]);
-
-  // useEffect(() => {
-  //   if (!restaurants?.length) return;
-  //   if (userLocationFromStorage || userLocation) {
-  //     console.log("Calculating distances...",new Date().toISOString());
-  //     setLoading(true);
-  //     const today = new Date().toISOString().split("T")[0];
-    
-  //     const withDistance = restaurants.map((restaurant) => {
-  //       const hasMenu = !!restaurant.menu?.updated_at;
-  //       const updatedAt = restaurant.menu?.updated_at || "";
-  //       const updatedDate = updatedAt.split("T")[0].split(" ")[0]; // support both formats
-    
-  //       const updatedToday = updatedDate === today;
-    
-  //       return {
-  //         ...restaurant,
-  //         distance: calculateDistance(
-  //           userLocationFromStorage?.lat || userLocation?.lat,
-  //           userLocationFromStorage?.lng || userLocation?.lng,
-  //           restaurant.coordinates.lat,
-  //           restaurant.coordinates.lng
-  //         ),
-  //         updatedToday,
-  //         hasMenu,
-  //         updatedAt,
-  //         rating: restaurant.rating || 3,
-  //       };
-  //     });
-    
-  //     // Split into two groups
-  //     const todayUpdated = withDistance
-  //       .filter((r) => r.updatedToday)
-  //       .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
-    
-  //     const olderUpdates = withDistance
-  //       .filter((r) => !r.updatedToday)
-  //       .sort((a, b) => (a.distance || 0) - (b.distance || 0)); // nearest first
-    
-  //     const sortedList = [...todayUpdated, ...olderUpdates];
-      
-  //     setRestaurantsWithDistance(sortedList);
-  //     setFilteredRestaurants(sortedList);
-  //     setLoading(false);
-  //     console.log("Calculated distances end",new Date().toISOString());
-
-  //   }
-  // }, [restaurants, userLocation]);
 
   useEffect(() => {
     const getLocationAsync = async () => {
@@ -436,6 +286,94 @@ export function ListView() {
     }
   }, [hasFetched, userLocation, userLocationFromStorage]);
   
+  // // useEffect with accurate calculate distance 
+  // useEffect(() => {
+  //   const fetchAndProcessRestaurants = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const data = await getRestaurantsWithMenus();
+  //       const todaySpecialRestaurants = [];
+
+  //       data?.data?.forEach((restaurant) => {
+  //         if (restaurant.menus.some((menu) => menu?.items?.length === 0)) {
+  //           return;
+  //         }
+  //         const allMenus = restaurant.menus || [];
+  //         const sortedMenus = allMenus.sort((a, b) => {
+  //           const dateA = new Date(a.updated_at).getTime();
+  //           const dateB = new Date(b.updated_at).getTime();
+  //           return dateB - dateA;
+  //         });
+
+  //         if (sortedMenus.length > 0) {
+  //           const latestMenu = sortedMenus[0];
+
+  //           todaySpecialRestaurants.push({
+  //             id: restaurant.restaurant_id?.toString() || "",
+  //             name: restaurant.name || "",
+  //             location: restaurant.address || "",
+  //             coordinates: {
+  //               lat: Number(restaurant.location?.latitude) || 0,
+  //               lng: Number(restaurant.location?.longitude) || 0,
+  //             },
+  //             rating: restaurant.ratings?.toString() || "",
+  //             category: restaurant.category,
+  //             menu: {
+  //               title: { en: latestMenu.item_name || "", es: latestMenu.item_name || "" },
+  //               description: { en: latestMenu.description || "", es: latestMenu.description || "" },
+  //               image: latestMenu.image_url || "",
+  //               items: latestMenu.items,
+  //               updated_at: latestMenu.updated_at,
+  //               menu_type: latestMenu.menu_type,
+  //               menu_id: latestMenu.menu_id,
+  //               price: latestMenu.price,
+  //             },
+  //           });
+  //         }
+  //       });
+
+  //       const hasLocation = userLocation || userLocationFromStorage;
+  //       let withDistance = todaySpecialRestaurants;
+
+  //       if (hasLocation) {
+  //         const userLat = userLocationFromStorage?.lat || userLocation?.lat;
+  //         const userLng = userLocationFromStorage?.lng || userLocation?.lng;
+
+  //         // Use Promise.all to fetch distances concurrently
+  //         const restaurantsWithDistances = await Promise.all(
+  //           todaySpecialRestaurants.map(async (restaurant) => {
+  //             const calculatedDistance = await calculateDistance(
+  //               userLat,
+  //               userLng,
+  //               restaurant.coordinates.lat,
+  //               restaurant.coordinates.lng
+  //             );
+  //             return {
+  //               ...restaurant,
+  //               distance: calculatedDistance,
+  //             };
+  //           })
+  //         );
+
+  //         // Update the state with restaurants sorted by distance
+  //         withDistance = restaurantsWithDistances.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+  //       }
+
+  //       setRestaurants(withDistance); // final list with distance
+  //       setRestaurantsWithDistance(withDistance);
+  //       setFilteredRestaurants(withDistance);
+  //       setHasFetched(true);
+  //     } catch (err) {
+  //       console.error("Error fetching restaurants:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (!hasFetched && userLocationFromStorage) {
+  //     fetchAndProcessRestaurants();
+  //   }
+  // }, [hasFetched, userLocation, userLocationFromStorage]);
 
   const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
@@ -633,7 +571,6 @@ if (
           </div>
     );
   }
-
 
   const pathname = usePathname();
   return (

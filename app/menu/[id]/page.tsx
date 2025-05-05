@@ -236,7 +236,7 @@ export default function MenuDetailPage() {
               fill
               className="object-cover"
               style={{ filter: "brightness(75%)" }}
-              loading="lazy"
+              // loading="lazy"
             />
             <div className="position-absolute bottom-0 start-0 end-0 p-3 bg-gradient-dark">
               <h1
@@ -343,7 +343,7 @@ export default function MenuDetailPage() {
                             }}
                             fill
                             className="object-fit-cover rounded"
-                            loading="lazy"
+                            // loading="lazy"
                           />
                         </div>
                         <div className="flex-grow-1">
@@ -386,15 +386,16 @@ export default function MenuDetailPage() {
         <div className="fixed-bottom bg-white border-top p-3">
           <div className="container p-0">
             <div className="row g-2">
-              <div className="col-sm-6 col-6">
-                <button
-                  type="button"
+              <div className="col-sm-6 col-6 Navigate_btn">
+
+                <button 
                   onClick={() => window.open(mapUrl, "_blank")}
                   className="btn btn-primary w-100"
                 >
                   {language === "en" ? "Take Me There" : "Llévame Allí"}
                 </button>
               </div>
+
               <div className="col-sm-6 col-6">
                 <Link
                   href={{

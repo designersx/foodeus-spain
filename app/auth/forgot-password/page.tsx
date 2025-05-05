@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { API_BASE_URL } from "@/services/apiService"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useLanguage } from "@/context/language-context"
 export default function ForgotPasswordPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -21,6 +22,7 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState("")
   const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(false);
+  const {t}=useLanguage()
   // Timer countdown
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -42,8 +44,8 @@ export default function ForgotPasswordPage() {
         setOtpSent(true)
         setTimer(600) // reset timer
         toast({
-          title: "OTP Sent",
-          description: `An OTP has been sent to ${email}`,
+          title: t('otpSentTitle'),
+          description: t('otpSentDescription').replace('{email}',email),
         })
       }
     } catch (err) {
@@ -63,19 +65,19 @@ export default function ForgotPasswordPage() {
     try {
       console.log(password)
       if (!password || password.trim() === "") {
-        setError("Enter a valid password");
+        setError(t('enterValidPassword'));
         return;
       }
       if (password.length<6) {
-        setError("Password must be at least 6 characters");
+        setError(t('passwordMinLength'));
         return;
       }
       setError("")
       const res = await axios.post(`${API_BASE_URL}/admin/reset_password`, { email, otp,newPassword:password })
       if (res.status===200) {
         toast({
-          title: "Password Updated",
-          description: "Password Updated successfully.",
+          title: t('passwordUpdatedTitle'),
+          description: t('passwordUpdatedDescription'),
         })
         // Optionally redirect to reset password page
         router.push("/auth/login")
@@ -107,7 +109,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
       <div className="absolute top-10 left-4">
     <Button variant="outline" onClick={() => window.history.back()} className="text-primary">
-      &larr; Back
+      &larr; {t('Back')}
     </Button>
   </div>
       <CardHeader className="text-center space-y-2">
@@ -118,16 +120,16 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      <CardTitle className="text-2xl">Forgot Your Password?</CardTitle>
+      <CardTitle className="text-2xl">{t('forgotPasswordHeading')}</CardTitle>
       <CardDescription>
-        Enter your registered email address to receive a one-time password (OTP) and reset your password securely.
+       {t('forgotPasswordSubheading')}
       </CardDescription>
     </CardHeader>
 
         <CardContent className="space-y-4">
           {!otpSent ? (
             <>
-              <Label htmlFor="email">Enter your registered email</Label>
+              <Label htmlFor="email">{t('emailPlaceholder')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -137,30 +139,30 @@ export default function ForgotPasswordPage() {
                 required
               />
               <Button className="w-full" onClick={handleSendOtp}  disabled={loading}>
-              {loading ? "Sending..." : "Send OTP"}
+              {loading ? t('sending') : t('sendOtp')}
               </Button>
             </>
           ) : (
             <>
       <p className="text-center text-sm text-muted-foreground">
-        OTP sent to <strong>{email}</strong>
+        {t('otpSentTo')} <strong>{email}</strong>
       </p>
 
-      <Label htmlFor="otp">Enter OTP</Label>
+      <Label htmlFor="otp">{t('enterOtpLabel')}</Label>
       <Input
         id="otp"
         type="text"
-        placeholder="Enter 4-digit code"
+        placeholder={t('enterOtpPlaceholder')}
         value={otp}
         onChange={(e) => setOtp(e.target.value)}
         required
       />
 
-      <Label htmlFor="password">New Password</Label>
+      <Label htmlFor="password">{t('newPasswordLabel')}</Label>
       <Input
         id="password"
         type="password"
-        placeholder="Enter new password"
+        placeholder={t('newPasswordPlaceholder')}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         minLength={6}
@@ -168,16 +170,16 @@ export default function ForgotPasswordPage() {
       />
 
       <div className="text-sm text-center text-muted-foreground">
-        Time left: <span className="font-medium">{formatTime(timer)}</span>
+        {t('timeLeft')} <span className="font-medium">{formatTime(timer)}</span>
       </div>
 
       <Button className="w-full mt-2" onClick={handleVerifyOtp}>
-        Verify & Reset Password
+        {t('verifyAndReset')}
       </Button>
 
       {timer === 0 && (
         <Button variant="outline" className="w-full mt-2" onClick={handleSendOtp}>
-          Resend OTP
+          {t('resendOtp')}
         </Button>
       )}
     </>

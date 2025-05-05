@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { login, API_BASE_URL } from "@/services/apiService"
 import axios from "axios"
 import { encrypt, decrypt } from "@/utils/crypto";
+import { useLanguage } from "@/context/language-context";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const { toast } = useToast()
   const { login } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
+  const {t}=useLanguage()
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -65,8 +67,8 @@ export default function LoginPage() {
         localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
         await login(email, password)
         toast({
-          title: "Login successful",
-          description: "Welcome to Foodeus Admin Panel",
+          title: t('loginSuccessTitle'),
+          description: t('loginSuccessDescription'),
         })
       }
 
@@ -78,8 +80,8 @@ export default function LoginPage() {
         setError("Unexpected error occurred");
       }
       toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again",
+        title: t('loginFailTitle'),
+        description: t('loginFailDescription'),
         variant: "destructive",
       })
     } finally {
@@ -100,17 +102,17 @@ export default function LoginPage() {
               <span className="text-xl font-bold">Menudista</span>
             </div>
           </div>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
-          <CardDescription>Enter your credentials to access the admin panel</CardDescription>
+          <CardTitle className="text-2xl">{t('adminLoginHeading')}</CardTitle>
+          <CardDescription>{t('adminLoginSubheading')}</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email address"
+                placeholder={t('emailPlaceholder')}
                 value={email}
                 maxLength={50}
                 onChange={(e) => setEmail(e.target.value)}
@@ -119,9 +121,9 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('passwordLabel')}</Label>
                 <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline" >
-                  Forgot password?
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <div className="relative">
@@ -129,7 +131,7 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  placeholder="Enter your password"
+                  placeholder={t('passwordPlaceholder')}
                   maxLength={40}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -152,7 +154,7 @@ export default function LoginPage() {
                   checked={rememberMe}
                   onChange={(e) => handleRememberMe(e)}
                   className="me-2"
-                /><Label htmlFor="remember-me">Remember me</Label>
+                /><Label htmlFor="remember-me">{t('rememberMe')}</Label>
               </div>
             </div>
             <span className="text-danger d-block text-center">{error && error}
@@ -161,7 +163,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? t('loggingIn') : t('loginButton')}
             </Button>
             {/* <div className="text-center text-sm">
               Don&apos;t have an account?{" "}

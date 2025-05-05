@@ -64,7 +64,7 @@ export function MapView() {
             height="100%"
             style={{ border: "0", borderRadius: "10px" }}
             allowFullScreen
-            loading="lazy"
+            // loading="lazy"
             title="Map"
             onLoad={() => setLoading(false)}
           ></iframe>

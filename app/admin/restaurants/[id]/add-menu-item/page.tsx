@@ -798,10 +798,10 @@ export default function AddMenuItemPage() {
               setSelectedItem(""); // <-- Reset selectedItem when Dialog closes
             }
           }}
-          className="transition-opacity duration-500 ease-in-out opacity-0 " // Add this style to limit height and enable scrolling
+          className="transition-opacity duration-500 ease-in-out opacity-50" 
         >
 
-          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8 " style={{maxHeight: "90vh" ,overflowY: "auto"}}  >
+          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8 " style={{maxHeight: "90vh", transition:"0.5s" ,overflowY: "auto"}}  >
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
                 {t('AddMenuItem')}

@@ -26,6 +26,19 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   const getUserId: DecodedToken | null = token ? decodeToken(token) as DecodedToken : null;
   const [loading, setLoading] = useState(true);
   const { t, language } = useLanguage()
+  
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [show]);
+
   useEffect(() => {
     if (getUserId?.userId) {
       apiClient
@@ -38,6 +51,12 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         .catch((err) => {
           console.error("Error fetching user data", err);
           setToast({ show: true, message: "Error fetching user data", type: "error" });
+        
+          setTimeout(()=>{
+            handleCloseModal();
+
+          },1500)
+          
         }).finally(() => {
           setLoading(false);
         });
@@ -78,6 +97,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         })
         .catch((err) => {
           setToast({ show: true, message: ` ${err.response.data.message}`, type: "error" });
+          
           console.error("Error updating user data", err);
         });
     }
@@ -98,7 +118,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   return (
     <div
       className="fixed inset-0 z-50 flex justify-center items-center px-4 "
-      style={{ backgroundColor: "#000000a3" }}
+      style={{ backgroundColor: "#000000a3" ,zIndex:10000 }}
     >
     
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative space-y-6 ">
@@ -149,7 +169,6 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         </div>
 
         {/* Divider */}
-        <hr className="my-2" />
 
         {/* Email Field */}
         <div className="space-y-1">
