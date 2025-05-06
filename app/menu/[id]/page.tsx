@@ -72,103 +72,99 @@ export default function MenuDetailPage() {
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
 
   const searchParams = useSearchParams();
-  const menuId =
-    searchParams.get("menuId") || localStorage.getItem("lastMenuId");
-  useEffect(() => {
-    if (id) {
-      getRestaurantById(`${id}`)
-        .then((data) => {
-          if (
-            data?.data &&
-            typeof data.data === "object" &&
-            !Array.isArray(data.data)
-          ) {
-            const restaurant = data.data;
+  const menuId =    searchParams.get("menuId") || localStorage.getItem("lastMenuId");
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
-            const sortedMenus = restaurant.menus
-              ? [...restaurant.menus].sort(
-                  (a, b) =>
-                    new Date(b.updated_at).getTime() -
-                    new Date(a.updated_at).getTime()
-                )
-              : [];
-            const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
-              title: { en: menu.item_name || "", es: menu.item_name || "" },
-              description: {
-                en: menu.description || "",
-                es: menu.description || "",
-              },
-              image: menu.image_url || "",
-              items: menu.item_list || [],
-              price: {
-                en: `€${Number(menu.price).toFixed(2)}`,
-                es: `€${Number(menu.price).toFixed(2)}`,
-              },
-              updated_at: menu.updated_at,
-              menu_type: menu.menu_type,
-            }));
-            setdata(restaurant);
-            setMenuItems({
-              id: restaurant.restaurant_id || "",
-              name: restaurant.name || "",
-              location: restaurant.address || "",
-              coordinates: {
-                lat: restaurant?.latitude || "",
-                lng: restaurant?.longitude || "",
-              },
-              menu: formattedMenus,
-            });
-          } else {
-            console.error("Unexpected API response format:", data);
-          }
-        })
-        .catch((err) =>
-          console.error("Error fetching restaurant details:", err)
-        );
+  useEffect(() => {
+    // if (id) {
+    //   getRestaurantById(`${id}`)
+    //     .then((data) => {
+    //       if (
+    //         data?.data &&
+    //         typeof data.data === "object" &&
+    //         !Array.isArray(data.data)
+    //       ) {
+    //         const restaurant = data.data;
+
+    //         const sortedMenus = restaurant.menus
+    //           ? [...restaurant.menus].sort(
+    //               (a, b) =>
+    //                 new Date(b.updated_at).getTime() -
+    //                 new Date(a.updated_at).getTime()
+    //             )
+    //           : [];
+    //         const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
+    //           title: { en: menu.item_name || "", es: menu.item_name || "" },
+    //           description: {
+    //             en: menu.description || "",
+    //             es: menu.description || "",
+    //           },
+    //           image: menu.image_url || "",
+    //           items: menu.item_list || [],
+    //           price: {
+    //             en: `€${Number(menu.price).toFixed(2)}`,
+    //             es: `€${Number(menu.price).toFixed(2)}`,
+    //           },
+    //           updated_at: menu.updated_at,
+    //           menu_type: menu.menu_type,
+    //         }));
+    //         setdata(restaurant);
+    //         setMenuItems({
+    //           id: restaurant.restaurant_id || "",
+    //           name: restaurant.name || "",
+    //           location: restaurant.address || "",
+    //           coordinates: {
+    //             lat: restaurant?.latitude || "",
+    //             lng: restaurant?.longitude || "",
+    //           },
+    //           menu: formattedMenus,
+    //         });
+    //       } else {
+    //         console.error("Unexpected API response format:", data);
+    //       }
+    //     })
+    //     .catch((err) =>
+    //       console.error("Error fetching restaurant details:", err)
+    //     );
+    // }
+    const storedData = sessionStorage.getItem("selectedRestaurant");
+    if (storedData) {
+      setMenuItems(JSON.parse(storedData));
+    } else {
+      // fallback if not found
+      console.warn("No restaurant data found in sessionStorage");
     }
+    
   }, [id]);
 
+  console.log('menuItems',menuItems)
   useEffect(() => {
-    if (menuItems && menuItems.menu?.length > 0) {
-      let selectedItem = null;
-      if (!selectedItem) {
-        const today = new Date().toISOString().split("T")[0];
-        selectedItem = menuItems.menu.find(
-          (item) =>
-            item.menu_type === "Today's Special" &&
-            item.updated_at?.split(" ")[0] === today
-        );
-      }
-      if (!selectedItem) {
-        selectedItem = [...menuItems.menu].sort((a, b) => {
-          return (
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-          );
-        })[0];
-      }
-
-      if (selectedItem) {
-        setMenuItem(selectedItem);
-        setSrc(selectedItem.image);
+    if (menuItems && menuItems.menu) {
+      console.log('inside 1')
+      if (menuItems.menu) {
+        console.log('inside 2')
+        setMenuItem(menuItems?.menu);
+        setSrc(menuItems?.menu?.image);
       }
     }
   }, [id, menuItems]);
+  console.log('menuItem',menuItem)
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error getting user location:", error);
-        }
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         setUserLocation({
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude,
+  //         });
+  //       },
+  //       (error) => {
+  //         console.error("Error getting user location:", error);
+  //       }
+  //     );
+  //   }
+  // }, []);
 
   useEffect(() => {
     const userloc = JSON.parse(localStorage.getItem("userLocation") || "{}");
@@ -264,18 +260,18 @@ export default function MenuDetailPage() {
           <div className="flex justify-between align-items-center mb-1">
             <div className="fs-3 fw-bold text-primary">
               {}
-              {menuItem?.price[language]
-                ? menuItem?.price[language]
+              {menuItem?.price && parseFloat(menuItem.price) > 0
+                ? `€ ${menuItem.price}`
                 : language === "en"
                 ? "Not Available"
                 : "No Disponible"}
             </div>
 
-            {distanceToRestaurant !== null && (
+            {menuItems?.distance !== null && (
               <div className="text-muted text-sm">
                 <i className="bi bi-geo-alt me-1"></i>
                 {language === "es" ? "Distancia" : "Distance"}:{" "}
-                {distanceToRestaurant?.toFixed(1)} km
+                {menuItems?.distance}km
               </div>
             )}
           </div>
@@ -287,12 +283,12 @@ export default function MenuDetailPage() {
                 className="h-3 w-3"
                 style={{ color: "#FFD700", fill: "#FFD700" }}
               />
-              {data?.ratings}{" "}
+              {menuItems?.rating}{" "}
 
-              {data?.totalRating != null && data.totalRating !== "" && (
+              {menuItems?.total_ratings != null && menuItems?.total_ratings !== "" && (
                 <>
-                  {data.totalRating}{" "}
-                  ({formatTotalRatings(Number(data.totalRating))} {language === "es" ? "valoraciones" : "ratings"})
+                  {menuItems?.total_ratings}{" "}
+                  ({formatTotalRatings(Number(menuItems?.total_ratings))} {language === "es" ? "valoraciones" : "ratings"})
                 </>
               )}
             </span>
@@ -308,7 +304,7 @@ export default function MenuDetailPage() {
               }}
             >
               {menuItem.description[language] &&
-              menuItem.description[language].length > 150
+              menuItem.description[language]?.length > 150
                 ? `${menuItem.description[language].substring(0, 150)}...`
                 : menuItem.description[language] ||
                   (language === "en" ? "Not Available" : "No Disponible")}
@@ -321,7 +317,7 @@ export default function MenuDetailPage() {
               {language === "en" ? "Includes" : "Incluye"}
             </h2>
             <ul className="list-unstyled">
-              {menuItem.items.length > 0 ? (
+              {menuItem.items?.length > 0 ? (
                 menuItem.items?.map((item: any, index: number) => (
                   <div className="card mb-3" key={index}>
                     <div className="card-body">
@@ -335,8 +331,8 @@ export default function MenuDetailPage() {
                           }}
                         >
                           <Image
-                            src={getMenuImagePath(item.image)}
-                            alt={item.name || "Item"}
+                            src={getMenuImagePath(item?.image_url)}
+                            alt={item.item_name || "Item"}
                             onError={(e) => {
                               e.currentTarget.src =
                                 "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
@@ -347,14 +343,13 @@ export default function MenuDetailPage() {
                           />
                         </div>
                         <div className="flex-grow-1">
-                          <h5 className="fs-6 fw-bold resName">
+                          <h5 className="fs-6 fw-bold resName" style={{
+                              wordBreak: "break-all", // Breaks long words that have no spaces
+                              overflowWrap: "break-word", // Handles text wrapping
+                              whiteSpace: "normal", // Allows text to wrap normally
+                            }}>
                             {" "}
-                            {item.name.length > 20
-                              ? `${item.name.substring(0, 20)}...`
-                              : item.name}{" "}
-                            {item.name.length > 20
-                              ? `${item.name.substring(0, 20)}...`
-                              : item.name}
+                            {item.item_name?item.item_name:""}
                           </h5>
                           <p
                             className="small text-secondary mb-1 resName "
@@ -364,10 +359,7 @@ export default function MenuDetailPage() {
                               whiteSpace: "normal", // Allows text to wrap normally
                             }}
                           >
-                            {item.description}{" "}
-                            {item.name.description > 20
-                              ? `${item.description.substring(0, 150)}...`
-                              : item.description}
+                            {item?.description?item?.description:""}
                           </p>
                           {/* <p className="text-primary fw-medium mb-0">{item.price}</p> */}
                         </div>
