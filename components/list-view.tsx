@@ -184,7 +184,7 @@ export function ListView() {
           console.error("API response is not an array:", data);
           return;
         }
-  
+        // console.log(data.data) 
         const today = new Date();
         const formattedToday = formatDate(today);
   
@@ -270,7 +270,7 @@ export function ListView() {
   
           withDistance = [...todayUpdated, ...olderUpdates];
         }
-        console.log("Fetched restaurants:", withDistance);
+        // console.log("Fetched restaurants:", withDistance);
         setRestaurants(withDistance); // final list with distance & updatedToday
         setRestaurantsWithDistance(withDistance);
         setFilteredRestaurants(withDistance);
@@ -405,7 +405,9 @@ export function ListView() {
         item.item_name?.toLowerCase().includes(term)
       );
 
-      return isRestaurantMatch || isMenuMatch || isItemMatch;
+      const isCuisineMatch=restaurant?.category?.toLowerCase().includes(term)
+
+      return isRestaurantMatch || isMenuMatch || isItemMatch||isCuisineMatch;
     });
 
     setFilteredRestaurants(results);

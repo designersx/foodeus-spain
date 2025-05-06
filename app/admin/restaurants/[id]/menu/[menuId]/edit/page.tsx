@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogOverlay
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -689,6 +690,7 @@ export default function EditMenuItemPage() {
       </form>
       {isModalOpen && editingItem && (
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" /> 
           <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
@@ -826,6 +828,7 @@ export default function EditMenuItemPage() {
       )}
       {isAddModalOpen && (
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+          <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" /> 
           <DialogContent className="max-w-md" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
             <DialogHeader>
               <DialogTitle>{t('AddNewMenuItem')}</DialogTitle>
@@ -985,6 +988,7 @@ export default function EditMenuItemPage() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" /> 
         <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8" style={{maxHeight: "90vh" ,overflowY: "auto"}}>
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">

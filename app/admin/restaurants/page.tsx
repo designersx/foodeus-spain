@@ -41,6 +41,7 @@ export default function RestaurantsPage() {
   const { toast } = useToast();
   const storedFilter = sessionStorage.getItem('selectedFilter') || 'latestMenu'; // Default to 'latest' if nothing is stored
   const [selectedFilter, setSelectedFilter] = useState(storedFilter); // State for filter
+  const [errorMessage, setErrorMessage] = useState("") 
 
   const handleFilterChange = (e) => {
     const filterValue = e.target.value;
@@ -63,12 +64,12 @@ export default function RestaurantsPage() {
       try {
         const response = await getRestaurantListforAdmin()
         const restaurants = await response
-        console.log('restaurant data',response.data)
         setRestaurants(restaurants.data)
       }
       catch (error) {
         
         console.error("Error fetching restaurants:", error)
+        setErrorMessage(t("ErrorFetchingRestaurants"))
         // setToast({ show: true, message: t("ErrorFetchingRestaurants"), type: "error" });
       } finally {
         setLoading(false)
@@ -157,6 +158,8 @@ export default function RestaurantsPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
+
+console.log('errorMessage',errorMessage)
   return (
     <div className="w-full space-y-6 responsive-container ">
       {loading?
@@ -173,9 +176,13 @@ export default function RestaurantsPage() {
         <p className="text-muted-foreground mt-4">{t("Loading")}</p>
       </div>
   
+      ): errorMessage ? ( // Show error message if there is an error
+        <div className="flex justify-center items-center text-red-500">
+          <p>{errorMessage}</p>
+        </div>
       ):(
         <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('Restaurants')}</h1>
           <p className="text-muted-foreground">{t('ManageRestaurants')}</p>
@@ -187,13 +194,12 @@ export default function RestaurantsPage() {
         </Button>
       </div>
 
-<div className="flex items-center gap-4 w-full">
-      {/* Search Input */}
-      <div className="relative flex-1">
-        <Input
+      <div className="flex flex-col xs:flex-row sm:flex-row md:flex-row lg:flex-row xl:flex-row items-left gap-4 w-full">
+      <div className="relative flex-1 px-1 xs:w-full sm:w-full md:w-8/12 lg:w-8/12 xl:w-8/12">
+      <Input
           type="search"
           placeholder="Search Restaurants"
-          className="pl-8 w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          className="w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
           value={searchQuery}
           onChange={handleSearchChange}
         />
@@ -201,11 +207,12 @@ export default function RestaurantsPage() {
       </div>
 
       {/* Filter Button */}
-      <div className="relative">
+      <div className="relative xs:w-full sm:w-full md:w-4/12 lg:w-4/12 xl:w-4/12">
       <select
-        className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+        className="px-1 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 xs:w-full sm:w-full"
         value={selectedFilter}
         onChange={handleFilterChange}
+        style={{width:"100%"}}
       >
         {/* <option value="" disabled>
           {t('SelectFilter')}

@@ -53,6 +53,8 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
           setToast({ show: true, message: "Error fetching user data", type: "error" });
         
           setTimeout(()=>{
+            localStorage.removeItem('mobileToken');
+            localStorage.removeItem('isLoggedIn');
             handleCloseModal();
 
           },1500)

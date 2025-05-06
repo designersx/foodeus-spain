@@ -124,7 +124,7 @@ export default function RestaurantsPage() {
       </div>
 
       <div className="flex items-center gap-2 w-full">
-        <div className="relative flex-1">
+        <div className="relative flex-1 px-1">
           <Input
             type="search"
             placeholder={t('SearchUsersPlaceholder')}

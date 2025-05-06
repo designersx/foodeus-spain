@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogOverlay
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -746,6 +747,7 @@ export default function AddMenuItemPage() {
 
             {/* Dialog for confirming item deletion */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogOverlay className="bg-black/5 fixed inset-0 transition-opacity" /> 
               <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8">
                 <DialogHeader>
                   <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
@@ -800,8 +802,8 @@ export default function AddMenuItemPage() {
           }}
           className="transition-opacity duration-500 ease-in-out opacity-50" 
         >
-
-          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8 " style={{maxHeight: "90vh", transition:"0.5s" ,overflowY: "auto"}}  >
+          <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" /> 
+          <DialogContent className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-3 sm:px-3 sm:py-8 " style={{maxHeight: "90vh", transition:"0.5s" ,overflowY: "auto"}}  >
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
                 {t('AddMenuItem')}
@@ -814,7 +816,7 @@ export default function AddMenuItemPage() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-4 mt-4">
+            <div className="grid gap-4 mt-2">
               {t("ImageUpload")}
               <div>
                 <Label
@@ -889,7 +891,7 @@ export default function AddMenuItemPage() {
             </div>
 
             {/* Footer Button */}
-            <DialogFooter className="mt-5">
+            <DialogFooter className="mt-2">
               <Button
                 variant="outline"
                 className="w-full"

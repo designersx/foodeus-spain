@@ -372,9 +372,11 @@ SelectFilter: "Select filter",
 LatestUpdatedMenu: "Latest Updated Menu",
 LatestUpdatedRest: "Latest Updated Restaurants",
 MenuCountDesc: "Menu Count (Higher to Lower)",
-MenuCountAsc: "Menu Count (Lower to Higher)"
-
-
+MenuCountAsc: "Menu Count (Lower to Higher)",
+ErrorFetchingRestaurants: "Error fetching restaurants. Please try again later.",
+EnterCustomCuisine: "Enter Custom Cuisine",
+CustomCuisinePlaceholder: "Enter your custom cuisine",
+Save: "Save"
 
     
 
@@ -785,7 +787,11 @@ PleaseLoginAgain: "Por favor, inicie sesión nuevamente.",
  LatestUpdatedMenu: "Última actualización del menú",
 LatestUpdatedRest: "Restaurantes más recientes actualizados",
   MenuCountDesc: "Conteo de menú (Mayor a Menor)",
-  MenuCountAsc: "Conteo de menú (Menor a Mayor)"
+  MenuCountAsc: "Conteo de menú (Menor a Mayor)",
+  ErrorFetchingRestaurants: "Error al obtener los restaurantes. Por favor, inténtelo de nuevo más tarde.",
+  EnterCustomCuisine: "Ingresa Cocina Personalizada",
+  CustomCuisinePlaceholder: "Ingresa tu cocina personalizada",
+  Save: "Guardar"
 
 
 
