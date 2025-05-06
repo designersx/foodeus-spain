@@ -1147,7 +1147,7 @@ export default function ImportMenuXLSX() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+    <div className="flex flex-col h-full overflow-hidden px-0 py-2">
       
       <div className="flex-1 overflow-y-auto">
      

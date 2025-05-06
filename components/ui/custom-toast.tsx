@@ -36,7 +36,7 @@ const PopUp: React.FC<PopUpProps> = ({ type, message, onClose, onConfirm }) => {
 
   return (
     message ? (
-      <div className={`${styles.overlay} ${show ? styles.fadeIn : styles.fadeOut}`}>
+      <div className={`${styles.overlay} ${show ? styles.fadeIn : styles.fadeOut}`} style={{zIndex:"1000000"}}>
         <div className={`${styles.popup} ${styles[type]} ${show ? styles.scaleIn : styles.scaleOut}`}>
           <img src={getIconPath()} alt={type} className={`${styles.icon} ${styles.animateIcon}`} />
           <p className={styles.message}>{message}</p>

@@ -4117,11 +4117,12 @@ span.small {
   padding: 0 0 2px 0;
   margin: 0 0 6px 0 !important;
   /* max-width: 272px; */
-  min-width: 260px;
+  /* min-width: 260px; */
   /* border: 1px solid #F1582E; */
   overflow: auto !important;
   /* max-width: 500px; */
   /* min-width: 500px; */
+  max-height: 80px;
 }
 
 .MeniList{
@@ -4179,3 +4180,15 @@ a{
   text-decoration: none !important;
   color: #000 !important;
 }
+
+.Navigate_btn{
+  background-color: #0d6efd;
+  border-radius: 6px;
+  place-content: center;
+}
+.Log_btn_wid{
+  background-color: #F1582E;
+  border-radius: 6px;
+  place-content: center;
+}
+

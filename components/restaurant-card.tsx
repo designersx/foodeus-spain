@@ -133,7 +133,7 @@
 //         </div>
 //       </div>
 //     </Link>
- 
+
 //     </>
 //   )
 // }
@@ -213,7 +213,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   };
   return (
     <>
-     <div className="text-decoration-none text-dark">
+      <div className="text-decoration-none text-dark">
         <div className="card mb-3 mainClass">
           <div className="dishControl" style={{ height: "" }}>
             <div className="dishImage ">
@@ -221,92 +221,84 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 src={src}
                 alt={restaurant?.menu.title[language]}
                 onError={() => setSrc("https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg")}
-                loading="lazy"
                 fill
                 className=""
-                placeholder="blur"
-                blurDataURL="/placeholder.jpg" // or use shimmer base64
-                quality={75}
+                quality={75} // optional, adjusts the quality of the image
+                placeholder="blur" // Show a blurred image placeholder while loading
+                blurDataURL={src} // Optional: Add a small, low-quality image or base64-encoded version here
               />
-            <span className="dishPrice"> € {restaurant?.menu?.price}
-            
-            </span>
+              <span className="dishPrice"> € {restaurant?.menu?.price}
+
+              </span>
 
             </div>
             <div className="dishContent">
 
               <div className="card-body h-100 foodDescription  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
-                <div className="MeniList">  
+                <div className="MeniList">
 
-                <div className="MeneSequence">
-            {/* <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Risoto <span className="DishQuanty">+3</span></span>
+                  <div className="MeneSequence">
+                    {/* <span className="Main-Dish" style={{backgroundColor:'#D7EED0',}} >Risoto <span className="DishQuanty">+3</span></span>
             <span className="Starter" style={{backgroundColor:'#EEE7D0',}}>Lentil Soup</span>
             <span className="Drinks" style={{backgroundColor:'#EED0D0',}} >Soft Drink</span>
             <span className="Desert"style={{backgroundColor:'#D0E1EE',}} >Pancake red</span> */}
-              {['MainDish', 'Starter', 'Drinks', 'Dessert'].map((type) => {
-              // Filter items based on type
-              const itemsOfType = restaurant?.menu?.items?.filter(
-                (item) => item.item_type === type
-              );
+                    {['MainDish', 'Starter', 'Drinks', 'Dessert'].map((type) => {
+                      // Filter items based on type
+                      const itemsOfType = restaurant?.menu?.items?.filter(
+                        (item) => item.item_type === type
+                      );
 
-              if (itemsOfType?.length > 0) {
-                // Track if we have already displayed the first item of this type
-                let isFirstItemDisplayed = false;
+                      if (itemsOfType?.length > 0) {
+                        // Track if we have already displayed the first item of this type
+                        let isFirstItemDisplayed = false;
 
-                return (
-                  <div key={type}>
-                    {/* Render a section for each type */}
-                    <div className="flex gap-3 flex-wrap">
-                      {itemsOfType.map((item, index) => {
-                        // Display only the first item for each type
-                        if (!isFirstItemDisplayed) {
-                          isFirstItemDisplayed = true; // Mark the first item as displayed
+                        return (
+                          <div key={type}>
+                            {/* Render a section for each type */}
+                            <div className="flex gap-3 flex-wrap">
+                              {itemsOfType.map((item, index) => {
+                                // Display only the first item for each type
+                                if (!isFirstItemDisplayed) {
+                                  isFirstItemDisplayed = true; // Mark the first item as displayed
 
-                          // Count how many times this item appears in the items list
-                          const itemCount = restaurant.menu.items.filter(
-                            (i) => i.item_type === type
-                          ).length;
+                                  // Count how many times this item appears in the items list
+                                  const itemCount = restaurant.menu.items.filter(
+                                    (i) => i.item_type === type
+                                  ).length;
 
-                          return (
-                            <span
-                              className="item-label"
-                              style={{
-                                backgroundColor:
-                                  type === "MainDish"
-                                    ? "#D7EED0"
-                                    : type === "Starter"
-                                    ? "#EEE7D0"
-                                    : type === "Drinks"
-                                    ? "#EED0D0"
-                                    : "#D0E1EE",
-                              }}
-                              key={`${type}-${index}`}
-                            >
-                               {item.item_name}
-                              {/* If more than one item with the same name, show quantity */}
-                              {type === "Main Course" && itemCount > 1 && (
-                                <span className="DishQuanty">+{itemCount - 1}</span>
-                              )}
-                            </span>
-                          );
-                        }
-                        return null; // Skip rendering any subsequent items of the same type
-                      })}
-                    </div>
+                                  return (
+                                    <span
+                                      className="item-label"
+                                      style={{
+                                        backgroundColor:
+                                          type === "MainDish"
+                                            ? "#D7EED0"
+                                            : type === "Starter"
+                                              ? "#EEE7D0"
+                                              : type === "Drinks"
+                                                ? "#EED0D0"
+                                                : "#D0E1EE",
+                                      }}
+                                      key={`${type}-${index}`}
+                                    >
+                                      {item.item_name}
+                                      {/* If more than one item with the same name, show quantity */}
+                                      {type === "Main Course" && itemCount > 1 && (
+                                        <span className="DishQuanty">+{itemCount - 1}</span>
+                                      )}
+                                    </span>
+                                  );
+                                }
+                                return null; // Skip rendering any subsequent items of the same type
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
                   </div>
-                );
-              }
-              return null; // Skip rendering the section if there are no items of this type
-            })}
-          </div>
 
-                {/* <h5 className="card-title fs-6 fw-bold text-truncate mb-1 resName">
-                  {restaurant?.menu.title[language]
-                    ? restaurant.menu.title[language]
-                    : language === "en"
-                      ? "Menu not Available"
-                      : "Menú no disponible"}
-                </h5> */}
                 </div>
                 <div className="resturantLoc  w-100">
                   <div>
@@ -326,7 +318,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                       </p>
                       {distance !== undefined && (
                         <div className="small fw-medium text-primary restDistance" onClick={(e) => {
-                          e.stopPropagation(); 
+                          e.stopPropagation();
                           navigateMeThere();
                         }}>
                           <span >{formatDistance(distance)}</span>
@@ -342,7 +334,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
           </div>
         </div>
       </div>
-      <hr/>
+      <hr />
     </>
   )
 }

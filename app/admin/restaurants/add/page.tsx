@@ -36,7 +36,10 @@ export default function AddRestaurantPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedplace, setSelectedPlace] = useState<boolean>(false)
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
+  const [showCustomCuisineDialog, setShowCustomCuisineDialog] = useState(false);
+  const [customCuisine, setCustomCuisine] = useState("");
+  const [customCuisineOptions, setCustomCuisineOptions] = useState<string[]>([]);
+  
   const validationSchema = 
     Yup.object().shape({
       name: Yup.string()
@@ -130,12 +133,12 @@ export default function AddRestaurantPage() {
     },
   })
   
- 
 
   if(formik.values.address.length === 0  && selectedplace)
   {
     setSelectedPlace(false)
   }
+
   useEffect(() => {
     if (
       !formik.values.address ||
@@ -215,6 +218,21 @@ export default function AddRestaurantPage() {
     }
   }
   // console.log(formik.errors)
+  const handleConfirmCustomCuisine = () => {
+    if (customCuisine.trim()) {
+      const newCustomCuisine = customCuisine.trim();
+      
+      // Set the custom cuisine in the category field of Formik
+      formik.setFieldValue("category", newCustomCuisine);
+      
+      // Add to the list of custom cuisine options
+      setCustomCuisineOptions(prev => [...prev, newCustomCuisine]);
+  
+      // Close the dialog and clear the input
+      setShowCustomCuisineDialog(false);
+      setCustomCuisine("");
+    }
+  };
 
   return (
     <div className="full-width-container space-y-6 responsive-container">
@@ -270,9 +288,15 @@ export default function AddRestaurantPage() {
               </div>
               <div>
                 <Label>{t('Cuisine')} <span className="text-danger"> *</span></Label>
-                <Select value={formik.values.category} onValueChange={(val) => formik.setFieldValue("category", val)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('SelectCuisine')} />
+                  <Select value={formik.values.category} onValueChange={(val) => {
+                    if (val === "Others") {
+                      setShowCustomCuisineDialog(true);
+                    } else {
+                      formik.setFieldValue("category", val);
+                    }
+                  }}>                 
+                   <SelectTrigger>
+                  <SelectValue placeholder={t('SelectCuisine')} />
                   </SelectTrigger>
                   <SelectContent>
                   <SelectItem value="Italian">{t('Italian')}</SelectItem>
@@ -280,7 +304,12 @@ export default function AddRestaurantPage() {
                   <SelectItem value="Indian">{t('Indian')}</SelectItem>
                   <SelectItem value="Asian">{t('Asian')}</SelectItem>
                   <SelectItem value="Spanish">{t('Spanish')}</SelectItem>
-                    <SelectItem value="Others">{t('Others')}</SelectItem>
+                  <SelectItem value="Others">{t('Others')}</SelectItem>
+                  {customCuisineOptions.map((option, index) => (
+                    <SelectItem key={`custom-${index}`} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
                 {formik.touched.category && formik.errors.category && <span className="text-sm text-danger">{formik.errors.category}</span>}
@@ -406,6 +435,36 @@ export default function AddRestaurantPage() {
           </CardFooter>
         </Card>
       </form>
+      {showCustomCuisineDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md space-y-4">
+            <h2 className="text-xl font-semibold">{t('EnterCustomCuisine')}</h2>
+            <Input
+              value={customCuisine}
+              onChange={(e) => setCustomCuisine(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
+              placeholder={t('CustomCuisinePlaceholder')}
+            />
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCustomCuisine("")
+                  setShowCustomCuisineDialog(false)
+                }}
+              >
+                {t('Cancel')}
+              </Button>
+              <Button
+                onClick={handleConfirmCustomCuisine}
+              >
+                {t('Save')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   )
 }

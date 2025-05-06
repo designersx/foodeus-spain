@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus ,Search } from "lucide-react"
 import decodeToken from "@/lib/decode-token";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -39,6 +39,24 @@ export default function RestaurantsPage() {
   const { t } = useLanguage()
   // const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const { toast } = useToast();
+  const storedFilter = sessionStorage.getItem('selectedFilter') || 'latestMenu'; // Default to 'latest' if nothing is stored
+  const [selectedFilter, setSelectedFilter] = useState(storedFilter); // State for filter
+  const [errorMessage, setErrorMessage] = useState("") 
+
+  const handleFilterChange = (e) => {
+    const filterValue = e.target.value;
+    setSelectedFilter(filterValue); // Update state with selected filter
+
+    // Store the selected filter in sessionStorage
+    sessionStorage.setItem('selectedFilter', filterValue);
+  };  
+  console.log('selectedFilter',selectedFilter)
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // reset to page 1 on search
+  };
+
  
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -51,6 +69,7 @@ export default function RestaurantsPage() {
       catch (error) {
         
         console.error("Error fetching restaurants:", error)
+        setErrorMessage(t("ErrorFetchingRestaurants"))
         // setToast({ show: true, message: t("ErrorFetchingRestaurants"), type: "error" });
       } finally {
         setLoading(false)
@@ -87,26 +106,60 @@ export default function RestaurantsPage() {
         description: t("PleaseLoginAgain"),
         variant: "destructive",
       });
-      // setToast({ show: true, message: t("InvalidSession"), type: "error" });
       setTimeout(() => {
         window.location.href = "/auth/login";
       }, 2000);
     }
     }
   },[])
-  const filteredRestaurants = restaurantsData?.filter(
-    (restaurant) =>
-      restaurant?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
-      restaurant?.category?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
-      restaurant?.address?.toLowerCase().includes(searchQuery?.toLowerCase())
-  )
 
-  const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE)
+  // const filteredRestaurants = restaurantsData?.filter(
+  //   (restaurant) =>
+  //     restaurant?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+  //     restaurant?.category?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+  //     restaurant?.address?.toLowerCase().includes(searchQuery?.toLowerCase())
+  // )
+
+  // const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE)
+  // const paginatedRestaurants = filteredRestaurants.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // )
+
+
+  const filterAndSortRestaurants = (restaurants: Restaurant[]) => {
+    let filtered = [...restaurants]; // Clone to avoid mutation of original data
+
+    // Filter by search query
+    filtered = filtered.filter(
+      (restaurant) =>
+        restaurant?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+        restaurant?.category?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+        restaurant?.address?.toLowerCase().includes(searchQuery?.toLowerCase())
+    );
+
+    // Apply selected filter
+    if (selectedFilter === "latestRest") {
+      filtered = filtered.sort((a, b) => (new Date(b.restaurant_updated_at).getTime() - new Date(a.restaurant_updated_at).getTime())); // Latest updated first
+    } else if (selectedFilter === "menuCountDesc") {
+      filtered = filtered.sort((a, b) => b.menu_count - a.menu_count); // Menu count (Higher to Lower)
+    } else if (selectedFilter === "menuCountAsc") {
+      filtered = filtered.sort((a, b) => a.menu_count - b.menu_count); // Menu count (Lower to Higher)
+    }
+
+    return filtered;
+  };
+
+  const filteredRestaurants = filterAndSortRestaurants(restaurantsData);
+
+  const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE);
   const paginatedRestaurants = filteredRestaurants.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
-  )
+  );
 
+
+console.log('errorMessage',errorMessage)
   return (
     <div className="w-full space-y-6 responsive-container ">
       {loading?
@@ -123,9 +176,13 @@ export default function RestaurantsPage() {
         <p className="text-muted-foreground mt-4">{t("Loading")}</p>
       </div>
   
+      ): errorMessage ? ( // Show error message if there is an error
+        <div className="flex justify-center items-center text-red-500">
+          <p>{errorMessage}</p>
+        </div>
       ):(
         <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('Restaurants')}</h1>
           <p className="text-muted-foreground">{t('ManageRestaurants')}</p>
@@ -137,20 +194,36 @@ export default function RestaurantsPage() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 w-full">
-        <div className="relative flex-1">
-          <Input
-            type="search"
-            placeholder={t('SearchRestaurantsPlaceholder')}
-            className="pl-8 w-full"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setCurrentPage(1) // reset to page 1 on search
-            }}
-          />
-        </div>
+      <div className="flex flex-col xs:flex-row sm:flex-row md:flex-row lg:flex-row xl:flex-row items-left gap-4 w-full">
+      <div className="relative flex-1 px-1 xs:w-full sm:w-full md:w-8/12 lg:w-8/12 xl:w-8/12">
+      <Input
+          type="search"
+          placeholder="Search Restaurants"
+          className="w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+   
       </div>
+
+      {/* Filter Button */}
+      <div className="relative xs:w-full sm:w-full md:w-4/12 lg:w-4/12 xl:w-4/12">
+      <select
+        className="px-1 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 xs:w-full sm:w-full"
+        value={selectedFilter}
+        onChange={handleFilterChange}
+        style={{width:"100%"}}
+      >
+        {/* <option value="" disabled>
+          {t('SelectFilter')}
+        </option> */}
+        <option value="latestMenu">{t('LatestUpdatedMenu')}</option>
+        <option value="latestRest">{t('LatestUpdatedRest')}</option>
+        <option value="menuCountDesc">{t('MenuCountDesc')}</option>
+        <option value="menuCountAsc">{t('MenuCountAsc')}</option>
+      </select>
+    </div>
+    </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedRestaurants?.map((restaurant) => {
@@ -180,11 +253,12 @@ export default function RestaurantsPage() {
                               wordBreak: "break-all",
                               whiteSpace: "normal", 
                             }}>{restaurant.name}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-3 "  style={{
-                              minHeight: '3em',
-                              wordBreak: "break-all",
-                              whiteSpace: "normal", 
-                            }}>{restaurant.address}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-3 "   style={{
+                        minHeight: '6em', 
+                        lineHeight: '2em', 
+                        wordBreak: "break-word", 
+                        whiteSpace: "normal", 
+                      }}>{restaurant.address}</p>
                     <p className="text-sm text-muted-background">{t('RestaurantID')} : {restaurant.id}</p>
                   </div>
                 </div>
@@ -193,11 +267,6 @@ export default function RestaurantsPage() {
                   <Badge variant="outline">{restaurant.menu_count} {t('Menus')}</Badge>
                 </div>
               </CardContent>
-              {/* <CardFooter className="p-4 pt-0 flex justify-between">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/admin/restaurants/${restaurant.id}`}>View Details</Link>
-                </Button>
-              </CardFooter> */}
             </Card>
             </Link>
           )
@@ -228,15 +297,6 @@ export default function RestaurantsPage() {
       )}
       </>
       )}
-    
-    {/* {toast.show && (
-              <PopUp
-                type={toast.type}
-                message={toast.message}
-                onClose={() => setToast({ show: false, message: "", type: "" })}
-              />
-            )} */}
-    
     </div>
          
   )
