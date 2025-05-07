@@ -146,7 +146,7 @@ export const translations = {
     ToastItemDeleteErrorMessage: "There was an error deleting the menu item.",
     BackToRestaurant: "Back to Restaurant",
     AddMenuDescription: "Add a new menu to this restaurant",
-    MenuItemDetails: "Menu Item Details",
+    MenuItemDetails: "Add Menu Details",
     MenuItemDetailsDescription: "Enter the details of the new menu",
     MenuImage: "Menu Image",
     UploadItemImage: "Click to upload item image",
@@ -376,7 +376,9 @@ MenuCountAsc: "Menu Count (Lower to Higher)",
 ErrorFetchingRestaurants: "Error fetching restaurants. Please try again later.",
 EnterCustomCuisine: "Enter Custom Cuisine",
 CustomCuisinePlaceholder: "Enter your custom cuisine",
-Save: "Save"
+Save: "Save",
+AddMenuItems:"Add Menu Items",
+AddedItems:"Added Item's",
 
     
 
@@ -535,7 +537,7 @@ Save: "Save"
       "Hubo un error al eliminar el artículo del menú.",
     BackToRestaurant: "Volver al restaurante",
     AddMenuDescription: "Agrega un nuevo menú a este restaurante",
-    MenuItemDetails: "Detalles del artículo del menú",
+    MenuItemDetails: "Agregar detalles del menú",
     MenuItemDetailsDescription: "Introduce los detalles del nuevo menú",
     MenuImage: "Imagen del menú",
     UploadItemImage: "Haz clic para subir la imagen del artículo",
@@ -791,7 +793,9 @@ LatestUpdatedRest: "Restaurantes más recientes actualizados",
   ErrorFetchingRestaurants: "Error al obtener los restaurantes. Por favor, inténtelo de nuevo más tarde.",
   EnterCustomCuisine: "Ingresa Cocina Personalizada",
   CustomCuisinePlaceholder: "Ingresa tu cocina personalizada",
-  Save: "Guardar"
+  Save: "Guardar",
+  AddMenuItems:"Agregar elementos al menú",
+  AddedItems:"Elementos agregados"
 
 
 

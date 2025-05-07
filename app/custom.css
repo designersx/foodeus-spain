@@ -4192,3 +4192,13 @@ a{
   place-content: center;
 }
 
+
+.pindicatior-circle{
+  border-color:#F1582E ;
+  background-color: #F1582E;
+  color:white;
+}
+.pindicatior-text{
+
+  color:#F1582E;
+}

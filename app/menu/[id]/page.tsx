@@ -70,63 +70,12 @@ export default function MenuDetailPage() {
   >(null);
   const [mapUrl, setMapUrl] = useState<string>("");
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
-
   const searchParams = useSearchParams();
   const menuId =    searchParams.get("menuId") || localStorage.getItem("lastMenuId");
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
-    // if (id) {
-    //   getRestaurantById(`${id}`)
-    //     .then((data) => {
-    //       if (
-    //         data?.data &&
-    //         typeof data.data === "object" &&
-    //         !Array.isArray(data.data)
-    //       ) {
-    //         const restaurant = data.data;
-
-    //         const sortedMenus = restaurant.menus
-    //           ? [...restaurant.menus].sort(
-    //               (a, b) =>
-    //                 new Date(b.updated_at).getTime() -
-    //                 new Date(a.updated_at).getTime()
-    //             )
-    //           : [];
-    //         const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
-    //           title: { en: menu.item_name || "", es: menu.item_name || "" },
-    //           description: {
-    //             en: menu.description || "",
-    //             es: menu.description || "",
-    //           },
-    //           image: menu.image_url || "",
-    //           items: menu.item_list || [],
-    //           price: {
-    //             en: `€${Number(menu.price).toFixed(2)}`,
-    //             es: `€${Number(menu.price).toFixed(2)}`,
-    //           },
-    //           updated_at: menu.updated_at,
-    //           menu_type: menu.menu_type,
-    //         }));
-    //         setdata(restaurant);
-    //         setMenuItems({
-    //           id: restaurant.restaurant_id || "",
-    //           name: restaurant.name || "",
-    //           location: restaurant.address || "",
-    //           coordinates: {
-    //             lat: restaurant?.latitude || "",
-    //             lng: restaurant?.longitude || "",
-    //           },
-    //           menu: formattedMenus,
-    //         });
-    //       } else {
-    //         console.error("Unexpected API response format:", data);
-    //       }
-    //     })
-    //     .catch((err) =>
-    //       console.error("Error fetching restaurant details:", err)
-    //     );
-    // }
+ 
     const storedData = sessionStorage.getItem("selectedRestaurant");
     if (storedData) {
       setMenuItems(JSON.parse(storedData));
@@ -137,47 +86,47 @@ export default function MenuDetailPage() {
     
   }, [id]);
 
-  console.log('menuItems',menuItems)
+
   useEffect(() => {
     if (menuItems && menuItems.menu) {
-      console.log('inside 1')
       if (menuItems.menu) {
-        console.log('inside 2')
         setMenuItem(menuItems?.menu);
         setSrc(menuItems?.menu?.image);
       }
     }
   }, [id, menuItems]);
-  console.log('menuItem',menuItem)
 
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         setUserLocation({
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         });
-  //       },
-  //       (error) => {
-  //         console.error("Error getting user location:", error);
-  //       }
-  //     );
-  //   }
-  // }, []);
+  useEffect(() => {
+    const getLocationAsync = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    }
+  }
+ getLocationAsync 
+  }, []);
 
   useEffect(() => {
     const userloc = JSON.parse(localStorage.getItem("userLocation") || "{}");
     if (menuItems && userLocation) {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        menuItems.coordinates.lat,
-        menuItems.coordinates.lng
-      );
+      // const distance = calculateDistance(
+      //   userLocation.lat,
+      //   userLocation.lng,
+      //   menuItems.coordinates.lat,
+      //   menuItems.coordinates.lng
+      // );
       const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userloc?.lat},${userloc?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`;
       setMapUrl(directionsUrl);
-      setDistanceToRestaurant(distance);
+      // setDistanceToRestaurant(distance);
     }
   }, [userLocation, menuItems]);
 
@@ -197,11 +146,21 @@ export default function MenuDetailPage() {
     return pattern.test(url);
   };
 
-  const formatTotalRatings = (count: number) => {
-    const rounded = Math.floor(count / 10) * 10;
-    return `${rounded}+`;
+  const formatTotalRatings = (count: number): string => {
+    if (count >= 1000) {
+      const formatted = (count / 1000).toFixed(count % 1000 === 0 ? 0 : 1);
+      return `${formatted}k+`;
+    }
+    return `${count}`;
   };
-  // console.log('sss',mapUrl)
+
+  const handleShowFullMenu = () => {
+    // Save menu to session storage
+    if (menuItem) {
+      sessionStorage.setItem('fullMenu', JSON.stringify(menuItem));
+    }
+  };
+
   return (
     <>
       <div className="w-full min-h-screen overflow-hidden">
@@ -271,7 +230,7 @@ export default function MenuDetailPage() {
               <div className="text-muted text-sm">
                 <i className="bi bi-geo-alt me-1"></i>
                 {language === "es" ? "Distancia" : "Distance"}:{" "}
-                {menuItems?.distance}km
+                {menuItems?.distance?.toFixed(1)}km
               </div>
             )}
           </div>
@@ -287,7 +246,6 @@ export default function MenuDetailPage() {
 
               {menuItems?.total_ratings != null && menuItems?.total_ratings !== "" && (
                 <>
-                  {menuItems?.total_ratings}{" "}
                   ({formatTotalRatings(Number(menuItems?.total_ratings))} {language === "es" ? "valoraciones" : "ratings"})
                 </>
               )}
@@ -394,8 +352,9 @@ export default function MenuDetailPage() {
                     pathname: `/full-menu/${id}`,
                     query: { menuId },
                   }}
+                  
                 >
-                  <button className="btn btn-outline-primary w-100">
+                  <button className="btn btn-outline-primary w-100" onClick={handleShowFullMenu}>
                     {language === "en"
                       ? "Show Full Menu"
                       : "Mostrar Menú Completo"}

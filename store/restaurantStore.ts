@@ -28,7 +28,7 @@ interface Restaurant {
   location: string;
   coordinates: { lat: number; lng: number };
   category: string;
-  menu: Menu // Multiple menus supported here
+  menu: Menu[] // Multiple menus supported here
   distance?: number;
   rating?: string | number;
   updatedToday?: boolean;

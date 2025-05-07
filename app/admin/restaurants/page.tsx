@@ -43,7 +43,7 @@ export default function RestaurantsPage() {
   const [selectedFilter, setSelectedFilter] = useState(storedFilter); // State for filter
   const [errorMessage, setErrorMessage] = useState("") 
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e:any) => {
     const filterValue = e.target.value;
     setSelectedFilter(filterValue); // Update state with selected filter
 
@@ -52,7 +52,7 @@ export default function RestaurantsPage() {
   };  
   console.log('selectedFilter',selectedFilter)
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e:any) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1); // reset to page 1 on search
   };
@@ -83,10 +83,10 @@ export default function RestaurantsPage() {
     const token = localStorage.getItem('token')
     if (token) {
      try {
-      const decoded = decodeToken(token)
+      const decoded = decodeToken(token)|| ""
       const now = Math.floor(Date.now() / 1000); // current time in seconds
   
-      if (decoded.exp < now) {
+      if (decoded?.exp < now) {
         toast({
           title: t("SessionExpired"),
           description: t("PleaseLoginAgain"),

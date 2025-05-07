@@ -255,3 +255,61 @@ font-size: 1rem;
   }
 }
 
+/* styles/globals.css */
+
+/* Slow spin for the plate */
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+/* Orbit animation for fork */
+.animate-orbit-fork {
+  animation: orbit 2s linear infinite;
+  transform-origin: center;
+}
+
+/* Orbit animation for knife (opposite direction) */
+.animate-orbit-knife {
+  animation: orbit 2s linear infinite reverse;
+  transform-origin: center;
+}
+
+/* Keyframes for spin */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Keyframes for orbit */
+@keyframes orbit {
+  0% {
+    transform: translateX(-50%) rotate(0deg) translateY(-40px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg) translateY(-40px) rotate(-360deg);
+  }
+}
+
+/* Pulse effect for the center dot */
+.animate-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
