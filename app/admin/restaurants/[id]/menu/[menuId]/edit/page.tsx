@@ -1183,13 +1183,14 @@ export default function EditMenuItemPage() {
       try {
         const token = localStorage.getItem("token");
         const response = await apiClient.get(
-          `/menuitems/getRestaurantMenuItemList/${restaurantId}`, // Fixed to use restaurantId
+          `/menuitems/getRestaurantMenuItemList/${menuItemId }`, // Fixed to use restaurantId
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         if (response.data.success) {
           const items = response.data.data;
+          console.log('items',items)
           // Organize items by category
           const newCategorizedItems = {
             Starter: [],
@@ -1215,8 +1216,11 @@ export default function EditMenuItemPage() {
         setIsDataLoaded(true);
       }
     };
-    fetchItems();
-  }, [restaurantId, formData.item_list, toast, t]);
+    if(menuItemId){
+      fetchItems();
+    }
+  
+  }, [menuItemId, formData.item_list, toast, t,menuItemId]);
 
   // Handlers for Step 1
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -1417,14 +1421,14 @@ export default function EditMenuItemPage() {
       });
       return;
     }
-    if (trimmedDesc.length > 100) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationDescriptionMax"),
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (trimmedDesc.length > 100) {
+    //   toast({
+    //     title: t("ValidationErrorTitle"),
+    //     description: t("ValidationDescriptionMax"),
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
@@ -1500,14 +1504,14 @@ export default function EditMenuItemPage() {
         });
         return;
       }
-      if (!formData.description.trim()) {
-        toast({
-          title: t("ValidationErrorTitle"),
-          description: t("ValidationDescriptionRequired"),
-          variant: "destructive",
-        });
-        return;
-      }
+      // if (!formData.description.trim()) {
+      //   toast({
+      //     title: t("ValidationErrorTitle"),
+      //     description: t("ValidationDescriptionRequired"),
+      //     variant: "destructive",
+      //   });
+      //   return;
+      // }
       if (!formData.price) {
         toast({
           title: t("ValidationErrorTitle"),
@@ -1796,7 +1800,7 @@ export default function EditMenuItemPage() {
                           <p className="text-xs text-gray-500">{t(item.item_type)}</p>
                         </div>
                       </div>
-                      <p
+                      {/* <p
                         className="text-sm text-gray-700 mb-1"
                         style={{
                           wordBreak: "break-all",
@@ -1806,7 +1810,7 @@ export default function EditMenuItemPage() {
                         {item.description || (
                           <em className="text-gray-400">{t("NoDescription")}</em>
                         )}
-                      </p>
+                      </p> */}
                       <div className="flex justify-end mt-2">
                         <span
                           className="text-xs text-danger"
@@ -1911,7 +1915,7 @@ export default function EditMenuItemPage() {
               {/* Menu Image */}
               <div className="space-y-2">
                 <Label>
-                  {t("ItemImageClickToChange")} <span className="text-danger">*</span>
+                  {t("ItemImageClickToChange")} 
                 </Label>
                 <div
                   className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
@@ -1971,7 +1975,7 @@ export default function EditMenuItemPage() {
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">
-                  {t("Description")} <span className="text-danger">*</span>
+                  {t("Description")} 
                 </Label>
                 <Textarea
                   id="description"
@@ -2022,7 +2026,7 @@ export default function EditMenuItemPage() {
               </Button>
               <Button
                 onClick={() => setStep(2)}
-                disabled={!formData.item_name || !formData.description || !formData.price}
+                disabled={!formData.item_name  || !formData.price}
               >
                 {t("Next")}
               </Button>
@@ -2075,7 +2079,7 @@ export default function EditMenuItemPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-{/* 
+
       {isModalOpen && editingItem && (
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" />
@@ -2173,7 +2177,7 @@ export default function EditMenuItemPage() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label>{t("Description")}</Label>
                 <Textarea
                   value={editingItem.description}
@@ -2188,10 +2192,10 @@ export default function EditMenuItemPage() {
                     const target = e.target as HTMLInputElement;
                     target.value = target.value
                       .replace(/[^a-zA-Z0-9\s]/g, "")
-                      .replace(/^\s+/g, "";
+                      .replace(/^\s+/g, "");
                   }}
                 />
-              </div>
+              </div> */}
             </div>
 
             <DialogFooter className="mt-5">
@@ -2204,7 +2208,7 @@ export default function EditMenuItemPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      )} */}
+      )} 
     </div>
   );
 }

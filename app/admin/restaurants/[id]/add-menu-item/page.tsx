@@ -1236,7 +1236,7 @@ export default function AddMenuItemPage() {
             <div className="mt-6 space-y-4">
               <Label className="text-sm font-semibold text-gray-800">{t("AddedItems")}</Label>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {items.map((item) => (
+                {items.map((item:any) => (
                   <div
                     key={item.id}
                     className="border rounded-lg p-4 shadow-sm bg-white flex flex-col"
