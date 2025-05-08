@@ -379,6 +379,8 @@ CustomCuisinePlaceholder: "Enter your custom cuisine",
 Save: "Save",
 AddMenuItems:"Add Menu Items",
 AddedItems:"Added Item's",
+  saving: "Saving...",
+  saveMenu: "Save Menu"
 
     
 
@@ -795,8 +797,9 @@ LatestUpdatedRest: "Restaurantes más recientes actualizados",
   CustomCuisinePlaceholder: "Ingresa tu cocina personalizada",
   Save: "Guardar",
   AddMenuItems:"Agregar elementos al menú",
-  AddedItems:"Elementos agregados"
-
+  AddedItems:"Elementos agregados",
+    saving: "Guardando...",
+  saveMenu: "Guardar Menú"
 
 
   
