@@ -1239,7 +1239,7 @@ export default function AddMenuItemPage() {
                 {items.map((item:any) => (
                   <div
                     key={item.id}
-                    className="border rounded-lg p-4 shadow-sm bg-white flex flex-col"
+                    className="border rounded-lg p-2 shadow-sm bg-white flex flex-col"
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <img
@@ -1545,7 +1545,7 @@ export default function AddMenuItemPage() {
               {t("Back")}
             </Button>
             <Button onClick={handleSubmit} disabled={isLoading || formData.item_list.length === 0}>
-              {isLoading ? t("Adding") : t("AddMenu")}
+              {isLoading ? t("saving") : t("saveMenu")}
             </Button>
           </div>
         </div>
