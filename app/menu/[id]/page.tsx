@@ -70,91 +70,34 @@ export default function MenuDetailPage() {
   >(null);
   const [mapUrl, setMapUrl] = useState<string>("");
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
-
   const searchParams = useSearchParams();
-  const menuId =
-    searchParams.get("menuId") || localStorage.getItem("lastMenuId");
-  useEffect(() => {
-    if (id) {
-      getRestaurantById(`${id}`)
-        .then((data) => {
-          if (
-            data?.data &&
-            typeof data.data === "object" &&
-            !Array.isArray(data.data)
-          ) {
-            const restaurant = data.data;
+  const menuId =    searchParams.get("menuId") || localStorage.getItem("lastMenuId");
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
-            const sortedMenus = restaurant.menus
-              ? [...restaurant.menus].sort(
-                  (a, b) =>
-                    new Date(b.updated_at).getTime() -
-                    new Date(a.updated_at).getTime()
-                )
-              : [];
-            const formattedMenus: MenuItem[] = sortedMenus.map((menu) => ({
-              title: { en: menu.item_name || "", es: menu.item_name || "" },
-              description: {
-                en: menu.description || "",
-                es: menu.description || "",
-              },
-              image: menu.image_url || "",
-              items: menu.item_list || [],
-              price: {
-                en: `€${Number(menu.price).toFixed(2)}`,
-                es: `€${Number(menu.price).toFixed(2)}`,
-              },
-              updated_at: menu.updated_at,
-              menu_type: menu.menu_type,
-            }));
-            setdata(restaurant);
-            setMenuItems({
-              id: restaurant.restaurant_id || "",
-              name: restaurant.name || "",
-              location: restaurant.address || "",
-              coordinates: {
-                lat: restaurant?.latitude || "",
-                lng: restaurant?.longitude || "",
-              },
-              menu: formattedMenus,
-            });
-          } else {
-            console.error("Unexpected API response format:", data);
-          }
-        })
-        .catch((err) =>
-          console.error("Error fetching restaurant details:", err)
-        );
+  useEffect(() => {
+ 
+    const storedData = sessionStorage.getItem("selectedRestaurant");
+    if (storedData) {
+      setMenuItems(JSON.parse(storedData));
+    } else {
+      // fallback if not found
+      console.warn("No restaurant data found in sessionStorage");
     }
+    
   }, [id]);
 
-  useEffect(() => {
-    if (menuItems && menuItems.menu?.length > 0) {
-      let selectedItem = null;
-      if (!selectedItem) {
-        const today = new Date().toISOString().split("T")[0];
-        selectedItem = menuItems.menu.find(
-          (item) =>
-            item.menu_type === "Today's Special" &&
-            item.updated_at?.split(" ")[0] === today
-        );
-      }
-      if (!selectedItem) {
-        selectedItem = [...menuItems.menu].sort((a, b) => {
-          return (
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-          );
-        })[0];
-      }
 
-      if (selectedItem) {
-        setMenuItem(selectedItem);
-        setSrc(selectedItem.image);
+  useEffect(() => {
+    if (menuItems && menuItems.menu) {
+      if (menuItems.menu) {
+        setMenuItem(menuItems?.menu);
+        setSrc(menuItems?.menu?.image);
       }
     }
   }, [id, menuItems]);
 
   useEffect(() => {
+    const getLocationAsync = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -168,20 +111,22 @@ export default function MenuDetailPage() {
         }
       );
     }
+  }
+ getLocationAsync 
   }, []);
 
   useEffect(() => {
     const userloc = JSON.parse(localStorage.getItem("userLocation") || "{}");
     if (menuItems && userLocation) {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        menuItems.coordinates.lat,
-        menuItems.coordinates.lng
-      );
+      // const distance = calculateDistance(
+      //   userLocation.lat,
+      //   userLocation.lng,
+      //   menuItems.coordinates.lat,
+      //   menuItems.coordinates.lng
+      // );
       const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userloc?.lat},${userloc?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`;
       setMapUrl(directionsUrl);
-      setDistanceToRestaurant(distance);
+      // setDistanceToRestaurant(distance);
     }
   }, [userLocation, menuItems]);
 
@@ -201,11 +146,21 @@ export default function MenuDetailPage() {
     return pattern.test(url);
   };
 
-  const formatTotalRatings = (count: number) => {
-    const rounded = Math.floor(count / 10) * 10;
-    return `${rounded}+`;
+  const formatTotalRatings = (count: number): string => {
+    if (count >= 1000) {
+      const formatted = (count / 1000).toFixed(count % 1000 === 0 ? 0 : 1);
+      return `${formatted}k+`;
+    }
+    return `${count}`;
   };
-  // console.log('sss',mapUrl)
+
+  const handleShowFullMenu = () => {
+    // Save menu to session storage
+    if (menuItem) {
+      sessionStorage.setItem('fullMenu', JSON.stringify(menuItem));
+    }
+  };
+
   return (
     <>
       <div className="w-full min-h-screen overflow-hidden">
@@ -264,18 +219,18 @@ export default function MenuDetailPage() {
           <div className="flex justify-between align-items-center mb-1">
             <div className="fs-3 fw-bold text-primary">
               {}
-              {menuItem?.price[language]
-                ? menuItem?.price[language]
+              {menuItem?.price && parseFloat(menuItem.price) > 0
+                ? `€ ${menuItem.price}`
                 : language === "en"
                 ? "Not Available"
                 : "No Disponible"}
             </div>
 
-            {distanceToRestaurant !== null && (
+            {menuItems?.distance !== null && (
               <div className="text-muted text-sm">
                 <i className="bi bi-geo-alt me-1"></i>
                 {language === "es" ? "Distancia" : "Distance"}:{" "}
-                {distanceToRestaurant?.toFixed(1)} km
+                {menuItems?.distance?.toFixed(1)}km
               </div>
             )}
           </div>
@@ -287,12 +242,11 @@ export default function MenuDetailPage() {
                 className="h-3 w-3"
                 style={{ color: "#FFD700", fill: "#FFD700" }}
               />
-              {data?.ratings}{" "}
+              {menuItems?.rating}{" "}
 
-              {data?.totalRating != null && data.totalRating !== "" && (
+              {menuItems?.total_ratings != null && menuItems?.total_ratings !== "" && (
                 <>
-                  {data.totalRating}{" "}
-                  ({formatTotalRatings(Number(data.totalRating))} {language === "es" ? "valoraciones" : "ratings"})
+                  ({formatTotalRatings(Number(menuItems?.total_ratings))} {language === "es" ? "valoraciones" : "ratings"})
                 </>
               )}
             </span>
@@ -308,7 +262,7 @@ export default function MenuDetailPage() {
               }}
             >
               {menuItem.description[language] &&
-              menuItem.description[language].length > 150
+              menuItem.description[language]?.length > 150
                 ? `${menuItem.description[language].substring(0, 150)}...`
                 : menuItem.description[language] ||
                   (language === "en" ? "Not Available" : "No Disponible")}
@@ -321,7 +275,7 @@ export default function MenuDetailPage() {
               {language === "en" ? "Includes" : "Incluye"}
             </h2>
             <ul className="list-unstyled">
-              {menuItem.items.length > 0 ? (
+              {menuItem.items?.length > 0 ? (
                 menuItem.items?.map((item: any, index: number) => (
                   <div className="card mb-3" key={index}>
                     <div className="card-body">
@@ -335,8 +289,8 @@ export default function MenuDetailPage() {
                           }}
                         >
                           <Image
-                            src={getMenuImagePath(item.image)}
-                            alt={item.name || "Item"}
+                            src={getMenuImagePath(item?.image_url)}
+                            alt={item.item_name || "Item"}
                             onError={(e) => {
                               e.currentTarget.src =
                                 "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
@@ -347,14 +301,13 @@ export default function MenuDetailPage() {
                           />
                         </div>
                         <div className="flex-grow-1">
-                          <h5 className="fs-6 fw-bold resName">
+                          <h5 className="fs-6 fw-bold resName" style={{
+                              wordBreak: "break-all", // Breaks long words that have no spaces
+                              overflowWrap: "break-word", // Handles text wrapping
+                              whiteSpace: "normal", // Allows text to wrap normally
+                            }}>
                             {" "}
-                            {item.name.length > 20
-                              ? `${item.name.substring(0, 20)}...`
-                              : item.name}{" "}
-                            {item.name.length > 20
-                              ? `${item.name.substring(0, 20)}...`
-                              : item.name}
+                            {item.item_name?item.item_name:""}
                           </h5>
                           <p
                             className="small text-secondary mb-1 resName "
@@ -364,10 +317,7 @@ export default function MenuDetailPage() {
                               whiteSpace: "normal", // Allows text to wrap normally
                             }}
                           >
-                            {item.description}{" "}
-                            {item.name.description > 20
-                              ? `${item.description.substring(0, 150)}...`
-                              : item.description}
+                            {item?.description?item?.description:""}
                           </p>
                           {/* <p className="text-primary fw-medium mb-0">{item.price}</p> */}
                         </div>
@@ -402,8 +352,9 @@ export default function MenuDetailPage() {
                     pathname: `/full-menu/${id}`,
                     query: { menuId },
                   }}
+                  
                 >
-                  <button className="btn btn-outline-primary w-100">
+                  <button className="btn btn-outline-primary w-100" onClick={handleShowFullMenu}>
                     {language === "en"
                       ? "Show Full Menu"
                       : "Mostrar Menú Completo"}

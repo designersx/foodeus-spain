@@ -2,8 +2,8 @@
 import axios from "axios";
 import React from "react";
 // Base API URL from environment variables
-// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; 
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"; //locals
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://foodeus.truet.net"; 
 // Create an Axios instance with default 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -12,9 +12,20 @@ export const apiClient = axios.create({
   },
 });
 // ✅ Function to get all restaurants with menus
-export const getRestaurantsWithMenus = async () => {
+// export const getRestaurantsWithMenus = async () => {
+//   try {
+//     const response = await apiClient.get("/enduser/getRestaurantsWithMenus");
+//     return response.data;
+
+//   } catch (error) {
+//     console.error("Error fetching restaurants:", error);
+//     return { success: false, data: [] };
+//   }
+// };
+
+export const getRestaurantsWithMenus = async (latitude:any,longitude:any,page:any) => {
   try {
-    const response = await apiClient.get("/enduser/getRestaurantsWithMenus");
+    const response = await apiClient.get(`/enduser/getNearbyRestaurantsWithMenus?latitude=${latitude}&longitude=${longitude}&page=${page}`);
     return response.data;
 
   } catch (error) {
