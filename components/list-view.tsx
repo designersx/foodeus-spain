@@ -795,7 +795,7 @@ export function ListView() {
   const [isLoadingMore, setIsLoadingMore] = useState(false); // New state for load more
   const [hasMoreData, setHasMoreData] = useState(true); // Track if more data is available
   const router = useRouter();
-  console.log('restaurants',restaurants)
+  // console.log('restaurants',restaurants)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const locationVar = localStorage.getItem("userLocation");
@@ -881,12 +881,15 @@ export function ListView() {
       const todaySpecialRestaurants: Restaurant[] = [];
       // console.log('data :',data?.data)
       data?.data?.forEach((restaurant: any) => {
-        if (restaurant.menus.some((menu: any) => menu?.items?.length === 0)) {
+        const filteredMenus = restaurant.menus.filter((menu: any) => menu?.items?.length > 0);
+
+        // If no menus remain after filtering, skip this restaurant
+        if (filteredMenus.length === 0) {
           return;
         }
 
-        const allMenus = restaurant.menus || [];
-        const sortedMenus = allMenus.sort((a: any, b: any) => {
+        // const allMenus = restaurant.menus || [];
+        const sortedMenus = filteredMenus.sort((a: any, b: any) => {
           const dateA = new Date(a.updated_at).getTime();
           const dateB = new Date(b.updated_at).getTime();
           return dateB - dateA;

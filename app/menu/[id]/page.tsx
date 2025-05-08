@@ -118,15 +118,9 @@ export default function MenuDetailPage() {
   useEffect(() => {
     const userloc = JSON.parse(localStorage.getItem("userLocation") || "{}");
     if (menuItems && userLocation) {
-      // const distance = calculateDistance(
-      //   userLocation.lat,
-      //   userLocation.lng,
-      //   menuItems.coordinates.lat,
-      //   menuItems.coordinates.lng
-      // );
+    
       const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userloc?.lat},${userloc?.lng}&destination=${menuItems?.coordinates?.lat},${menuItems?.coordinates?.lng}&travelmode=driving`;
       setMapUrl(directionsUrl);
-      // setDistanceToRestaurant(distance);
     }
   }, [userLocation, menuItems]);
 

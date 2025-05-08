@@ -27,6 +27,7 @@ interface Restaurant {
   cover_image: string;
   menu_count: number;
   g_image: string;
+  restaurant_updated_at:Date|any
 }
 
 const ITEMS_PER_PAGE = 15
@@ -50,7 +51,7 @@ export default function RestaurantsPage() {
     // Store the selected filter in sessionStorage
     sessionStorage.setItem('selectedFilter', filterValue);
   };  
-  console.log('selectedFilter',selectedFilter)
+  // console.log('selectedFilter',selectedFilter)
 
   const handleSearchChange = (e:any) => {
     setSearchQuery(e.target.value);
@@ -159,7 +160,7 @@ export default function RestaurantsPage() {
   );
 
 
-console.log('errorMessage',errorMessage)
+// console.log('errorMessage',errorMessage)
   return (
     <div className="w-full space-y-6 responsive-container ">
       {loading?

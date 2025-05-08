@@ -39,6 +39,8 @@
 // import { getMenuImagePath } from "@/utils/getImagePath";
 // import { debounce } from "lodash";
 
+import { Volume1 } from "lucide-react";
+
 // export default function EditMenuItemPage() {
 //   const router = useRouter();
 //   const params = useParams();
@@ -1022,21 +1024,1205 @@
 // }
 
 
+// Volume
+ "use client";
+// import { useState, useRef, useEffect } from "react";
+// import { useRouter, useParams } from "next/navigation";
+// import { useLanguage } from "@/context/language-context";
+// import Link from "next/link";
+// import { ArrowLeft, Upload, Pencil } from "lucide-react";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogOverlay,
+// } from "@/components/ui/dialog";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "@/components/ui/textarea";
+// import { useToast } from "@/hooks/use-toast";
+// import { apiClient } from "@/services/apiService";
+// import { getMenuImagePath } from "@/utils/getImagePath";
+// import { debounce } from "lodash";
+
+// export default function EditMenuItemPage() {
+//   const router = useRouter();
+//   const params = useParams();
+//   const { toast } = useToast();
+//   const { t } = useLanguage();
+//   const fileInputRef = useRef<HTMLInputElement>(null);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [imagePreview, setImagePreview] = useState<string | null>(null);
+//   const restaurantId = params.id as string;
+//   const menuItemId = params.menuId as string;
+//   const [isDataLoaded, setIsDataLoaded] = useState(false);
+//   const [step, setStep] = useState(1); // Step 1: Menu Details, Step 2: Manage Items
+//   const [editingItem, setEditingItem] = useState<any | null>(null);
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [isDialogOpen, setIsDialogOpen] = useState(false);
+//   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+//   // Form data for Step 1 (Menu Details)
+//   const [formData, setFormData] = useState({
+//     item_name: "",
+//     description: "",
+//     price: "",
+//     menu_type: "Today's Special",
+//     item_list: [] as string[],
+//     image: null as File | null,
+//   });
+
+//   // State for Step 2: Categorized items
+//   const [categorizedItems, setCategorizedItems] = useState({
+//     Starter: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
+//     MainDish: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
+//     Dessert: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
+//     Drinks: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
+//   });
+
+//   // Temporary form data for adding items in Step 2
+//   const [itemFormData, setItemFormData] = useState({
+//     Starter: {
+//       item_name: "",
+//       description: "",
+//       image: null as File | null,
+//       imagePreview: null as string | null,
+//       suggestions: [] as string[],
+//       activeSuggestionIndex: -1,
+//     },
+//     MainDish: {
+//       item_name: "",
+//       description: "",
+//       image: null as File | null,
+//       imagePreview: null as string | null,
+//       suggestions: [] as string[],
+//       activeSuggestionIndex: -1,
+//     },
+//     Dessert: {
+//       item_name: "",
+//       description: "",
+//       image: null as File | null,
+//       imagePreview: null as string | null,
+//       suggestions: [] as string[],
+//       activeSuggestionIndex: -1,
+//     },
+//     Drinks: {
+//       item_name: "",
+//       description: "",
+//       image: null as File | null,
+//       imagePreview: null as string | null,
+//       suggestions: [] as string[],
+//       activeSuggestionIndex: -1,
+//     },
+//   });
+
+//   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+
+//   // Debounced API call for autocomplete suggestions
+//   const fetchSuggestions = debounce(async (query: string, category: string) => {
+//     if (!query.trim() || query.trim().length <= 1) {
+//       setItemFormData((prev) => ({
+//         ...prev,
+//         [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
+//       }));
+//       return;
+//     }
+//     try {
+//       const res = await apiClient.get(`/menus/get-item/${restaurantId}?search=${query}`);
+//       if (res.data.success) {
+//         setItemFormData((prev) => ({
+//           ...prev,
+//           [category]: { ...prev[category], suggestions: res.data.data },
+//         }));
+//       } else {
+//         setItemFormData((prev) => ({
+//           ...prev,
+//           [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
+//         }));
+//       }
+//     } catch (error) {
+//       console.error("Error fetching suggestions:", error);
+//       setItemFormData((prev) => ({
+//         ...prev,
+//         [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
+//       }));
+//     }
+//   }, 300);
+
+//   // Load initial menu data from sessionStorage
+//   useEffect(() => {
+//     const data = sessionStorage.getItem("editMenuItem");
+//     if (data) {
+//       const parsed = JSON.parse(data);
+//       setFormData({
+//         item_name: parsed.name || "",
+//         description: parsed.description || "",
+//         price: parsed.price || "",
+//         menu_type: parsed.category || "Today's Special",
+//         item_list: parsed.item_list?.map((item: any) => item.id.toString()) || [],
+//         image: null,
+//       });
+//       const normalized = getMenuImagePath(parsed.cover_image || parsed.image);
+//       setImagePreview(normalized);
+//       setSelectedItems(new Set(parsed.item_list?.map((item: any) => item.id.toString()) || []));
+//     }
+//   }, []);
+
+//   // Fetch menu items
+//   useEffect(() => {
+//     const fetchItems = async () => {
+//       try {
+//         const token = localStorage.getItem("token");
+//         const response = await apiClient.get(
+//           `/menuitems/getRestaurantMenuItemList/${menuItemId }`, // Fixed to use restaurantId
+//           {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }
+//         );
+//         if (response.data.success) {
+//           const items = response.data.data;
+//           console.log('items',items)
+//           // Organize items by category
+//           const newCategorizedItems = {
+//             Starter: [],
+//             MainDish: [],
+//             Dessert: [],
+//             Drinks: [],
+//           };
+//           items.forEach((item: any) => {
+//             if (newCategorizedItems[item.item_type] && formData.item_list.includes(item.id.toString())) {
+//               newCategorizedItems[item.item_type].push(item);
+//             }
+//           });
+//           setCategorizedItems(newCategorizedItems);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching items", error);
+//         toast({
+//           title: t("MenuItemFetchErrorTitle"),
+//           description: t("MenuItemFetchErrorDescription"),
+//           variant: "destructive",
+//         });
+//       } finally {
+//         setIsDataLoaded(true);
+//       }
+//     };
+//     if(menuItemId){
+//       fetchItems();
+//     }
+  
+//   }, [menuItemId, formData.item_list, toast, t,menuItemId]);
+
+//   // Handlers for Step 1
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+//     const { name, value } = e.target;
+//     setFormData((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0] || null;
+//     if (file) {
+//       if (!file.type.startsWith("image/")) {
+//         toast({
+//           title: t("ToastInvalidFileTypeTitle"),
+//           description: t("ToastInvalidFileTypeMessage"),
+//           variant: "destructive",
+//         });
+//         return;
+//       }
+//       setFormData((prev) => ({ ...prev, image: file }));
+//       const reader = new FileReader();
+//       reader.onloadend = () => setImagePreview(reader.result as string);
+//       reader.readAsDataURL(file);
+//     }
+//   };
+
+//   // Handlers for Step 2
+//   const handleItemChange = (
+//     category: string,
+//     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+//   ) => {
+//     const { name, value } = e.target;
+//     setItemFormData((prev) => ({
+//       ...prev,
+//       [category]: { ...prev[category], [name]: value },
+//     }));
+//     if (name === "item_name") {
+//       fetchSuggestions(value, category);
+//     }
+//   };
+
+//   const handleItemImageChange = (category: string, e: React.ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0] || null;
+//     if (file) {
+//       if (!file.type.startsWith("image/")) {
+//         toast({
+//           title: t("ToastInvalidFileTypeTitle"),
+//           description: t("ToastInvalidFileTypeMessage"),
+//           variant: "destructive",
+//         });
+//         return;
+//       }
+//       setItemFormData((prev) => ({
+//         ...prev,
+//         [category]: { ...prev[category], image: file },
+//       }));
+//       const reader = new FileReader();
+//       reader.onloadend = () => {
+//         setItemFormData((prev) => ({
+//           ...prev,
+//           [category]: { ...prev[category], imagePreview: reader.result as string },
+//         }));
+//       };
+//       reader.readAsDataURL(file);
+//     }
+//   };
+
+//   const handleAddItem = async (category: string) => {
+//     const itemData = itemFormData[category];
+//     const trimmedName = itemData.item_name.trim();
+//     const trimmedDesc = itemData.description.trim();
+
+//     if (!trimmedName) {
+//       toast({
+//         title: t("ValidationErrorTitle"),
+//         description: t("ValidationItemNameRequired"),
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+//     if (trimmedName.length > 50) {
+//       toast({
+//         title: t("ValidationErrorTitle"),
+//         description: t("ValidationItemNameMax"),
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+//     if (trimmedDesc.length > 100) {
+//       toast({
+//         title: t("ValidationErrorTitle"),
+//         description: t("ValidationDescriptionMax"),
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+
+//     setIsLoading(true);
+//     try {
+//       const token = localStorage.getItem("token");
+//       const formData = new FormData();
+//       formData.append("restaurant_id", restaurantId);
+//       formData.append("item_name", trimmedName);
+//       formData.append("description", trimmedDesc);
+//       formData.append("item_type", category);
+//       if (itemData.image) {
+//         formData.append("menuItemImg", itemData.image);
+//       }
+
+//       const response = await apiClient.post(
+//         `/menuitems/addRestaurantMenuItem/${restaurantId}`,
+//         formData,
+//         {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//             Authorization: `Bearer ${token}`,
+//           },
+//         }
+//       );
+
+//       if (response.data.success) {
+//         toast({
+//           title: t("ItemAddedTitle"),
+//           description: t("ItemAddedDescription"),
+//         });
+
+//         const newItem = response.data.data;
+//         setCategorizedItems((prev) => ({
+//           ...prev,
+//           [category]: [newItem, ...prev[category]],
+//         }));
+
+//         const newId = newItem?.id?.toString();
+//         if (newId) {
+//           const newSelectedItems = new Set(selectedItems);
+//           newSelectedItems.add(newId);
+//           setSelectedItems(newSelectedItems);
+//           setFormData((prev) => ({
+//             ...prev,
+//             item_list: Array.from(newSelectedItems),
+//           }));
+//         }
+
+//         // Reset form for this category
+//         setItemFormData((prev) => ({
+//           ...prev,
+//           [category]: {
+//             item_name: "",
+//             description: "",
+//             image: null,
+//             imagePreview: null,
+//             suggestions: [],
+//             activeSuggestionIndex: -1,
+//           },
+//         }));
+//       } else {
+//         throw new Error(response.data.message || "Failed to add item");
+//       }
+//     } catch (error) {
+//       toast({
+//         title: t("ItemAddErrorTitle"),
+//         description: t("ItemAddErrorDescription"),
+//         variant: "destructive",
+//       });
+//       console.error("Add item error:", error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleEditClick = (item: any) => {
+//     setEditingItem({
+//       ...item,
+//       image: null,
+//       imagePreview: item.image_url ? `https://foodeus.truet.net/${item.image_url}` : null,
+//     });
+//     setIsModalOpen(true);
+//   };
+
+//   const updateEditedItem = async () => {
+//     if (!editingItem) return;
+
+//     const trimmedName = editingItem.item_name.trim();
+//     const trimmedDesc = editingItem.description?.trim() || "";
+
+//     if (!trimmedName) {
+//       toast({
+//         title: t("ValidationErrorTitle"),
+//         description: t("ValidationItemNameRequired"),
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+//     if (trimmedName.length > 50) {
+//       toast({
+//         title: t("ValidationErrorTitle"),
+//         description: t("ValidationItemNameMax"),
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+//     // if (trimmedDesc.length > 100) {
+//     //   toast({
+//     //     title: t("ValidationErrorTitle"),
+//     //     description: t("ValidationDescriptionMax"),
+//     //     variant: "destructive",
+//     //   });
+//     //   return;
+//     // }
+
+//     setIsLoading(true);
+//     try {
+//       const token = localStorage.getItem("token");
+//       const formData = new FormData();
+//       formData.append("item_name", trimmedName);
+//       formData.append("description", trimmedDesc);
+//       formData.append("item_type", editingItem.item_type);
+//       if (editingItem.image) {
+//         formData.append("menuItemImg", editingItem.image);
+//       }
+
+//       const response = await apiClient.put(
+//         `/menuitems/updateRestaurantMenuItem/${editingItem.id}`,
+//         formData,
+//         {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//             Authorization: `Bearer ${token}`,
+//           },
+//         }
+//       );
+
+//       if (response.data.success) {
+//         toast({
+//           title: t("ItemUpdatedTitle"),
+//           description: t("ItemUpdatedDescription"),
+//         });
+
+//         setCategorizedItems((prev) => {
+//           const updated = { ...prev };
+//           updated[editingItem.item_type] = updated[editingItem.item_type].map((item) =>
+//             item.id === editingItem.id ? response.data.data : item
+//           );
+//           return updated;
+//         });
+
+//         setIsModalOpen(false);
+//         setEditingItem(null);
+//       } else {
+//         throw new Error(response.data.message || "Failed to update item");
+//       }
+//     } catch (error) {
+//       toast({
+//         title: t("ItemUpdateFailedTitle"),
+//         description: t("ItemUpdateFailedDescription"),
+//         variant: "destructive",
+//       });
+//       console.error("Update item error:", error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setIsLoading(true);
+
+//     try {
+//       if (formData.item_list.length === 0) {
+//         toast({
+//           title: t("ValidationErrorTitle"),
+//           description: t("ValidationAtLeastOneItem"),
+//           variant: "destructive",
+//         });
+//         return;
+//       }
+//       if (!formData.item_name.trim()) {
+//         toast({
+//           title: t("ValidationErrorTitle"),
+//           description: t("ValidationMenuNameRequired"),
+//           variant: "destructive",
+//         });
+//         return;
+//       }
+//       // if (!formData.description.trim()) {
+//       //   toast({
+//       //     title: t("ValidationErrorTitle"),
+//       //     description: t("ValidationDescriptionRequired"),
+//       //     variant: "destructive",
+//       //   });
+//       //   return;
+//       // }
+//       if (!formData.price) {
+//         toast({
+//           title: t("ValidationErrorTitle"),
+//           description: t("ValidationPriceRequired"),
+//           variant: "destructive",
+//         });
+//         return;
+//       }
+
+//       const token = localStorage.getItem("token");
+//       const data = new FormData();
+//       data.append("item_name", formData.item_name.trim());
+//       data.append("price", formData.price);
+//       data.append("menu_type", formData.menu_type);
+//       data.append("item_list", JSON.stringify(Array.from(selectedItems)));
+//       data.append("description", formData.description.trim());
+//       if (formData.image) {
+//         data.append("image_urls", formData.image);
+//       }
+
+//       const response = await apiClient.put(`/menus/update/${menuItemId}`, data, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (response.data.success) {
+//         toast({
+//           title: t("MenuItemUpdatedTitle"),
+//           description: t("MenuItemUpdatedDescription"),
+//         });
+//         router.push(`/admin/restaurants/${restaurantId}`);
+//       } else {
+//         throw new Error(response.data.message || "Failed to update menu item");
+//       }
+//     } catch (error) {
+//       toast({
+//         title: t("MenuItemUpdateErrorTitle"),
+//         description: t("MenuItemUpdateErrorDescription"),
+//         variant: "destructive",
+//       });
+//       console.error("Update menu error:", error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleOpenDialog = (itemId: string) => {
+//     setSelectedItemId(itemId);
+//     setIsDialogOpen(true);
+//   };
+
+//   const handleCloseDialog = () => {
+//     setIsDialogOpen(false);
+//     setSelectedItemId(null);
+//   };
+
+//   const handleConfirmDelete = async () => {
+//     if (selectedItemId) {
+//       setIsLoading(true);
+//       try {
+//         const token = localStorage.getItem("token");
+//         const response = await apiClient.delete(
+//           `/menuitems/deleteRestaurantMenuItem/${selectedItemId}`,
+//           {
+//             headers: {
+//               Authorization: `Bearer ${token}`,
+//             },
+//           }
+//         );
+
+//         if (response.data.success) {
+//           toast({
+//             title: t("MenuItemDeletedTitle"),
+//             description: t("MenuItemDeletedDescription"),
+//           });
+
+//           setCategorizedItems((prev) => {
+//             const updated = { ...prev };
+//             Object.keys(updated).forEach((category) => {
+//               updated[category] = updated[category].filter((item) => item.id !== selectedItemId);
+//             });
+//             return updated;
+//           });
+
+//           const newSelectedItems = new Set(selectedItems);
+//           newSelectedItems.delete(selectedItemId);
+//           setSelectedItems(newSelectedItems);
+//           setFormData((prev) => ({
+//             ...prev,
+//             item_list: Array.from(newSelectedItems),
+//           }));
+//         } else {
+//           throw new Error(response.data.message || "Failed to delete item");
+//         }
+//       } catch (error) {
+//         toast({
+//           title: t("MenuItemDeleteErrorTitle"),
+//           description: t("MenuItemDeleteErrorDescription"),
+//           variant: "destructive",
+//         });
+//         console.error("Delete error:", error);
+//       } finally {
+//         setIsLoading(false);
+//         setIsDialogOpen(false);
+//       }
+//     }
+//   };
+
+//   const renderCategorySection = (category: string) => {
+//     const items = categorizedItems[category];
+//     const form = itemFormData[category];
+
+//     return (
+//       <div className="space-y-4 mb-5">
+//         <h3 className="text-lg font-semibold">{t(category)}</h3>
+//         <div className="space-y-4">
+//           {/* Single Row: Item Name, Upload Item, Add Button */}
+//           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
+//             {/* Item Name with Autocomplete */}
+//             <div className="flex-1 space-y-2 px-2 relative">
+//               <Label htmlFor={`item_name-${category}`}>
+//                 {t("ItemName")} <span className="text-danger">*</span>
+//               </Label>
+//               <Input
+//                 id={`item_name-${category}`}
+//                 name="item_name"
+//                 placeholder={t("EnterItemName")}
+//                 value={form.item_name}
+//                 onChange={(e) => handleItemChange(category, e)}
+//                 maxLength={50}
+//                 onInput={(e) => {
+//                   const target = e.target as HTMLInputElement;
+//                   target.value = target.value
+//                     .replace(/[^a-zA-Z0-9\s]/g, "")
+//                     .replace(/^\s+/g, "");
+//                 }}
+//                 onKeyDown={(e) => {
+//                   if (e.key === "ArrowDown") {
+//                     e.preventDefault();
+//                     setItemFormData((prev) => ({
+//                       ...prev,
+//                       [category]: {
+//                         ...prev[category],
+//                         activeSuggestionIndex:
+//                           prev[category].activeSuggestionIndex < prev[category].suggestions.length - 1
+//                             ? prev[category].activeSuggestionIndex + 1
+//                             : 0,
+//                       },
+//                     }));
+//                   } else if (e.key === "ArrowUp") {
+//                     e.preventDefault();
+//                     setItemFormData((prev) => ({
+//                       ...prev,
+//                       [category]: {
+//                         ...prev[category],
+//                         activeSuggestionIndex:
+//                           prev[category].activeSuggestionIndex > 0
+//                             ? prev[category].activeSuggestionIndex - 1
+//                             : prev[category].suggestions.length - 1,
+//                       },
+//                     }));
+//                   } else if (e.key === "Enter" && form.activeSuggestionIndex >= 0) {
+//                     e.preventDefault();
+//                     const selected = form.suggestions[form.activeSuggestionIndex];
+//                     if (selected) {
+//                       setItemFormData((prev) => ({
+//                         ...prev,
+//                         [category]: {
+//                           ...prev[category],
+//                           item_name: selected,
+//                           suggestions: [],
+//                           activeSuggestionIndex: -1,
+//                         },
+//                       }));
+//                     }
+//                   }
+//                 }}
+//               />
+//               {form.suggestions.length > 0 && (
+//                 <ul className="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 shadow z-50 max-h-40 overflow-y-auto">
+//                   {form.suggestions.map((itemName, index) => (
+//                     <li
+//                       key={index}
+//                       className={`px-4 py-2 cursor-pointer text-sm ${
+//                         index === form.activeSuggestionIndex
+//                           ? "bg-gray-200 text-black font-medium"
+//                           : "hover:bg-gray-100"
+//                       }`}
+//                       onClick={() => {
+//                         setItemFormData((prev) => ({
+//                           ...prev,
+//                           [category]: {
+//                             ...prev[category],
+//                             item_name: itemName,
+//                             suggestions: [],
+//                             activeSuggestionIndex: -1,
+//                           },
+//                         }));
+//                       }}
+//                     >
+//                       {itemName}
+//                     </li>
+//                   ))}
+//                 </ul>
+//               )}
+//             </div>
+
+//             {/* Upload Item Button */}
+//             <div className="flex-1 space-y-2">
+//               <Label htmlFor={`image-${category}`} className="sm:hidden">
+//                 {t("ItemImageClickToChange")}
+//               </Label>
+//               <Button
+//                 variant="outline"
+//                 className="w-full sm:w-auto"
+//                 onClick={() => document.getElementById(`image-${category}`)?.click()}
+//               >
+//                 <Upload className="h-4 w-4 mr-2" />
+//                 {t("UploadItemImage")}
+//               </Button>
+//               <Input
+//                 id={`image-${category}`}
+//                 type="file"
+//                 accept="image/*"
+//                 className="hidden"
+//                 onChange={(e) => handleItemImageChange(category, e)}
+//               />
+//             </div>
+
+//             {/* Add Button */}
+//             <Button
+//               onClick={() => handleAddItem(category)}
+//               disabled={isLoading || !form.item_name.trim()}
+//               className="w-full sm:w-auto"
+//               style={{ alignSelf: "center" }}
+//             >
+//               {t("AddItem")}
+//             </Button>
+//           </div>
+
+//           {/* Added Items */}
+//           {items.length > 0 && (
+//             <div className="mt-6 space-y-4">
+//               <Label className="text-sm font-semibold text-gray-800">{t("ExistingMenuItems")}</Label>
+//               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+//                 {items.map((item) =>
+//                   item ? (
+//                     <div
+//                       key={item.id}
+//                       className="relative border rounded-lg p-4 shadow-sm bg-white"
+//                     >
+//                       <button
+//                         type="button"
+//                         className="absolute top-2 right-2 text-black hover:text-black focus:outline-none"
+//                         onClick={() => handleEditClick(item)}
+//                         title="Edit"
+//                       >
+//                         <Pencil className="w-4 h-4" />
+//                       </button>
+//                       <div className="flex items-center gap-3 mb-2">
+//                         <img
+//                           src={
+//                             item.image_url
+//                               ? `https://foodeus.truet.net/${item.image_url}`
+//                               : "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg"
+//                           }
+//                           alt={item.item_name || "Menu item image"}
+//                           onError={(e) => {
+//                             e.currentTarget.src =
+//                               "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+//                           }}
+//                           className="w-12 h-12 object-cover rounded-md border"
+//                         />
+//                         <div>
+//                           <h4
+//                             className="font-semibold text-sm text-gray-900 resName"
+//                             style={{
+//                               wordBreak: "break-all",
+//                               whiteSpace: "normal",
+//                             }}
+//                           >
+//                             {item.item_name}
+//                           </h4>
+//                           <p className="text-xs text-gray-500">{t(item.item_type)}</p>
+//                         </div>
+//                       </div>
+//                       {/* <p
+//                         className="text-sm text-gray-700 mb-1"
+//                         style={{
+//                           wordBreak: "break-all",
+//                           whiteSpace: "normal",
+//                         }}
+//                       >
+//                         {item.description || (
+//                           <em className="text-gray-400">{t("NoDescription")}</em>
+//                         )}
+//                       </p> */}
+//                       <div className="flex justify-end mt-2">
+//                         <span
+//                           className="text-xs text-danger"
+//                           onClick={() => handleOpenDialog(item.id)}
+//                         >
+//                           {t("Remove")}
+//                         </span>
+//                       </div>
+//                     </div>
+//                   ) : null
+//                 )}
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     );
+//   };
+
+//   if (!isDataLoaded) {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <div className="full-width-container space-y-6 responsive-container">
+//       <div className="flex items-center gap-2">
+//         <Button variant="ghost" size="sm" asChild>
+//           <Link href={`/admin/restaurants/${restaurantId}`}>
+//             <ArrowLeft className="h-4 w-4 mr-1" /> {t("BackToRestaurant")}
+//           </Link>
+//         </Button>
+//       </div>
+
+//       <div>
+//         <h1 className="text-3xl font-bold tracking-tight">{t("EditMenuItem")}</h1>
+//         <p className="text-muted-foreground">{t("ModifyDetailsBelow")}</p>
+//       </div>
+
+//       {/* Progress Indicator */}
+//       <div className="mb-6 space-y-4">
+//         <div className="flex items-center justify-center">
+//           <div className="flex items-center">
+//             {/* Step 1 */}
+//             <div className="flex items-center">
+//               <div
+//                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+//                   step === 1
+//                     ? "border-primary bg-primary text-white"
+//                     : "border-gray-300 bg-gray-100 text-gray-600"
+//                 }`}
+//               >
+//                 1
+//               </div>
+//               <span
+//                 className={`ml-2 text-sm font-medium ${
+//                   step === 1 ? "text-primary" : "text-gray-600"
+//                 }`}
+//               >
+//                 {t("EditItemDetails")}
+//               </span>
+//             </div>
+
+//             {/* Connector Line */}
+//             <div
+//               className={`mx-4 h-1 w-16 rounded ${
+//                 step === 2 ? "bg-primary" : "bg-gray-300"
+//               }`}
+//             />
+
+//             {/* Step 2 */}
+//             <div className="flex items-center">
+//               <div
+//                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+//                   step === 2
+//                     ? "border-primary bg-primary text-white"
+//                     : "border-gray-300 bg-gray-100 text-gray-600"
+//                 }`}
+//               >
+//                 2
+//               </div>
+//               <span
+//                 className={`ml-2 text-sm font-medium ${
+//                   step === 2 ? "text-primary" : "text-gray-600"
+//                 }`}
+//               >
+//                 {t("ManageMenuItems")}
+//               </span>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Step 1: Menu Details */}
+//       {step === 1 && (
+//         <form onSubmit={(e) => e.preventDefault()} className="w-full">
+//           <Card className="w-full">
+//             <CardHeader>
+//               <CardTitle>{t("EditItemDetails")}</CardTitle>
+//               <CardDescription>{t("ModifyDetailsBelow")}</CardDescription>
+//             </CardHeader>
+//             <CardContent className="space-y-6">
+//               {/* Menu Image */}
+//               <div className="space-y-2">
+//                 <Label>
+//                   {t("ItemImageClickToChange")} 
+//                 </Label>
+//                 <div
+//                   className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+//                   onClick={() => fileInputRef.current?.click()}
+//                 >
+//                   {imagePreview ? (
+//                     <div className="relative">
+//                       <img
+//                         src={imagePreview}
+//                         alt="Item preview"
+//                         className="mx-auto max-h-[200px] rounded-md object-cover"
+//                       />
+//                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
+//                         <p className="text-white font-medium">{t("ChangeImage")}</p>
+//                       </div>
+//                     </div>
+//                   ) : (
+//                     <div className="py-4 flex flex-col items-center">
+//                       <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+//                       <p className="text-sm font-medium">{t("ClickToUploadItemImage")}</p>
+//                     </div>
+//                   )}
+//                   <Input
+//                     ref={fileInputRef}
+//                     id="image"
+//                     name="image"
+//                     type="file"
+//                     accept="image/*"
+//                     className="hidden"
+//                     onChange={handleFileChange}
+//                   />
+//                 </div>
+//               </div>
+
+//               {/* Menu Name */}
+//               <div className="space-y-2">
+//                 <Label htmlFor="item_name">
+//                   {t("MenuName")} <span className="text-danger">*</span>
+//                 </Label>
+//                 <Input
+//                   id="item_name"
+//                   name="item_name"
+//                   placeholder={t("EnterMenuName")}
+//                   value={formData.item_name}
+//                   onChange={handleChange}
+//                   maxLength={50}
+//                   required
+//                   onInput={(e) => {
+//                     const target = e.target as HTMLInputElement;
+//                     target.value = target.value
+//                       .replace(/[^a-zA-Z0-9\s]/g, "")
+//                       .replace(/^\s+/g, "");
+//                   }}
+//                 />
+//               </div>
+
+//               {/* Description */}
+//               <div className="space-y-2">
+//                 <Label htmlFor="description">
+//                   {t("Description")} 
+//                 </Label>
+//                 <Textarea
+//                   id="description"
+//                   name="description"
+//                   placeholder={t("EnterItemDescription")}
+//                   value={formData.description}
+//                   onChange={handleChange}
+//                   rows={3}
+//                   maxLength={150}
+//                   required
+//                   onInput={(e) => {
+//                     const target = e.target as HTMLInputElement;
+//                     target.value = target.value
+//                       .replace(/[^a-zA-Z0-9\s]/g, "")
+//                       .replace(/^\s+/g, "");
+//                   }}
+//                 />
+//               </div>
+
+//               {/* Price */}
+//               <div className="space-y-2">
+//                 <Label htmlFor="price">
+//                   {t("Price")} € <span className="text-danger">*</span>
+//                 </Label>
+//                 <Input
+//                   id="price"
+//                   name="price"
+//                   type="text"
+//                   inputMode="decimal"
+//                   placeholder={t("PricePlaceholder")}
+//                   value={formData.price}
+//                   onChange={handleChange}
+//                   required
+//                   maxLength={7}
+//                   onInput={(e) => {
+//                     const input = e.currentTarget;
+//                     input.value = input.value
+//                       .replace(/[^0-9.]/g, "")
+//                       .replace(/(\..*?)\..*/g, "$1");
+//                   }}
+//                   title="Enter a valid price (e.g. 9.99)"
+//                 />
+//               </div>
+//             </CardContent>
+//             <CardFooter className="flex justify-between">
+//               <Button variant="outline" asChild>
+//                 <Link href={`/admin/restaurants/${restaurantId}`}>{t("Cancel")}</Link>
+//               </Button>
+//               <Button
+//                 onClick={() => setStep(2)}
+//                 disabled={!formData.item_name  || !formData.price}
+//               >
+//                 {t("Next")}
+//               </Button>
+//             </CardFooter>
+//           </Card>
+//         </form>
+//       )}
+
+//       {/* Step 2: Manage Menu Items */}
+//       {step === 2 && (
+//         <div className="space-y-8 mb-2">
+//           {["Starter", "MainDish", "Dessert", "Drinks"].map((category) => renderCategorySection(category))}
+//           <div className="flex justify-between">
+//             <Button variant="outline" onClick={() => setStep(1)}>
+//               {t("Back")}
+//             </Button>
+//             <Button onClick={handleSubmit} disabled={isLoading || formData.item_list.length === 0}>
+//               {isLoading ? t("Updating") : t("UpdateMenuItem")}
+//             </Button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Dialog for confirming item deletion */}
+//       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+//         <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" />
+//         <DialogContent
+//           className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8"
+//           style={{ maxHeight: "90vh", overflowY: "auto" }}
+//         >
+//           <DialogHeader>
+//             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
+//               {t("ConfirmDeletion")}
+//             </DialogTitle>
+//             <DialogDescription className="text-gray-600 text-center mt-1">
+//               {t("ConfirmDeleteMenuItem")}
+//             </DialogDescription>
+//           </DialogHeader>
+//           <DialogFooter className="mt-5 flex justify-between">
+//             <Button variant="outline" onClick={handleCloseDialog} className="w-full sm:w-auto">
+//               {t("Cancel")}
+//             </Button>
+//             <Button
+//               variant="destructive"
+//               onClick={handleConfirmDelete}
+//               className="w-full sm:w-auto"
+//             >
+//               {t("ConfirmDelete")}
+//             </Button>
+//           </DialogFooter>
+//         </DialogContent>
+//       </Dialog>
+
+//       {isModalOpen && editingItem && (
+//         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+//           <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" />
+//           <DialogContent
+//             className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8"
+//             style={{ maxHeight: "90vh", overflowY: "auto" }}
+//           >
+//             <DialogHeader>
+//               <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
+//                 {t("EditMenuItem")}
+//               </DialogTitle>
+//               <DialogDescription className="text-gray-600 text-center mt-1">
+//                 {t("UpdateItemDetails")}
+//               </DialogDescription>
+//             </DialogHeader>
+
+//             <div className="grid gap-4 mt-4">
+//               <div className="space-y-2">
+//                 <Label htmlFor="modal-image">{t("ItemImage")}</Label>
+//                 <div
+//                   className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+//                   onClick={() => document.getElementById("modal-image")?.click()}
+//                 >
+//                   {editingItem.imagePreview || editingItem.image_url ? (
+//                     <div className="relative">
+//                       <img
+//                         src={editingItem.imagePreview || `https://foodeus.truet.net/${editingItem.image_url}`}
+//                         alt="Preview"
+//                         onError={(e) => {
+//                           e.currentTarget.src =
+//                             "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
+//                         }}
+//                         className="mx-auto max-h-[200px] rounded-md object-cover"
+//                       />
+//                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
+//                         <span className="text-white font-medium">{t("ChangeImage")}</span>
+//                       </div>
+//                     </div>
+//                   ) : (
+//                     <div className="flex flex-col items-center text-center">
+//                       <Upload className="h-6 w-6 mb-2 text-muted-foreground" />
+//                       <p className="text-sm">{t("ClickToUpload")}</p>
+//                     </div>
+//                   )}
+//                   <input
+//                     type="file"
+//                     id="modal-image"
+//                     className="hidden"
+//                     accept="image/*"
+//                     onChange={(e) => {
+//                       const file = e.target.files?.[0];
+//                       if (file) {
+//                         if (!file.type.startsWith("image/")) {
+//                           toast({
+//                             title: t("ToastInvalidFileTypeTitle"),
+//                             description: t("ToastInvalidFileTypeMessage"),
+//                             variant: "destructive",
+//                           });
+//                           return;
+//                         }
+//                         const reader = new FileReader();
+//                         reader.onloadend = () => {
+//                           setEditingItem({
+//                             ...editingItem,
+//                             image: file,
+//                             imagePreview: reader.result as string,
+//                           });
+//                         };
+//                         reader.readAsDataURL(file);
+//                       }
+//                     }}
+//                   />
+//                 </div>
+//               </div>
+
+//               <div>
+//                 <Label>
+//                   {t("ItemName")} <span className="text-danger">*</span>
+//                 </Label>
+//                 <Input
+//                   maxLength={50}
+//                   value={editingItem.item_name}
+//                   onChange={(e) =>
+//                     setEditingItem({
+//                       ...editingItem,
+//                       item_name: e.target.value,
+//                     })
+//                   }
+//                   onInput={(e) => {
+//                     const target = e.target as HTMLInputElement;
+//                     target.value = target.value
+//                       .replace(/[^a-zA-Z0-9\s]/g, "")
+//                       .replace(/^\s+/g, "");
+//                   }}
+//                 />
+//               </div>
+
+//               {/* <div>
+//                 <Label>{t("Description")}</Label>
+//                 <Textarea
+//                   value={editingItem.description}
+//                   maxLength={100}
+//                   onChange={(e) =>
+//                     setEditingItem({
+//                       ...editingItem,
+//                       description: e.target.value,
+//                     })
+//                   }
+//                   onInput={(e) => {
+//                     const target = e.target as HTMLInputElement;
+//                     target.value = target.value
+//                       .replace(/[^a-zA-Z0-9\s]/g, "")
+//                       .replace(/^\s+/g, "");
+//                   }}
+//                 />
+//               </div> */}
+//             </div>
+
+//             <DialogFooter className="mt-5">
+//               <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+//                 {t("Cancel")}
+//               </Button>
+//               <Button onClick={updateEditedItem} disabled={isLoading}>
+//                 {isLoading ? t("Updating") : t("SaveChanges")}
+//               </Button>
+//             </DialogFooter>
+//           </DialogContent>
+//         </Dialog>
+//       )} 
+//     </div>
+//   );
+// }
+
+// v2
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useLanguage } from "@/context/language-context";
 import Link from "next/link";
-import { ArrowLeft, Upload, Pencil } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogOverlay,
-} from "@/components/ui/dialog";
+import { useLanguage } from "@/context/language-context";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -1051,25 +2237,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient } from "@/services/apiService";
-import { getMenuImagePath } from "@/utils/getImagePath";
-import { debounce } from "lodash";
 
-export default function EditMenuItemPage() {
+export default function UpdateMenuItemPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuItemId = params.menuId as string;
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [step, setStep] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const restaurantId = params.id as string;
-  const menuItemId = params.menuId as string;
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [step, setStep] = useState(1); // Step 1: Menu Details, Step 2: Manage Items
-  const [editingItem, setEditingItem] = useState<any | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const menuId = params.menuId as string;
 
   // Form data for Step 1 (Menu Details)
   const [formData, setFormData] = useState({
@@ -1077,150 +2258,117 @@ export default function EditMenuItemPage() {
     description: "",
     price: "",
     menu_type: "Today's Special",
-    item_list: [] as string[],
+    start_time: "",
+    end_time: "",
     image: null as File | null,
+    item_list: [] as string[],
   });
 
-  // State for Step 2: Categorized items
-  const [categorizedItems, setCategorizedItems] = useState({
-    Starter: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
-    MainDish: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
-    Dessert: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
-    Drinks: [] as { id: string; item_name: string; description: string; image_url: string; item_type: string }[],
-  });
+  // Track existing item IDs to handle updates/deletions
+  const [existingItemIds, setExistingItemIds] = useState<Map<string, string>>(new Map());
+  // Track items to delete
+  const [itemsToDelete, setItemsToDelete] = useState<Set<string>>(new Set());
 
-  // Temporary form data for adding items in Step 2
+  // Temporary form data for editing items in Step 2 (array per category)
   const [itemFormData, setItemFormData] = useState({
-    Starter: {
-      item_name: "",
-      description: "",
-      image: null as File | null,
-      imagePreview: null as string | null,
-      suggestions: [] as string[],
-      activeSuggestionIndex: -1,
-    },
-    MainDish: {
-      item_name: "",
-      description: "",
-      image: null as File | null,
-      imagePreview: null as string | null,
-      suggestions: [] as string[],
-      activeSuggestionIndex: -1,
-    },
-    Dessert: {
-      item_name: "",
-      description: "",
-      image: null as File | null,
-      imagePreview: null as string | null,
-      suggestions: [] as string[],
-      activeSuggestionIndex: -1,
-    },
-    Drinks: {
-      item_name: "",
-      description: "",
-      image: null as File | null,
-      imagePreview: null as string | null,
-      suggestions: [] as string[],
-      activeSuggestionIndex: -1,
-    },
+    Starter: [
+      { item_name: "", image: null as File | null, imagePreview: null as string | null, id: "" },
+    ],
+    MainDish: [
+      { item_name: "", image: null as File | null, imagePreview: null as string | null, id: "" },
+    ],
+    Dessert: [
+      { item_name: "", image: null as File | null, imagePreview: null as string | null, id: "" },
+    ],
+    Drinks: [
+      { item_name: "", image: null as File | null, imagePreview: null as string | null, id: "" },
+    ],
   });
 
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-
-  // Debounced API call for autocomplete suggestions
-  const fetchSuggestions = debounce(async (query: string, category: string) => {
-    if (!query.trim() || query.trim().length <= 1) {
-      setItemFormData((prev) => ({
-        ...prev,
-        [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
-      }));
-      return;
-    }
-    try {
-      const res = await apiClient.get(`/menus/get-item/${restaurantId}?search=${query}`);
-      if (res.data.success) {
-        setItemFormData((prev) => ({
-          ...prev,
-          [category]: { ...prev[category], suggestions: res.data.data },
-        }));
-      } else {
-        setItemFormData((prev) => ({
-          ...prev,
-          [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      setItemFormData((prev) => ({
-        ...prev,
-        [category]: { ...prev[category], suggestions: [], activeSuggestionIndex: -1 },
-      }));
-    }
-  }, 300);
-
-  // Load initial menu data from sessionStorage
+  // Fetch menu and items on mount
   useEffect(() => {
-    const data = sessionStorage.getItem("editMenuItem");
-    if (data) {
-      const parsed = JSON.parse(data);
-      setFormData({
-        item_name: parsed.name || "",
-        description: parsed.description || "",
-        price: parsed.price || "",
-        menu_type: parsed.category || "Today's Special",
-        item_list: parsed.item_list?.map((item: any) => item.id.toString()) || [],
-        image: null,
-      });
-      const normalized = getMenuImagePath(parsed.cover_image || parsed.image);
-      setImagePreview(normalized);
-      setSelectedItems(new Set(parsed.item_list?.map((item: any) => item.id.toString()) || []));
-    }
-  }, []);
-
-  // Fetch menu items
-  useEffect(() => {
-    const fetchItems = async () => {
+    const fetchMenuData = async () => {
+      setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const response = await apiClient.get(
-          `/menuitems/getRestaurantMenuItemList/${menuItemId }`, // Fixed to use restaurantId
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (response.data.success) {
-          const items = response.data.data;
-          console.log('items',items)
-          // Organize items by category
-          const newCategorizedItems = {
+
+        // Fetch menu details
+        const menuResponse = await apiClient.get(`/menus/${menuId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (menuResponse.data.success) {
+          const menu = menuResponse.data.data;
+          setFormData({
+            item_name: menu.item_name || "",
+            description: menu.description || "",
+            price: menu.price || "",
+            menu_type: menu.menu_type || "Today's Special",
+            start_time: menu.start_time || "",
+            end_time: menu.end_time || "",
+            image: null,
+            item_list: menu.item_list || [],
+          });
+          setImagePreview(menu.image_urls || null);
+          setSelectedItems(new Set(menu.item_list || []));
+        }
+
+        // Fetch all menu items for the restaurant
+        const itemsResponse = await apiClient.get(`/menuitems/getRestaurantMenuItemList/${menuId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (itemsResponse.data.success) {
+          const items = itemsResponse.data.data
+   
+          const newItemFormData = {
             Starter: [],
             MainDish: [],
             Dessert: [],
             Drinks: [],
           };
+          const newExistingItemIds = new Map<string, string>();
+
           items.forEach((item: any) => {
-            if (newCategorizedItems[item.item_type] && formData.item_list.includes(item.id.toString())) {
-              newCategorizedItems[item.item_type].push(item);
+            const category = item.item_type;
+            newItemFormData[category].push({
+              id: item.id.toString(),
+              item_name: item.item_name || "",
+              image: null,
+              imagePreview: item.menuItemImg || null,
+            });
+            newExistingItemIds.set(item.id.toString(), category);
+          });
+
+          // Ensure at least one empty row per category
+          Object.keys(newItemFormData).forEach((category) => {
+            if (newItemFormData[category].length === 0) {
+              newItemFormData[category].push({
+                id: "",
+                item_name: "",
+                image: null,
+                imagePreview: null,
+              });
             }
           });
-          setCategorizedItems(newCategorizedItems);
+
+          setItemFormData(newItemFormData);
+          setExistingItemIds(newExistingItemIds);
         }
       } catch (error) {
-        console.error("Error fetching items", error);
         toast({
-          title: t("MenuItemFetchErrorTitle"),
-          description: t("MenuItemFetchErrorDescription"),
+          title: t("ToastFetchErrorTitle"),
+          description: t("ToastFetchErrorMessage"),
           variant: "destructive",
         });
+        console.error("Fetch Menu Error:", error);
       } finally {
-        setIsDataLoaded(true);
+        setIsLoading(false);
       }
     };
-    if(menuItemId){
-      fetchItems();
+    if(menuId && restaurantId){
+      fetchMenuData();
     }
-  
-  }, [menuItemId, formData.item_list, toast, t,menuItemId]);
+    
+  }, [menuId, restaurantId, toast, t]);
 
   // Handlers for Step 1
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -1249,19 +2397,22 @@ export default function EditMenuItemPage() {
   // Handlers for Step 2
   const handleItemChange = (
     category: string,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    rowIndex: number,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setItemFormData((prev) => ({
-      ...prev,
-      [category]: { ...prev[category], [name]: value },
-    }));
-    if (name === "item_name") {
-      fetchSuggestions(value, category);
-    }
+    setItemFormData((prev) => {
+      const updatedCategory = [...prev[category]];
+      updatedCategory[rowIndex] = { ...updatedCategory[rowIndex], [name]: value };
+      return { ...prev, [category]: updatedCategory };
+    });
   };
 
-  const handleItemImageChange = (category: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleItemImageChange = (
+    category: string,
+    rowIndex: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       if (!file.type.startsWith("image/")) {
@@ -1272,215 +2423,59 @@ export default function EditMenuItemPage() {
         });
         return;
       }
-      setItemFormData((prev) => ({
-        ...prev,
-        [category]: { ...prev[category], image: file },
-      }));
+      setItemFormData((prev) => {
+        const updatedCategory = [...prev[category]];
+        updatedCategory[rowIndex] = { ...updatedCategory[rowIndex], image: file };
+        return { ...prev, [category]: updatedCategory };
+      });
       const reader = new FileReader();
       reader.onloadend = () => {
-        setItemFormData((prev) => ({
-          ...prev,
-          [category]: { ...prev[category], imagePreview: reader.result as string },
-        }));
+        setItemFormData((prev) => {
+          const updatedCategory = [...prev[category]];
+          updatedCategory[rowIndex] = {
+            ...updatedCategory[rowIndex],
+            imagePreview: reader.result as string,
+          };
+          return { ...prev, [category]: updatedCategory };
+        });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleAddItem = async (category: string) => {
-    const itemData = itemFormData[category];
-    const trimmedName = itemData.item_name.trim();
-    const trimmedDesc = itemData.description.trim();
-
-    if (!trimmedName) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationItemNameRequired"),
-        variant: "destructive",
-      });
-      return;
-    }
-    if (trimmedName.length > 50) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationItemNameMax"),
-        variant: "destructive",
-      });
-      return;
-    }
-    if (trimmedDesc.length > 100) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationDescriptionMax"),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("restaurant_id", restaurantId);
-      formData.append("item_name", trimmedName);
-      formData.append("description", trimmedDesc);
-      formData.append("item_type", category);
-      if (itemData.image) {
-        formData.append("menuItemImg", itemData.image);
+  const handleRemoveRow = (category: string, rowIndex: number) => {
+    setItemFormData((prev) => {
+      const updatedCategory = [...prev[category]];
+      const removedItem = updatedCategory[rowIndex];
+      if (removedItem.id) {
+        setItemsToDelete((prev) => new Set(prev).add(removedItem.id));
       }
-
-      const response = await apiClient.post(
-        `/menuitems/addRestaurantMenuItem/${restaurantId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        toast({
-          title: t("ItemAddedTitle"),
-          description: t("ItemAddedDescription"),
+      updatedCategory.splice(rowIndex, 1);
+      if (updatedCategory.length === 0) {
+        updatedCategory.push({
+          id: "",
+          item_name: "",
+          image: null,
+          imagePreview: null,
         });
-
-        const newItem = response.data.data;
-        setCategorizedItems((prev) => ({
-          ...prev,
-          [category]: [newItem, ...prev[category]],
-        }));
-
-        const newId = newItem?.id?.toString();
-        if (newId) {
-          const newSelectedItems = new Set(selectedItems);
-          newSelectedItems.add(newId);
-          setSelectedItems(newSelectedItems);
-          setFormData((prev) => ({
-            ...prev,
-            item_list: Array.from(newSelectedItems),
-          }));
-        }
-
-        // Reset form for this category
-        setItemFormData((prev) => ({
-          ...prev,
-          [category]: {
-            item_name: "",
-            description: "",
-            image: null,
-            imagePreview: null,
-            suggestions: [],
-            activeSuggestionIndex: -1,
-          },
-        }));
-      } else {
-        throw new Error(response.data.message || "Failed to add item");
       }
-    } catch (error) {
-      toast({
-        title: t("ItemAddErrorTitle"),
-        description: t("ItemAddErrorDescription"),
-        variant: "destructive",
-      });
-      console.error("Add item error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEditClick = (item: any) => {
-    setEditingItem({
-      ...item,
-      image: null,
-      imagePreview: item.image_url ? `https://foodeus.truet.net/${item.image_url}` : null,
+      return { ...prev, [category]: updatedCategory };
     });
-    setIsModalOpen(true);
   };
 
-  const updateEditedItem = async () => {
-    if (!editingItem) return;
-
-    const trimmedName = editingItem.item_name.trim();
-    const trimmedDesc = editingItem.description?.trim() || "";
-
-    if (!trimmedName) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationItemNameRequired"),
-        variant: "destructive",
-      });
-      return;
-    }
-    if (trimmedName.length > 50) {
-      toast({
-        title: t("ValidationErrorTitle"),
-        description: t("ValidationItemNameMax"),
-        variant: "destructive",
-      });
-      return;
-    }
-    // if (trimmedDesc.length > 100) {
-    //   toast({
-    //     title: t("ValidationErrorTitle"),
-    //     description: t("ValidationDescriptionMax"),
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("item_name", trimmedName);
-      formData.append("description", trimmedDesc);
-      formData.append("item_type", editingItem.item_type);
-      if (editingItem.image) {
-        formData.append("menuItemImg", editingItem.image);
-      }
-
-      const response = await apiClient.put(
-        `/menuitems/updateRestaurantMenuItem/${editingItem.id}`,
-        formData,
+  const handleAddMore = (category: string) => {
+    setItemFormData((prev) => ({
+      ...prev,
+      [category]: [
+        ...prev[category],
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        toast({
-          title: t("ItemUpdatedTitle"),
-          description: t("ItemUpdatedDescription"),
-        });
-
-        setCategorizedItems((prev) => {
-          const updated = { ...prev };
-          updated[editingItem.item_type] = updated[editingItem.item_type].map((item) =>
-            item.id === editingItem.id ? response.data.data : item
-          );
-          return updated;
-        });
-
-        setIsModalOpen(false);
-        setEditingItem(null);
-      } else {
-        throw new Error(response.data.message || "Failed to update item");
-      }
-    } catch (error) {
-      toast({
-        title: t("ItemUpdateFailedTitle"),
-        description: t("ItemUpdateFailedDescription"),
-        variant: "destructive",
-      });
-      console.error("Update item error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+          id: "",
+          item_name: "",
+          image: null,
+          imagePreview: null,
+        },
+      ],
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1488,14 +2483,7 @@ export default function EditMenuItemPage() {
     setIsLoading(true);
 
     try {
-      if (formData.item_list.length === 0) {
-        toast({
-          title: t("ValidationErrorTitle"),
-          description: t("ValidationAtLeastOneItem"),
-          variant: "destructive",
-        });
-        return;
-      }
+      // Validate Step 1
       if (!formData.item_name.trim()) {
         toast({
           title: t("ValidationErrorTitle"),
@@ -1504,14 +2492,6 @@ export default function EditMenuItemPage() {
         });
         return;
       }
-      // if (!formData.description.trim()) {
-      //   toast({
-      //     title: t("ValidationErrorTitle"),
-      //     description: t("ValidationDescriptionRequired"),
-      //     variant: "destructive",
-      //   });
-      //   return;
-      // }
       if (!formData.price) {
         toast({
           title: t("ValidationErrorTitle"),
@@ -1520,319 +2500,297 @@ export default function EditMenuItemPage() {
         });
         return;
       }
-
-      const token = localStorage.getItem("token");
-      const data = new FormData();
-      data.append("item_name", formData.item_name.trim());
-      data.append("price", formData.price);
-      data.append("menu_type", formData.menu_type);
-      data.append("item_list", JSON.stringify(Array.from(selectedItems)));
-      data.append("description", formData.description.trim());
-      if (formData.image) {
-        data.append("image_urls", formData.image);
+      if (formData.start_time && formData.end_time && formData.start_time >= formData.end_time) {
+        toast({
+          title: t("ValidationErrorTitle"),
+          description: t("ValidationEndTimeAfterStart"),
+          variant: "destructive",
+        });
+        return;
       }
 
-      const response = await apiClient.put(`/menus/update/${menuItemId}`, data, {
+      // Validate Step 2: At least one valid item
+      const allItems = Object.keys(itemFormData).flatMap((category) =>
+        itemFormData[category]
+          .map((item:any, index:number) => ({ ...item, category, rowIndex: index }))
+          .filter((item:any) => item.item_name.trim())
+      );
+
+      if (allItems.length === 0) {
+        toast({
+          title: t("ValidationErrorTitle"),
+          description: t("ValidationAtLeastOneItem"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate each item
+      for (const item of allItems) {
+        if (item.item_name.length > 60) {
+          toast({
+            title: t("ValidationErrorTitle"),
+            description: t("ValidationItemNameMax"),
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      const token = localStorage.getItem("token");
+      const newItemIds: string[] = [];
+      const updatedItemIds = new Set(selectedItems);
+
+      // Delete removed items
+      for (const itemId of itemsToDelete) {
+        if (updatedItemIds.has(itemId)) {
+          await apiClient.delete(`/menuitems/delete/${itemId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          updatedItemIds.delete(itemId);
+        }
+      }
+
+      // Update or add items
+      for (const item of allItems) {
+        const data = new FormData();
+        data.append("restaurant_id", restaurantId);
+        data.append("item_name", item.item_name.trim());
+        data.append("description", "");
+        data.append("item_type", item.category);
+        if (item.image) {
+          data.append("menuItemImg", item.image);
+        }
+
+        if (item.id) {
+          // Update existing item
+          const response = await apiClient.put(`/menus/update/${menuId}`, data, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.data.success) {
+            updatedItemIds.add(item.id);
+          } else {
+            throw new Error(`Failed to update item: ${item.item_name}`);
+          }
+        } else {
+          // Add new item
+          const response = await apiClient.post(
+            `/menuitems/addRestaurantMenuItem/${restaurantId}`,
+            data,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (response.data.success) {
+            const newItemId = response.data.data?.id?.toString();
+            if (newItemId) {
+              newItemIds.push(newItemId);
+              updatedItemIds.add(newItemId);
+            }
+          } else {
+            throw new Error(`Failed to add item: ${item.item_name}`);
+          }
+        }
+      }
+
+      // Update menu
+      const menuData = new FormData();
+      menuData.append("restaurant_id", restaurantId);
+      menuData.append("item_name", formData.item_name.trim());
+      menuData.append("price", formData.price);
+      menuData.append("menu_type", formData.menu_type);
+      menuData.append("start_time", formData.start_time);
+      menuData.append("end_time", formData.end_time);
+      menuData.append("description", formData.description.trim());
+      if (formData.image) {
+        menuData.append("image_urls", formData.image);
+      }
+      Array.from(updatedItemIds).forEach((item) => menuData.append("item_list[]", item));
+
+      const menuResponse = await apiClient.put(`/menus/update/${menuId}`, menuData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.data.success) {
+      if (menuResponse.data.success) {
         toast({
-          title: t("MenuItemUpdatedTitle"),
-          description: t("MenuItemUpdatedDescription"),
+          title: t("ToastMenuUpdateSuccessTitle"),
+          description: t("ToastMenuUpdateSuccessMessage"),
         });
         router.push(`/admin/restaurants/${restaurantId}`);
       } else {
-        throw new Error(response.data.message || "Failed to update menu item");
+        throw new Error("Failed to update menu");
       }
     } catch (error) {
       toast({
-        title: t("MenuItemUpdateErrorTitle"),
-        description: t("MenuItemUpdateErrorDescription"),
+        title: t("ToastMenuUpdateErrorTitle"),
+        description: t("ToastMenuUpdateErrorMessage"),
         variant: "destructive",
       });
-      console.error("Update menu error:", error);
+      console.error("Update Menu Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleOpenDialog = (itemId: string) => {
-    setSelectedItemId(itemId);
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedItemId(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (selectedItemId) {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const response = await apiClient.delete(
-          `/menuitems/deleteRestaurantMenuItem/${selectedItemId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          toast({
-            title: t("MenuItemDeletedTitle"),
-            description: t("MenuItemDeletedDescription"),
-          });
-
-          setCategorizedItems((prev) => {
-            const updated = { ...prev };
-            Object.keys(updated).forEach((category) => {
-              updated[category] = updated[category].filter((item) => item.id !== selectedItemId);
-            });
-            return updated;
-          });
-
-          const newSelectedItems = new Set(selectedItems);
-          newSelectedItems.delete(selectedItemId);
-          setSelectedItems(newSelectedItems);
-          setFormData((prev) => ({
-            ...prev,
-            item_list: Array.from(newSelectedItems),
-          }));
-        } else {
-          throw new Error(response.data.message || "Failed to delete item");
-        }
-      } catch (error) {
-        toast({
-          title: t("MenuItemDeleteErrorTitle"),
-          description: t("MenuItemDeleteErrorDescription"),
-          variant: "destructive",
-        });
-        console.error("Delete error:", error);
-      } finally {
-        setIsLoading(false);
-        setIsDialogOpen(false);
-      }
-    }
-  };
-
   const renderCategorySection = (category: string) => {
-    const items = categorizedItems[category];
-    const form = itemFormData[category];
+    const forms = itemFormData[category];
+    const canAddMore = forms.length < 10 && forms.every((form:any) => form.item_name.trim());
 
     return (
-      <div className="space-y-4 mb-5">
-        <h3 className="text-lg font-semibold">{t(category)}</h3>
-        <div className="space-y-4">
-          {/* Single Row: Item Name, Upload Item, Add Button */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
-            {/* Item Name with Autocomplete */}
-            <div className="flex-1 space-y-2 px-2 relative">
-              <Label htmlFor={`item_name-${category}`}>
-                {t("ItemName")} <span className="text-danger">*</span>
-              </Label>
-              <Input
-                id={`item_name-${category}`}
-                name="item_name"
-                placeholder={t("EnterItemName")}
-                value={form.item_name}
-                onChange={(e) => handleItemChange(category, e)}
-                maxLength={50}
-                onInput={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  target.value = target.value
-                    .replace(/[^a-zA-Z0-9\s]/g, "")
-                    .replace(/^\s+/g, "");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    setItemFormData((prev) => ({
-                      ...prev,
-                      [category]: {
-                        ...prev[category],
-                        activeSuggestionIndex:
-                          prev[category].activeSuggestionIndex < prev[category].suggestions.length - 1
-                            ? prev[category].activeSuggestionIndex + 1
-                            : 0,
-                      },
-                    }));
-                  } else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    setItemFormData((prev) => ({
-                      ...prev,
-                      [category]: {
-                        ...prev[category],
-                        activeSuggestionIndex:
-                          prev[category].activeSuggestionIndex > 0
-                            ? prev[category].activeSuggestionIndex - 1
-                            : prev[category].suggestions.length - 1,
-                      },
-                    }));
-                  } else if (e.key === "Enter" && form.activeSuggestionIndex >= 0) {
-                    e.preventDefault();
-                    const selected = form.suggestions[form.activeSuggestionIndex];
-                    if (selected) {
-                      setItemFormData((prev) => ({
-                        ...prev,
-                        [category]: {
-                          ...prev[category],
-                          item_name: selected,
-                          suggestions: [],
-                          activeSuggestionIndex: -1,
-                        },
-                      }));
-                    }
-                  }
-                }}
-              />
-              {form.suggestions.length > 0 && (
-                <ul className="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 shadow z-50 max-h-40 overflow-y-auto">
-                  {form.suggestions.map((itemName, index) => (
-                    <li
-                      key={index}
-                      className={`px-4 py-2 cursor-pointer text-sm ${
-                        index === form.activeSuggestionIndex
-                          ? "bg-gray-200 text-black font-medium"
-                          : "hover:bg-gray-100"
-                      }`}
-                      onClick={() => {
-                        setItemFormData((prev) => ({
-                          ...prev,
-                          [category]: {
-                            ...prev[category],
-                            item_name: itemName,
-                            suggestions: [],
-                            activeSuggestionIndex: -1,
-                          },
-                        }));
-                      }}
-                    >
-                      {itemName}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+      <Card className="w-full">
+        <div className="space-y-4 mb-5 p-6">
+          <h3 className="text-lg font-semibold">{t(category)}</h3>
+          <div className="space-y-4">
+            {forms.map((form, rowIndex) => (
+              // <div key={rowIndex} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
+              //   {/* Item Name */}
+              //   <div className="flex-1 space-y-2">
+              //     <Label htmlFor={`item_name-${category}-${rowIndex}`}>
+              //       {rowIndex + 1}. {t("ItemName")} <span className="text-danger">*</span>
+              //     </Label>
+              //     <Input
+              //       id={`item_name-${category}-${rowIndex}`}
+              //       name="item_name"
+              //       placeholder={t("EnterItemName")}
+              //       value={form.item_name}
+              //       onChange={(e) => handleItemChange(category, rowIndex, e)}
+              //       maxLength={60}
+              //       onInput={(e) => {
+              //         const target = e.target as HTMLInputElement;
+              //         target.value = target.value
+              //           .replace(/[^a-zA-Z0-9\s]/g, "")
+              //           .replace(/^\s+/g, "");
+              //       }}
+              //     />
+              //   </div>
 
-            {/* Upload Item Button */}
-            <div className="flex-1 space-y-2">
-              <Label htmlFor={`image-${category}`} className="sm:hidden">
-                {t("ItemImageClickToChange")}
-              </Label>
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={() => document.getElementById(`image-${category}`)?.click()}
+              //   {/* Upload Item Button */}
+              //   <div className="flex-1 space-y-2">
+              //     <Label htmlFor={`image-${category}-${rowIndex}`} className="sm:hidden">
+              //       {t("ItemImageClickToChange")}
+              //     </Label>
+              //     <Button
+              //       variant="outline"
+              //       className="w-full sm:w-auto"
+              //       onClick={() => document.getElementById(`image-${category}-${rowIndex}`)?.click()}
+              //     >
+              //       <Upload className="h-4 w-4 mr-2" />
+              //       {form.image?.name || form.imagePreview || t("ItemImage")}
+              //     </Button>
+              //     <Input
+              //       id={`image-${category}-${rowIndex}`}
+              //       type="file"
+              //       accept="image/*"
+              //       className="hidden"
+              //       onChange={(e) => handleItemImageChange(category, rowIndex, e)}
+              //     />
+              //   </div>
+
+              //   {/* Remove Button (Cross Icon) */}
+              //   {(forms.length > 0 || form.item_name) &&(
+              //     <Button
+              //       variant="ghost"
+              //       size="icon"
+              //       className="self-end sm:self-center"
+              //       onClick={() => handleRemoveRow(category, rowIndex)}
+              //       title={t("RemoveRow")}
+              //     >
+              //       <X className="h-4 w-4 text-danger" />
+              //     </Button>
+              //   )}
+              // </div>
+              <div
+                key={rowIndex}
+                className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-6"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                {t("UploadItemImage")}
-              </Button>
-              <Input
-                id={`image-${category}`}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleItemImageChange(category, e)}
-              />
-            </div>
+                {/* Item Name */}
+                <div className="flex-1">
+                  <Label htmlFor={`item_name-${category}-${rowIndex}`} className="block mb-1">
+                    {rowIndex + 1}. {t("ItemName")} <span className="text-danger">*</span>
+                  </Label>
+                  <Input
+                    id={`item_name-${category}-${rowIndex}`}
+                    name="item_name"
+                    placeholder={t("EnterItemName")}
+                    value={form.item_name}
+                    onChange={(e) => handleItemChange(category, rowIndex, e)}
+                    maxLength={60}
+                    onInput={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      target.value = target.value
+                        .replace(/[^a-zA-Z0-9\s]/g, "")
+                        .replace(/^\s+/g, "");
+                    }}
+                  />
+                </div>
 
-            {/* Add Button */}
-            <Button
-              onClick={() => handleAddItem(category)}
-              disabled={isLoading || !form.item_name.trim()}
-              className="w-full sm:w-auto"
-              style={{ alignSelf: "center" }}
-            >
-              {t("AddItem")}
-            </Button>
-          </div>
+                {/* Upload Item Button */}
+                <div className="flex-1">
+                  <Label htmlFor={`image-${category}-${rowIndex}`} className="block mb-1">
+                    {t("ItemImage")}
+                  </Label>
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto truncate"
+                    onClick={() =>
+                      document.getElementById(`image-${category}-${rowIndex}`)?.click()
+                    }
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    <span className="truncate">
+                      {form.image?.name || form.imagePreview || t("ItemImageClickToChange")}
+                    </span>
+                  </Button>
+                  <Input
+                    id={`image-${category}-${rowIndex}`}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleItemImageChange(category, rowIndex, e)}
+                  />
+                </div>
 
-          {/* Added Items */}
-          {items.length > 0 && (
-            <div className="mt-6 space-y-4">
-              <Label className="text-sm font-semibold text-gray-800">{t("ExistingMenuItems")}</Label>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {items.map((item) =>
-                  item ? (
-                    <div
-                      key={item.id}
-                      className="relative border rounded-lg p-4 shadow-sm bg-white"
+                {/* Remove Button */}
+                {(forms.length > 1 || form.item_name) && (
+                  <div className="flex items-center pt-6 sm:pt-7">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveRow(category, rowIndex)}
+                      title={t("RemoveRow")}
                     >
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 text-black hover:text-black focus:outline-none"
-                        onClick={() => handleEditClick(item)}
-                        title="Edit"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <div className="flex items-center gap-3 mb-2">
-                        <img
-                          src={
-                            item.image_url
-                              ? `https://foodeus.truet.net/${item.image_url}`
-                              : "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg"
-                          }
-                          alt={item.item_name || "Menu item image"}
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-                          }}
-                          className="w-12 h-12 object-cover rounded-md border"
-                        />
-                        <div>
-                          <h4
-                            className="font-semibold text-sm text-gray-900 resName"
-                            style={{
-                              wordBreak: "break-all",
-                              whiteSpace: "normal",
-                            }}
-                          >
-                            {item.item_name}
-                          </h4>
-                          <p className="text-xs text-gray-500">{t(item.item_type)}</p>
-                        </div>
-                      </div>
-                      {/* <p
-                        className="text-sm text-gray-700 mb-1"
-                        style={{
-                          wordBreak: "break-all",
-                          whiteSpace: "normal",
-                        }}
-                      >
-                        {item.description || (
-                          <em className="text-gray-400">{t("NoDescription")}</em>
-                        )}
-                      </p> */}
-                      <div className="flex justify-end mt-2">
-                        <span
-                          className="text-xs text-danger"
-                          onClick={() => handleOpenDialog(item.id)}
-                        >
-                          {t("Remove")}
-                        </span>
-                      </div>
-                    </div>
-                  ) : null
+                      <X className="h-4 w-4 text-danger" />
+                    </Button>
+                  </div>
                 )}
               </div>
+
+            ))}
+
+            {/* Add More Button */}
+            <div className="flex justify-start">
+              <Button
+                variant="outline"
+                onClick={() => handleAddMore(category)}
+                disabled={isLoading || !canAddMore}
+              >
+                {t("AddMore")}
+              </Button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      </Card>
     );
   };
-
-  if (!isDataLoaded) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="full-width-container space-y-6 responsive-container">
@@ -1845,11 +2803,12 @@ export default function EditMenuItemPage() {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t("EditMenuItem")}</h1>
-        <p className="text-muted-foreground">{t("ModifyDetailsBelow")}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("UpdateMenu")}</h1>
+        <p className="text-muted-foreground">{t("UpdateMenuDescription")}</p>
       </div>
 
       {/* Progress Indicator */}
+
       <div className="mb-6 space-y-4">
         <div className="flex items-center justify-center">
           <div className="flex items-center">
@@ -1858,7 +2817,7 @@ export default function EditMenuItemPage() {
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                   step === 1
-                    ? "border-primary bg-primary text-white"
+                    ? "pindicatior-circle"
                     : "border-gray-300 bg-gray-100 text-gray-600"
                 }`}
               >
@@ -1866,17 +2825,17 @@ export default function EditMenuItemPage() {
               </div>
               <span
                 className={`ml-2 text-sm font-medium ${
-                  step === 1 ? "text-primary" : "text-gray-600"
+                  step === 1 ? "pindicatior-text" : "text-gray-600"
                 }`}
               >
-                {t("EditItemDetails")}
+                {t("MenuItemDetails")}
               </span>
             </div>
 
             {/* Connector Line */}
             <div
               className={`mx-4 h-1 w-16 rounded ${
-                step === 2 ? "bg-primary" : "bg-gray-300"
+                step === 2 ? "pindicatior-text" : "bg-gray-300"
               }`}
             />
 
@@ -1885,7 +2844,7 @@ export default function EditMenuItemPage() {
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                   step === 2
-                    ? "border-primary bg-primary text-white"
+                    ? "pindicatior-circle"
                     : "border-gray-300 bg-gray-100 text-gray-600"
                 }`}
               >
@@ -1893,10 +2852,10 @@ export default function EditMenuItemPage() {
               </div>
               <span
                 className={`ml-2 text-sm font-medium ${
-                  step === 2 ? "text-primary" : "text-gray-600"
+                  step === 2 ? "pindicatior-text" : "text-gray-600"
                 }`}
               >
-                {t("ManageMenuItems")}
+                {t("EditMenuItems")}
               </span>
             </div>
           </div>
@@ -1908,15 +2867,13 @@ export default function EditMenuItemPage() {
         <form onSubmit={(e) => e.preventDefault()} className="w-full">
           <Card className="w-full">
             <CardHeader>
-              <CardTitle>{t("EditItemDetails")}</CardTitle>
-              <CardDescription>{t("ModifyDetailsBelow")}</CardDescription>
+              <CardTitle>{t("MenuItemDetails")}</CardTitle>
+              <CardDescription>{t("MenuItemDetailsDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Menu Image */}
               <div className="space-y-2">
-                <Label>
-                  {t("ItemImageClickToChange")} 
-                </Label>
+                <Label>{t("ItemImageClickToChange")}</Label>
                 <div
                   className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => fileInputRef.current?.click()}
@@ -1935,7 +2892,7 @@ export default function EditMenuItemPage() {
                   ) : (
                     <div className="py-4 flex flex-col items-center">
                       <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                      <p className="text-sm font-medium">{t("ClickToUploadItemImage")}</p>
+                      <p className="text-sm font-medium">{t("UploadItemImage")}</p>
                     </div>
                   )}
                   <Input
@@ -1961,7 +2918,7 @@ export default function EditMenuItemPage() {
                   placeholder={t("EnterMenuName")}
                   value={formData.item_name}
                   onChange={handleChange}
-                  maxLength={50}
+                  maxLength={60}
                   required
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -1974,9 +2931,7 @@ export default function EditMenuItemPage() {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">
-                  {t("Description")} 
-                </Label>
+                <Label htmlFor="description">{t("Description")}</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -1984,8 +2939,7 @@ export default function EditMenuItemPage() {
                   value={formData.description}
                   onChange={handleChange}
                   rows={3}
-                  maxLength={150}
-                  required
+                  maxLength={200}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
                     target.value = target.value
@@ -2019,6 +2973,48 @@ export default function EditMenuItemPage() {
                   title="Enter a valid price (e.g. 9.99)"
                 />
               </div>
+
+              {/* Serving Hours */}
+              <div className="space-y-2" style={{ width: "50%" }}>
+                <Label>{t("ServingHours")}</Label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="start_time" className="text-xs">
+                      {t("StartTime")}
+                    </Label>
+                    <Input
+                      id="start_time"
+                      name="start_time"
+                      type="time"
+                      value={formData.start_time}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="end_time" className="text-xs">
+                      {t("EndTime")}
+                    </Label>
+                    <Input
+                      id="end_time"
+                      name="end_time"
+                      type="time"
+                      value={formData.end_time}
+                      onChange={(e) => {
+                        const selectedEndTime = e.target.value;
+                        if (formData.start_time && selectedEndTime <= formData.start_time) {
+                          toast({
+                            title: t("ValidationErrorTitle"),
+                            description: t("ValidationEndTimeAfterStart"),
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        handleChange(e);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline" asChild>
@@ -2026,7 +3022,7 @@ export default function EditMenuItemPage() {
               </Button>
               <Button
                 onClick={() => setStep(2)}
-                disabled={!formData.item_name  || !formData.price}
+                disabled={!formData.item_name || !formData.price}
               >
                 {t("Next")}
               </Button>
@@ -2035,180 +3031,31 @@ export default function EditMenuItemPage() {
         </form>
       )}
 
-      {/* Step 2: Manage Menu Items */}
+      {/* Step 2: Edit Menu Items */}
       {step === 2 && (
-        <div className="space-y-8 mb-2">
-          {["Starter", "MainDish", "Dessert", "Drinks"].map((category) => renderCategorySection(category))}
-          <div className="flex justify-between">
+        <div className="space-y-8 mb-2 p-6">
+          {["Starter", "MainDish", "Dessert", "Drinks"].map((category) =>
+            renderCategorySection(category)
+          )}
+          <div className="flex justify-between mt-3">
             <Button variant="outline" onClick={() => setStep(1)}>
               {t("Back")}
             </Button>
-            <Button onClick={handleSubmit} disabled={isLoading || formData.item_list.length === 0}>
-              {isLoading ? t("Updating") : t("UpdateMenuItem")}
+            <Button
+              onClick={handleSubmit}
+              disabled={
+                isLoading
+                //  ||
+                // !Object.values(itemFormData)
+                //   .flat()
+                //   .some((item) => item.item_name.trim())
+              }
+            >
+              {isLoading ? t("saving") : t("SaveChanges")}
             </Button>
           </div>
         </div>
       )}
-
-      {/* Dialog for confirming item deletion */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" />
-        <DialogContent
-          className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8"
-          style={{ maxHeight: "90vh", overflowY: "auto" }}
-        >
-          <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-              {t("ConfirmDeletion")}
-            </DialogTitle>
-            <DialogDescription className="text-gray-600 text-center mt-1">
-              {t("ConfirmDeleteMenuItem")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-5 flex justify-between">
-            <Button variant="outline" onClick={handleCloseDialog} className="w-full sm:w-auto">
-              {t("Cancel")}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              className="w-full sm:w-auto"
-            >
-              {t("ConfirmDelete")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {isModalOpen && editingItem && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogOverlay className="bg-black/10 fixed inset-0 transition-opacity" />
-          <DialogContent
-            className="w-full max-w-md bg-white shadow-lg rounded-lg px-4 py-6 sm:px-6 sm:py-8"
-            style={{ maxHeight: "90vh", overflowY: "auto" }}
-          >
-            <DialogHeader>
-              <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-                {t("EditMenuItem")}
-              </DialogTitle>
-              <DialogDescription className="text-gray-600 text-center mt-1">
-                {t("UpdateItemDetails")}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="modal-image">{t("ItemImage")}</Label>
-                <div
-                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => document.getElementById("modal-image")?.click()}
-                >
-                  {editingItem.imagePreview || editingItem.image_url ? (
-                    <div className="relative">
-                      <img
-                        src={editingItem.imagePreview || `https://foodeus.truet.net/${editingItem.image_url}`}
-                        alt="Preview"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            "https://foodeus.truet.net/menuItemImg/1744265346165-restfall.jpeg";
-                        }}
-                        className="mx-auto max-h-[200px] rounded-md object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                        <span className="text-white font-medium">{t("ChangeImage")}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center text-center">
-                      <Upload className="h-6 w-6 mb-2 text-muted-foreground" />
-                      <p className="text-sm">{t("ClickToUpload")}</p>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    id="modal-image"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (!file.type.startsWith("image/")) {
-                          toast({
-                            title: t("ToastInvalidFileTypeTitle"),
-                            description: t("ToastInvalidFileTypeMessage"),
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setEditingItem({
-                            ...editingItem,
-                            image: file,
-                            imagePreview: reader.result as string,
-                          });
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>
-                  {t("ItemName")} <span className="text-danger">*</span>
-                </Label>
-                <Input
-                  maxLength={50}
-                  value={editingItem.item_name}
-                  onChange={(e) =>
-                    setEditingItem({
-                      ...editingItem,
-                      item_name: e.target.value,
-                    })
-                  }
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    target.value = target.value
-                      .replace(/[^a-zA-Z0-9\s]/g, "")
-                      .replace(/^\s+/g, "");
-                  }}
-                />
-              </div>
-
-              {/* <div>
-                <Label>{t("Description")}</Label>
-                <Textarea
-                  value={editingItem.description}
-                  maxLength={100}
-                  onChange={(e) =>
-                    setEditingItem({
-                      ...editingItem,
-                      description: e.target.value,
-                    })
-                  }
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    target.value = target.value
-                      .replace(/[^a-zA-Z0-9\s]/g, "")
-                      .replace(/^\s+/g, "");
-                  }}
-                />
-              </div> */}
-            </div>
-
-            <DialogFooter className="mt-5">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                {t("Cancel")}
-              </Button>
-              <Button onClick={updateEditedItem} disabled={isLoading}>
-                {isLoading ? t("Updating") : t("SaveChanges")}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )} 
     </div>
   );
 }

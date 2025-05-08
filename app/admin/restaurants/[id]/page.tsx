@@ -58,6 +58,7 @@ interface ItemList {
   name: string;
   description: string;
   price: number;
+  item_type:string|any
   category: string;
 }
 
@@ -68,6 +69,7 @@ interface MenuItem {
   price: number;
   image: string;
   category: string;
+  item_type:string|any
   popular?: boolean; // Optional if applicable
   updated_at: any;
   item_list?: ItemList[]; // Ensure this is an array of ItemList
@@ -272,7 +274,7 @@ export default function RestaurantDetailPage() {
       );
 
       if (response.data.success) {
-        await fetchItemList();
+        // await fetchItemList();
         toast({
           title: "Menu item deleted",
           description: "The menu item has been deleted successfully",
@@ -329,6 +331,7 @@ export default function RestaurantDetailPage() {
     
     return timestamp.replace(" ", "T") + "Z";
   };
+  console.log('filteredMenus',filteredMenus)
   
   return (
     <div className="w-full space-y-6">
@@ -619,9 +622,9 @@ export default function RestaurantDetailPage() {
                         {item.item_list && item.item_list.length > 0 && (
                           <div>
                             <h4 className="font-semibold text-lg">{t('ItemList')}</h4>
-                            <ul className="space-y-2 mt-2">
-                              {item.item_list.map((menuItem, index) => (
-                                <li key={index} className="flex justify-between items-center">
+                            <ul className="space-y-2 mt-2 p-0">
+                              {item?.item_list.map((menuItem, index) => (
+                                <li key={index} className="flex justify-between items-left">
                                   <div className="flex items-center gap-2">
                                     {menuItem.image && (
                                       <img
@@ -634,11 +637,21 @@ export default function RestaurantDetailPage() {
                                         }}
                                       />
                                     )}
-                                    <span className="text-sm text-gray-800 resName"    style={{
+                                    <span className="text-sm text-capitalize text-gray-800 resName"    style={{
                                 wordBreak: "break-all", 
                                 whiteSpace: "normal", 
                               }}>{menuItem.name}</span>
                                   </div>
+                                  <div>     <span className="text-xs text-gray-800  "        style={{
+                                        backgroundColor:
+                                          menuItem?.item_type === "MainDish"
+                                            ? "#D7EED0"
+                                            : menuItem?.item_type === "Starter"
+                                              ? "#EEE7D0"
+                                              : menuItem?.item_type === "Drinks"
+                                                ? "#EED0D0"
+                                                : "#D0E1EE",
+                                      }}>{menuItem?.item_type}</span></div>
                                 </li>
                               ))}
                             </ul>

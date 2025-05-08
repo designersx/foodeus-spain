@@ -160,7 +160,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 <div className="resturantLoc  w-100">
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium restaurantMenu">
-                      <span className="resName">{restaurant?.name.slice(0, 20)}</span>
+                      <span className="resName">{restaurant?.name}</span>
                       <span className="flex items-center gap-1 starWidth" >
                         <Star className="h-3 w-3" style={{ color: "#FFD700", fill: "#FFD700" }} />
                         {restaurant?.rating}
