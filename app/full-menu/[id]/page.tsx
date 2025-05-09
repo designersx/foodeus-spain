@@ -41,7 +41,7 @@ export default function FullMenuPage() {
       const menu = JSON.parse(storedMenu);
       const menuGrouped: FullMenu = {};
 
-      menu?.items?.forEach((item: any) => {
+      menu?.forEach((item: any) => {
               const menuItem: MenuItem = {
                 title: item.item_name || "",
                 price: `€${item.price ?? "0.00"}`,
@@ -70,16 +70,16 @@ export default function FullMenuPage() {
       }
 
    }, [storedMenu]);
-  if (!Object.keys(fullMenu).length) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "50vh" }}
-      >
-        <p>Loading menu...</p>
-      </div>
-    );
-  }
+  // if (!Object.keys(fullMenu).length) {
+  //   return (
+  //     <div
+  //       className="d-flex justify-content-center align-items-center"
+  //       style={{ height: "50vh" }}
+  //     >
+  //       <p>Loading menu...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="pb-4">

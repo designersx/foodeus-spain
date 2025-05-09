@@ -642,7 +642,8 @@ export default function RestaurantDetailPage() {
                                 whiteSpace: "normal", 
                               }}>{menuItem.name}</span>
                                   </div>
-                                  <div>     <span className="text-xs text-gray-800  "        style={{
+                                  <div>     
+                                    <span className="text-xs text-gray-800  "        style={{
                                         backgroundColor:
                                           menuItem?.item_type === "MainDish"
                                             ? "#D7EED0"

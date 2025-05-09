@@ -36,7 +36,7 @@ export default function UploadMenuItemsCSV() {
   const params = useParams();
   const restaurantId = params.id as string;
   const router = useRouter();
-console.log('restaurantId',restaurantId)
+// console.log('restaurantId',restaurantId)
   const sampleCSV = `Item_Name,Price,Description,Image_URL,Item_Type,Menu_ID
   "Grilled Chicken",14.99,"A grilled chicken item","https://example.com/grilled-chicken.jpg","Main Course","1"
   "Veggie Burger",12.99,"A healthy veggie burger","https://example.com/veggie-burger.jpg","Main Course","1"
