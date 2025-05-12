@@ -322,7 +322,7 @@ export default function EditRestaurantPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="name">{t('RestaurantName')}</Label>
+                <Label htmlFor="name">{t('RestaurantName')}<span className="text-danger"> *</span></Label>
                 <Input
                   id="name"
                   name="name"
@@ -341,7 +341,7 @@ export default function EditRestaurantPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">{t('Cuisine')}</Label>
+                <Label htmlFor="category">{t('Cuisine')} <span className="text-danger"> *</span></Label>
                 <Select value={formData.category}  onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, category: value }))
                   }>
@@ -370,7 +370,7 @@ export default function EditRestaurantPage() {
       
 
               <div className="relative space-y-2">
-            <Label htmlFor="address">{t('Address')}</Label>
+            <Label htmlFor="address">{t('Address')} <span className="text-danger"> *</span></Label>
             <Input
               id="address"
               name="address"
@@ -419,6 +419,7 @@ export default function EditRestaurantPage() {
                     value={formData.latitude}
                     onChange={handleChange}
                     maxLength={20}
+                    disabled
                     onInput={(e: React.FormEvent<HTMLInputElement>) => {
                       const input = e.currentTarget;
                       input.value = input.value.replace(/[^0-9.-]/g, ""); // allow numbers, dot, minus
@@ -433,6 +434,7 @@ export default function EditRestaurantPage() {
                     name="longitude"
                     placeholder="e.g. -74.0060"
                     value={formData.longitude}
+                    disabled
                     maxLength={20}
                     onChange={handleChange}
                     onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -446,7 +448,7 @@ export default function EditRestaurantPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="phone">{t('Phone')}</Label>
+                <Label htmlFor="phone">{t('Phone')} <span className="text-danger"> *</span></Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -483,7 +485,7 @@ export default function EditRestaurantPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="open_hours">{t('OpenHours')}</Label>
+              <Label htmlFor="open_hours">{t('OpenHours')} <span className="text-danger"> *</span></Label>
               <Input
                 id="open_hours"
                 name="open_hours"
@@ -502,7 +504,7 @@ export default function EditRestaurantPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">{t('Description')}</Label>
+              <Label htmlFor="description">{t('Description')}<span className="text-danger"> *</span></Label>
               <Textarea
                 id="description"
                 name="description"

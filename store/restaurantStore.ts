@@ -39,15 +39,19 @@ interface Restaurant {
 interface RestaurantState {
   restaurants: Restaurant[];
   hasFetched: boolean;
+  hasMoreData: boolean;
   setRestaurants: (data: Restaurant[]) => void;
   setHasFetched: (fetched: boolean) => void;
+  setHasMoreData: (more: boolean) => void;
 }
 
 export const useRestaurantStore = create<RestaurantState>((set) => ({
   restaurants: [],
   hasFetched: false,
+  hasMoreData: true,
   setRestaurants: (data) => set({ restaurants: data }),
   setHasFetched: (fetched) => set({ hasFetched: fetched }),
+  setHasMoreData: (more) => set({ hasMoreData: more }),
 }));
 
 // cache 

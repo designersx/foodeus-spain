@@ -1396,6 +1396,7 @@ import { useRouter } from "next/navigation";
 import PopUp from "./ui/custom-toast";
 import { usePathname } from "next/navigation";
 import LocationLoader from "./LocationLoader";
+import MainScreenLoader from "./MainScreenLoader";
 
 export interface Restaurant {
     restaurant_id: number;
@@ -1481,11 +1482,11 @@ export function ListView() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [hardRefresh, setHardRefresh] = useState<boolean>(true);
   const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
   const [filterBy, setFilterBy] = useState("all");
   const [locationError, setLocationError] = useState<string>("");
-  const { restaurants, setRestaurants, hasFetched, setHasFetched } =
-    useRestaurantStore();
+  const { restaurants, setRestaurants, hasFetched, setHasFetched,hasMoreData, setHasMoreData } =    useRestaurantStore();
   const [visibleCount, setVisibleCount] = useState(5);
   const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState<string>("");
@@ -1494,9 +1495,15 @@ export function ListView() {
   const [selectedMenu, setSelectedMenu] = useState("");
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // New state for load more
-  const [hasMoreData, setHasMoreData] = useState(true); // Track if more data is available
+  // const [hasMoreData, setHasMoreData] = useState(true); // Track if more data is available; shift to global state as it got change when switch compneny and load more button show 
   const router = useRouter();
-  console.log('restaurants',restaurants)
+  // console.log('restaurants',restaurants)
+
+    const loadingText =
+    language === "es"
+      ? "Por favor espera mientras encontramos opciones deliciosas para ti."
+      : "Please wait while we find delicious options for you!";
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const locationVar = localStorage.getItem("userLocation");
@@ -1508,6 +1515,7 @@ export function ListView() {
     }
     setRestaurantsWithDistance(restaurants);
     setFilteredRestaurants(restaurants);
+
   }, []);
 
   // Utility to format date to just yyyy-mm-dd
@@ -1564,7 +1572,7 @@ export function ListView() {
       const Lng = userLocationFromStorage?.lng || userLocation?.lng;
 
       const data = await getRestaurantsWithMenus(Lat, Lng, page);
-      console.log(data, Lat, Lng, page);
+      // console.log(data, Lat, Lng, page);
 
       if (!Array.isArray(data.data)) {
         console.error("API response is not an array:", data);
@@ -1573,6 +1581,7 @@ export function ListView() {
       }
 
       if (data.data.length === 0) {
+        console.log("No more data to fetch");
         setHasMoreData(false); // No more data to fetch
         return;
       }
@@ -1653,6 +1662,7 @@ export function ListView() {
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
+      setHardRefresh(false);
     }
   };
 
@@ -1661,6 +1671,7 @@ export function ListView() {
     if (!hasFetched && (userLocationFromStorage || userLocation)) {
               fetchAndProcessRestaurants();
             }
+    
   }, [hasFetched, userLocation, userLocationFromStorage]);
 
   // Handle Load More
@@ -1854,6 +1865,7 @@ console.log("Loading location............................");
 return <LocationLoader />;
 }
 const pathname = usePathname();
+
 return (
 <div className="pb-5">
   {/* <HeroSlideshow /> */}
@@ -1949,19 +1961,23 @@ return (
 
   <div className="text-center mt-4">
     {loading ? (
-      <div
-        className="position-absolute top-50 start-50 translate-middle"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
+      // <div
+      //   className="position-absolute top-50 start-50 translate-middle"
+      //   style={{
+      //     position: "absolute",
+      //     top: "50%",
+      //     left: "50%",
+      //     transform: "translate(-50%, -50%)",
+      //   }}
+      // >
+      //   <div className="spinner-border text-primary" role="status">
+      //     <span className="visually-hidden">Loading...</span>
+      //   </div>
+      // </div>
+      <>
+      <MainScreenLoader/>
+   
+      </>
     ) : (userLocationFromStorage || userLocation) && !locationError && filteredRestaurants?.length > 0 ? (
       filteredRestaurants.map((restaurant, index) => (
         <div key={index} onClick={() => handleRestaurantClick(restaurant)}>
@@ -2030,12 +2046,22 @@ return (
     </div>
   )}
 
-  {selectedMenu && !loading && filteredRestaurants?.length === 0 && (
+{selectedMenu && !loading && filteredRestaurants?.length === 0 && (
+  <div className="text-center mt-4">
+    <p className="text-gray-500">
+      {language === "en"
+        ? "No results found for the selected option. Please try a different selection."
+        : "No se encontraron resultados para la opción seleccionada. Por favor, intenta con una diferente."}
+    </p>
+  </div>
+)}
+
+  {!selectedMenu && !hardRefresh && filteredRestaurants?.length === 0 && (
     <div className="text-center mt-4">
       <p className="text-gray-500">
         {language === "en"
-          ? "No restaurants found. Please try again later."
-          : "No se encontraron restaurantes. Por favor, inténtelo de nuevo más tarde."}
+          ? "No menu found. Please try again later."
+          : "No se encontró ningún menú. Por favor, inténtelo de nuevo más tarde."}
       </p>
     </div>
   )}

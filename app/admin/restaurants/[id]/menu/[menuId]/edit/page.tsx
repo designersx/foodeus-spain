@@ -2561,10 +2561,9 @@ export default function UpdateMenuItemPage() {
         if (item.image) {
           data.append("menuItemImg", item.image);
         }
-
         if (item.id) {
           // Update existing item
-          const response = await apiClient.put(`/menus/update/${menuId}`, data, {
+          const response = await apiClient.put(`/menuitems/updateRestaurantMenuItem/${item.id}`, data, {
             headers: {
               "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,

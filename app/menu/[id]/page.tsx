@@ -461,18 +461,18 @@ export default function MenuDetailPage() {
   useEffect(() => {
     if (menuItems && Array.isArray(menuItems.menu) && menuItems.menu.length > 0) {
       // Merge all items from each menu into one flat array
-      const mergedMenuItems = menuItems.menu.flatMap(menu => menu.items || []);
+      const mergedMenuItems = menuItems?.menu?.flatMap(menu => menu.items || []);
       // console.log('mergedMenuItems', mergedMenuItems)
       setMenuItem(mergedMenuItems);
 
       // Set image src from the first menu (optional: you can customize this)
       if (menuItems.menu[0]?.image) {
-        setSrc(menuItems.menu[0].image);
+        setSrc(menuItems?.menu[0].image);
       }
     }
   }, [id, menuItems]);
 
-  console.log('menuitem', menuItem)
+  // console.log('menuitem', menuItem)
   useEffect(() => {
     const getLocationAsync = async () => {
       if (navigator.geolocation) {
@@ -545,6 +545,7 @@ export default function MenuDetailPage() {
 
     return `${formattedHour} ${period}`;
   };
+  // console.log('menuItems', menuItems)
 
   return (
     <>
@@ -612,17 +613,18 @@ export default function MenuDetailPage() {
           </div>
           {/* Menu cards   */}
           {menuItems?.menu?.map((menuItem, cIndex) => {
+            // console.log('menuItem', menuItem.menu_id)
             return (
               <>
                 <div className="card mb-3" key={cIndex}>
-                  <div className="card-body">
+                  <div className="card-body"> 
                     {menuItem?.start_time && menuItem?.end_time &&
                       <div className="flex justify-end text-xs">
                         {t('ServingHours')} {convertAmPm(menuItem?.start_time)} - {convertAmPm(menuItem?.end_time)}
                       </div>
                     }
                     {/* Title Price */}
-                    <div className="flex justify-between align-items-center mb-1">
+                    <div className="flex justify-between align-items-center mb-1 text-capitalize">
                       <div className="fs-3 fw-bold text-primary resName">
                         { }
                         {menuItem?.title
@@ -664,8 +666,8 @@ export default function MenuDetailPage() {
                         {language === "en" ? "Includes" : "Incluye"}
                       </h2>
                       <ul className="list-unstyled">
-                        {menuItem.items?.length > 0 ? (
-                          menuItem.items?.map((item: any, index: number) => (
+                        {menuItem?.items?.length > 0 ? (
+                          menuItem?.items?.map((item: any, index: number) => (
                             <div className="d-flex gap-3" key={index}>
                               <div
                                 className="position-relative"
@@ -752,7 +754,7 @@ export default function MenuDetailPage() {
                 <Link
                   href={{
                     pathname: `/full-menu/${id}`,
-                    query: { menuId },
+                    // query: { menuId },
                   }}
                 >
                   <button className="btn btn-outline-primary w-100" onClick={handleShowFullMenu}>

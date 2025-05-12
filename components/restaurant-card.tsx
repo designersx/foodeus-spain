@@ -243,7 +243,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   // Format distance to show in km or m
-  console.log('restaurant card',restaurant)
+  // console.log('restaurant card',restaurant)
   const isValidUrl = (url: string) => {
     const pattern = new RegExp('^(https?:\\/\\/)');  // Simple regex to check for valid URL
     return pattern.test(url);
@@ -290,9 +290,12 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                   <div className="MeneSequence">
                     {['MainDish', 'Starter', 'Drinks', 'Dessert'].map((type) => {
                       // Filter items based on type
-                      const itemsOfType = restaurant?.menu[0]?.items?.filter(
-                        (item) => item.item_type === type
-                      );
+                      // const itemsOfType = restaurant?.menu[0]?.items?.filter(
+                      //   (item) => item.item_type === type
+                      // );
+                      const itemsOfType = restaurant?.menu?.flatMap(menu =>
+                      (menu.items || []).filter(item => item.item_type === type)
+                    );
 
                       if (itemsOfType?.length > 0) {
                         // Track if we have already displayed the first item of this type
@@ -302,15 +305,15 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                           <div key={type}>
                             {/* Render a section for each type */}
                             <div className="flex gap-3 flex-wrap">
-                              {itemsOfType.map((item, index) => {
+                              {itemsOfType?.map((item, index) => {
                                 // Display only the first item for each type
                                 if (!isFirstItemDisplayed) {
                                   isFirstItemDisplayed = true; // Mark the first item as displayed
 
                                   // Count how many times this item appears in the items list
-                                  const itemCount = restaurant.menu[0].items.filter(
-                                    (i) => i.item_type === type
-                                  ).length;
+                                const itemCount = restaurant?.menu?.reduce((count, menu) => {
+                                  return count + (menu.items?.filter(i => i.item_type === type).length || 0);
+                                }, 0) || 0;
 
                                   return (
                                     <span
@@ -329,7 +332,7 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                                     >
                                       {item.item_name}
                                       {/* If more than one item with the same name, show quantity */}
-                                      {type === "Main Course" && itemCount > 1 && (
+                                      {type === "MainDish" && itemCount > 1 && (
                                         <span className="DishQuanty">+{itemCount - 1}</span>
                                       )}
                                     </span>

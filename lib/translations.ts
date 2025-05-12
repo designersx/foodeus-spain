@@ -399,7 +399,8 @@ AddedItems:"Added Item's",
   ToastMenuUpdateErrorTitle: "Error",
   ToastMenuUpdateErrorMessage: "Failed to update menu.",
   ToastFetchErrorTitle: "Error",
-  ToastFetchErrorMessage: "Failed to fetch menu data."
+  ToastFetchErrorMessage: "Failed to fetch menu data.",
+  SearchRestaurants:"Search Restaurants, Category, Address" ,
 
 
     
@@ -839,7 +840,9 @@ LatestUpdatedRest: "Restaurantes más recientes actualizados",
   ToastMenuUpdateErrorTitle: "Error",
   ToastMenuUpdateErrorMessage: "Error al actualizar el menú.",
   ToastFetchErrorTitle: "Error",
-  ToastFetchErrorMessage: "Error al obtener los datos del menú."
+  ToastFetchErrorMessage: "Error al obtener los datos del menú.",
+  SearchRestaurants:"Buscar restaurantes, categoría, dirección" ,
+
 
 
 
