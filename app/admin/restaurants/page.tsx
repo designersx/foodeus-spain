@@ -27,6 +27,7 @@ interface Restaurant {
   cover_image: string;
   menu_count: number;
   g_image: string;
+  restaurant_updated_at:Date|any
 }
 
 const ITEMS_PER_PAGE = 15
@@ -50,7 +51,7 @@ export default function RestaurantsPage() {
     // Store the selected filter in sessionStorage
     sessionStorage.setItem('selectedFilter', filterValue);
   };  
-  console.log('selectedFilter',selectedFilter)
+  // console.log('selectedFilter',selectedFilter)
 
   const handleSearchChange = (e:any) => {
     setSearchQuery(e.target.value);
@@ -84,7 +85,7 @@ export default function RestaurantsPage() {
     if (token) {
      try {
       const decoded = decodeToken(token)|| ""
-      const now = Math.floor(Date.now() / 1000); // current time in seconds
+      const now = Math.floor(Date.now() / 1000); 
   
       if (decoded?.exp < now) {
         toast({
@@ -93,7 +94,6 @@ export default function RestaurantsPage() {
           variant: "destructive",
         });
         localStorage.removeItem("foodeus-admin-auth")
-        // setToast({ show: true, message: t("SessionExpired"), type: "error" });
         setTimeout(() => {
           
           window.location.href = "/auth/login";
@@ -159,7 +159,7 @@ export default function RestaurantsPage() {
   );
 
 
-console.log('errorMessage',errorMessage)
+// console.log('errorMessage',errorMessage)
   return (
     <div className="w-full space-y-6 responsive-container ">
       {loading?
@@ -198,7 +198,7 @@ console.log('errorMessage',errorMessage)
       <div className="relative flex-1 px-1 xs:w-full sm:w-full md:w-8/12 lg:w-8/12 xl:w-8/12">
       <Input
           type="search"
-          placeholder="Search Restaurants"
+          placeholder={t('SearchRestaurants')}
           className="w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
           value={searchQuery}
           onChange={handleSearchChange}

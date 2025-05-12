@@ -36,7 +36,7 @@ export default function LocationLoader() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-400 to-red-500 animate-spin-slow"></div>
           {/* Fork */}
           <div className="absolute w-6 h-6 top-0 left-1/2 transform -translate-x-1/2 animate-orbit-fork">
-            <svg
+            {/* <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -44,11 +44,14 @@ export default function LocationLoader() {
               className="text-gray-800"
             >
               <path d="M12 3v12m-4-4h8" />
-            </svg>
+            </svg> */}
+            {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6 text-yellow-600">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 12h16M4 16h16M4 8c0-2 3-4 8-4s8 2 8 4M4 16c0 2 3 4 8 4s8-2 8-4" />
+        </svg> */}
           </div>
           {/* Knife */}
           <div className="absolute w-6 h-6 bottom-0 left-1/2 transform -translate-x-1/2 animate-orbit-knife">
-            <svg
+            {/* <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -56,7 +59,27 @@ export default function LocationLoader() {
               className="text-gray-800"
             >
               <path d="M12 3v18m-4-4h8" />
-            </svg>
+            </svg> */}
+            {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6 text-red-500">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l9 9-9 11L3 11z" />
+            <circle cx="12" cy="10" r="1" fill="currentColor" />
+            <circle cx="14" cy="14" r="1" fill="currentColor" />
+            <circle cx="10" cy="13" r="1" fill="currentColor" />
+          </svg> */}
+          <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        className="w-6 h-6 text-red-500"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+        />
+      </svg>
           </div>
           {/* Center Pin (Location Dot) */}
           <div className="absolute inset-0 flex items-center justify-center">

@@ -38,8 +38,10 @@
 //     </ToastProvider>
 //   )
 // }
-"use client"
 
+
+"use client"
+import { useEffect, useRef } from "react"
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -52,7 +54,20 @@ import {
 import { X } from "lucide-react"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  // const { toasts } = useToast()
+  const { toasts, dismiss } = useToast()
+  const viewportRef = useRef<HTMLDivElement>(null)
+  // Close all toasts when clicking outside the viewport
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (viewportRef.current && !viewportRef.current.contains(event.target as Node)) {
+        toasts.forEach((t) => dismiss(t.id))
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [toasts, dismiss])
 
   return (
     <ToastProvider>
@@ -73,7 +88,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport ref={viewportRef}/>
     </ToastProvider>
   )
 }

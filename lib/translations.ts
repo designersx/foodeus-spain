@@ -380,7 +380,28 @@ Save: "Save",
 AddMenuItems:"Add Menu Items",
 AddedItems:"Added Item's",
   saving: "Saving...",
-  saveMenu: "Save Menu"
+  saveMenu: "Save Menu",
+  ServingHours: "Serving Hours",
+  StartTime: "Start Time",
+  EndTime: "End Time",
+  EndTimeError: "End time cannot be earlier than start time.",
+   RemoveRow: "Remove Row",
+  AddMore: "Add More",
+  ValidationMenuNameRequired: "Menu name is required.",
+  ValidationPriceRequired: "Price is required.",
+  ValidationAtLeastOneItem: "Please add at least one item to the menu.",
+  ValidationEndTimeAfterStart: "End time must be later than start time.",
+  ToastMenuUpdateSuccessTitle: "Success",
+  ToastMenuUpdateSuccessMessage: "Menu updated successfully.",
+  UpdateMenu: "Update Menu",
+  UpdateMenuDescription: "Edit the details and items for your menu.",
+  EditMenuItems: "Edit Menu Items",
+  ToastMenuUpdateErrorTitle: "Error",
+  ToastMenuUpdateErrorMessage: "Failed to update menu.",
+  ToastFetchErrorTitle: "Error",
+  ToastFetchErrorMessage: "Failed to fetch menu data.",
+  SearchRestaurants:"Search Restaurants, Category, Address" ,
+
 
     
 
@@ -799,7 +820,31 @@ LatestUpdatedRest: "Restaurantes más recientes actualizados",
   AddMenuItems:"Agregar elementos al menú",
   AddedItems:"Elementos agregados",
     saving: "Guardando...",
-  saveMenu: "Guardar Menú"
+  saveMenu: "Guardar Menú",
+  ServingHours: "Horario de servicio",
+  StartTime: "Hora de inicio",
+  EndTime: "Hora de finalización",
+  EndTimeError: "La hora de finalización no puede ser anterior a la hora de inicio.",
+  RemoveRow: "Eliminar fila",
+  AddMore: "Agregar más",
+
+  ValidationMenuNameRequired: "El nombre del menú es obligatorio.",
+  ValidationPriceRequired: "El precio es obligatorio.",
+  ValidationAtLeastOneItem: "Por favor añade al menos un elemento al menú.",
+  ValidationEndTimeAfterStart: "La hora de finalización debe ser posterior a la hora de inicio.",
+  ToastMenuUpdateSuccessTitle: "Éxito",
+  ToastMenuUpdateSuccessMessage: "Menú actualizado exitosamente.",
+  UpdateMenu: "Actualizar Menú",
+  UpdateMenuDescription: "Edita los detalles y elementos de tu menú.",
+  EditMenuItems: "Editar elementos del menú",
+  ToastMenuUpdateErrorTitle: "Error",
+  ToastMenuUpdateErrorMessage: "Error al actualizar el menú.",
+  ToastFetchErrorTitle: "Error",
+  ToastFetchErrorMessage: "Error al obtener los datos del menú.",
+  SearchRestaurants:"Buscar restaurantes, categoría, dirección" ,
+
+
+
 
 
   
