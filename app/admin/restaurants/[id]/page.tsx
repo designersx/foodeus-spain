@@ -157,7 +157,7 @@ export default function RestaurantDetailPage() {
                 new Date(b.updated_at).getTime() -
                 new Date(a.updated_at).getTime()
             );
-          console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+          // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
           setMenus(menusWithId);
         }
       } catch (error) {

@@ -1535,8 +1535,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient } from "@/services/apiService";
-
+import { API_BASE_URL, apiClient } from "@/services/apiService";
+import { Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 export default function AddMenuItemPage() {
   const router = useRouter();
   const params = useParams();
@@ -1548,6 +1549,8 @@ export default function AddMenuItemPage() {
   const [step, setStep] = useState(1); // Step 1: Menu Details, Step 2: Add Items
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const restaurantId = params.id as string;
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
 
   // Form data for Step 1 (Menu Details)
   const [formData, setFormData] = useState({
@@ -1821,64 +1824,8 @@ export default function AddMenuItemPage() {
           <h3 className="text-lg font-semibold">{t(category)}</h3>
           <div className="space-y-4">
             {/* Multiple Rows: Item Name, Upload Item, Remove Button */}
-            {forms.map((form, rowIndex) => (
-              // <div key={rowIndex} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
-              //   {/* Item Name */}
-              //   <div className="flex-1 space-y-2">
-              //     <Label htmlFor={`item_name-${category}-${rowIndex}`}>
-              //       {rowIndex + 1}. {t("ItemName")} <span className="text-danger">*</span>
-              //     </Label>
-              //     <Input
-              //       id={`item_name-${category}-${rowIndex}`}
-              //       name="item_name"
-              //       placeholder={t("EnterItemName")}
-              //       value={form.item_name}
-              //       onChange={(e) => handleItemChange(category, rowIndex, e)}
-              //       maxLength={60}
-              //       onInput={(e) => {
-              //         const target = e.target as HTMLInputElement;
-              //         target.value = target.value
-              //           .replace(/[^a-zA-Z0-9\s]/g, "")
-              //           .replace(/^\s+/g, "");
-              //       }}
-              //     />
-              //   </div>
-
-              //   {/* Upload Item Button */}
-              //   <div className="flex-1 space-y-2">
-              //     <Label htmlFor={`image-${category}-${rowIndex}`} className="sm:hidden">
-              //       {t("ItemImageClickToChange")}
-              //     </Label>
-              //     <Button
-              //       variant="outline"
-              //       className="w-full sm:w-auto"
-              //       onClick={() => document.getElementById(`image-${category}-${rowIndex}`)?.click()}
-              //     >
-              //       <Upload className="h-4 w-4 mr-2" />
-              //       {form.image?.name || t("ItemImage")}
-              //     </Button>
-              //     <Input
-              //       id={`image-${category}-${rowIndex}`}
-              //       type="file"
-              //       accept="image/*"
-              //       className="hidden"
-              //       onChange={(e) => handleItemImageChange(category, rowIndex, e)}
-              //     />
-              //   </div>
-
-              //   {/* Remove Button (Cross Icon) */}
-              //   {forms.length > 1 && (
-              //     <Button
-              //       variant="ghost"
-              //       size="icon"
-              //       className="self-end sm:self-center"
-              //       onClick={() => handleRemoveRow(category, rowIndex)}
-              //       title={t("RemoveRow")}
-              //     >
-              //       <X className="h-4 w-4 text-danger" />
-              //     </Button>
-              //   )}
-              // </div>
+            {forms.map((form, rowIndex) => {
+              return(
               <div key={rowIndex} className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-6">
                   {/* Item Name Field */}
                   <div className="flex-1">
@@ -1912,8 +1859,45 @@ export default function AddMenuItemPage() {
                       onClick={() => document.getElementById(`image-${category}-${rowIndex}`)?.click()}
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      {form.image?.name || t("ItemImageClickToChange")}
+                      {form.image?.name ?`${form?.image?.name.slice(0, 10)}...` : t("ItemImageClickToChange")}
                     </Button>
+                     {(form?.imagePreview || form?.image) && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setPreviewImage(form?.imagePreview || form.image?.name)}
+                          title={t("PreviewImage")}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <div className="flex justify-center">
+                          {previewImage ? (
+                            <img
+                              src={previewImage?.startsWith('data:image/')?previewImage :`${API_BASE_URL}/${previewImage}`}
+                              alt="Item preview"
+                              className="max-h-[400px] max-w-full rounded-md object-contain"
+                            />
+                          ) : (
+                            <p>{("NoImageAvailable")}</p>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                    {(forms.length > 1 || form.item_name || form.imagePreview) && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleRemoveRow(category, rowIndex)}
+                        title={t("RemoveRow")}
+                      >
+                        <X className="h-4 w-4 text-danger" />
+                      </Button>
+                  )}
                     <Input
                       id={`image-${category}-${rowIndex}`}
                       type="file"
@@ -1924,7 +1908,7 @@ export default function AddMenuItemPage() {
                   </div>
 
                   {/* Remove Button (Cross Icon) */}
-                  {forms.length > 1 && (
+                  {/* {forms.length > 1 && (
                     <div className="flex items-center pt-8 sm:pt-6">
                       <Button
                         variant="ghost"
@@ -1935,10 +1919,10 @@ export default function AddMenuItemPage() {
                         <X className="h-4 w-4 text-danger" />
                       </Button>
                     </div>
-                  )}
-                </div>
+                  )} */}
+              </div>
 
-            ))}
+            )})}
 
             {/* Add More Button */}
             <div className="flex justify-start">

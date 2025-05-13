@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tk=localStorage.getItem("token")
       const storedUser = localStorage.getItem("foodeus-admin-auth")
       if (storedUser) {
-        setUser(JSON.parse(storedUser))
+          (JSON.parse(storedUser))
       }
       if (tk) {
         setToken(tk)
@@ -83,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     // console.log("Logging out user...")
     localStorage.removeItem("foodeus-admin-auth")
+    localStorage.removeItem("token")
     setUser(null)
     router.push("/auth/login")
   }

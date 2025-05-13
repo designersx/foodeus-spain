@@ -194,7 +194,7 @@ export default function RestaurantsPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col xs:flex-row sm:flex-row md:flex-row lg:flex-row xl:flex-row items-left gap-4 w-full">
+      <div className="flex flex-col xs:flex-row sm:flex-row md:flex-row lg:flex-row xl:flex-row items-left gap-1 w-full">
       <div className="relative flex-1 px-1 xs:w-full sm:w-full md:w-8/12 lg:w-8/12 xl:w-8/12">
       <Input
           type="search"
@@ -209,7 +209,7 @@ export default function RestaurantsPage() {
       {/* Filter Button */}
       <div className="relative xs:w-full sm:w-full md:w-4/12 lg:w-4/12 xl:w-4/12">
       <select
-        className="px-1 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 xs:w-full sm:w-full"
+        className="px-1 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 xs:w-full sm:w-full "
         value={selectedFilter}
         onChange={handleFilterChange}
         style={{width:"100%"}}
@@ -255,7 +255,7 @@ export default function RestaurantsPage() {
                             }}>{restaurant.name}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-3 "   style={{
                         minHeight: '6em', 
-                        lineHeight: '2em', 
+                        lineHeight: '1em', 
                         wordBreak: "break-word", 
                         whiteSpace: "normal", 
                       }}>{restaurant.address}</p>
@@ -263,8 +263,8 @@ export default function RestaurantsPage() {
                   </div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <Badge variant="secondary">{restaurant.category}</Badge>
-                  <Badge variant="outline">{restaurant.menu_count} {t('Menus')}</Badge>
+                  <Badge variant="secondary" className="max-w-[150px] truncate">{restaurant.category}</Badge>
+                  <Badge variant="outline">{restaurant.menu_count}{t('Menus')}</Badge>
                 </div>
               </CardContent>
             </Card>
