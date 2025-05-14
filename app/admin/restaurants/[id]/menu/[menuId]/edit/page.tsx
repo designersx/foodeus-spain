@@ -384,6 +384,7 @@ export default function UpdateMenuItemPage() {
       }
 
       // Update menu
+      const localDatetime = new Date().toISOString().slice(0, 19).replace('T', ' ');
       const menuData = new FormData();
       menuData.append("restaurant_id", restaurantId);
       menuData.append("item_name", formData.item_name.trim());
@@ -392,6 +393,7 @@ export default function UpdateMenuItemPage() {
       menuData.append("start_time", formData.start_time);
       menuData.append("end_time", formData.end_time);
       menuData.append("description", formData.description.trim());
+      menuData.append("localDatetime", localDatetime);
       if (formData.image) {
         menuData.append("image_urls", formData.image);
       }

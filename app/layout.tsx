@@ -40,8 +40,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <LanguageProvider>
-          <Header />
           <AuthProvider>
+          <Header />
           <main className="container py-3 mb-5">{children}</main>
           <Toaster />
           </AuthProvider>
@@ -52,11 +52,18 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <script
+        {/* <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta`}
         async
         defer
-      ></script>
+      /> */}
+      <Script async
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta`}
+          strategy="afterInteractive"
+          attributes={{
+            loading: 'async',
+          }}
+        />
       </body>
     </html>
   )

@@ -11,6 +11,7 @@ import RegisterPromptModal from "./register-popup-modal"
 import { apiClient } from "@/services/apiService"
 import { usePathname,useRouter } from 'next/navigation';
 import AdminProfileSection from "./AdminProfileSection"
+import { useAuth } from "@/context/auth-context"
 interface Toast {
   
   show: boolean;
@@ -36,6 +37,7 @@ export default function Header() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [toast, setToast] = useState<Toast>({ show: false, message: '', type: '', onConfirm: null });
   const router = useRouter()
+  const {logout} = useAuth()
 
   const handleLogout = () => {
     setToast({
@@ -54,12 +56,7 @@ export default function Header() {
   //   setToast({
   //     show: true, message: language === "es" ? "¿Estás seguro de que quieres cerrar sesión?" : "Are you sure you want to Logout?"
   //     , onConfirm: () => {
-  //       localStorage.removeItem("foodeus-admin-auth")
-  //       localStorage.removeItem("token")
-  //       setTimeout(() => {
-  //         console.log(token)
-  //        router.push("/auth/login");
-  //       }, 500);
+  //       // logout();
   //     }, type: 'info'
   //   });
   // }
