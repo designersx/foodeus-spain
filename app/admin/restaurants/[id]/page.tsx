@@ -630,7 +630,7 @@ export default function RestaurantDetailPage() {
                                 })}
                               </span>
                             )} */}
-                           {item.localDatetime && (
+                           {item?.localDatetime && (
                               <span className="text-sm text-muted-foreground">                               
                                 {t('Updated')}{" "}
                                 {formatDistanceToNow(item?.localDatetime, {
