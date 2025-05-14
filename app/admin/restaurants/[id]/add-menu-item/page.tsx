@@ -1773,7 +1773,8 @@ export default function AddMenuItemPage() {
       const updatedItemList = Array.from(newSelectedItems);
 
       // Save the menu
-      const localDatetime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+       const now = new Date();
+      const localDatetime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
       const menuData = new FormData();
       menuData.append("restaurant_id", restaurantId);
       menuData.append("item_name", formData.item_name.trim());
