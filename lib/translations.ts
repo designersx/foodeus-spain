@@ -431,6 +431,18 @@ export const translations = {
     updateSuccess: "Updated successfully!",
     updateFailed: "Update failed!",
     errorGeneric: "An error occurred",
+    category: "Category",
+    navigate: "Navigate",
+    distance: "Distance",
+    estimatedTime: "Estimated Time",
+    relocate: "Relocate",
+    cancelNavigation: "Cancel Navigation",
+    locationError: "Location access denied. Please enable location services.",
+    geolocationError: "Could not get your location",
+    navServicesError: "Navigation services not ready. Please try again.",
+    invalidDestination: "Invalid destination. Please select a valid restaurant.",
+    directionsFailed: "Directions request failed",
+    placeDetailsFailed: "Failed to fetch place details",
 
 
 
@@ -901,7 +913,19 @@ export const translations = {
     errorImageSize: "El tamaño de la imagen excede 5MB",
     updateSuccess: "¡Actualizado exitosamente!",
     updateFailed: "¡La actualización falló!",
-    errorGeneric: "Ocurrió un error"
+    errorGeneric: "Ocurrió un error",
+    category: "Categoría",
+    navigate: "Llévame allí",
+    distance: "Distancia",
+    estimatedTime: "Tiempo estimado",
+    relocate: "Recentrar",
+    cancelNavigation: "Cancelar Navegación",
+    locationError: "Acceso a la ubicación denegado. Por favor, habilita los servicios de ubicación.",
+    geolocationError: "No se pudo obtener tu ubicación",
+    navServicesError: "Los servicios de navegación no están listos. Por favor, intenta de nuevo.",
+    invalidDestination: "Destino inválido. Por favor, selecciona un restaurante válido.",
+    directionsFailed: "La solicitud de direcciones falló",
+    placeDetailsFailed: "No se pudieron obtener los detalles del lugar",
 
 
 

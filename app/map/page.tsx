@@ -7,7 +7,7 @@ import {RestaurantMap} from "@/components/RestaurantMap";
 import { useRestaurantStore } from "@/store/restaurantStore";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/services/apiService";
-
+import { useLanguage } from "@/context/language-context";
 interface Restaurant {
   id: number;
   name: string;
@@ -29,10 +29,11 @@ export default function MapPage() {
     lng: number;
   } | null>(null);
   const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
-  const [locationError, setLocationError] = useState<string>("");
+  const [Error, setError] = useState<string>("");
   const [userLocationFromStorage, setUserLocationFromStorage] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { language } = useLanguage();
   // console.log(restaurants)
   // useEffect(() => {
   //   if (restaurants.length === 0) {
@@ -103,25 +104,29 @@ export default function MapPage() {
     try {
       const Lat = userLocationFromStorage?.lat || userLocation?.lat;
       const Lng = userLocationFromStorage?.lng || userLocation?.lng;
-
+      // console.log("Lat", Lat,Lng);
       const data=await apiClient.get(`/enduser/getRestaurantListforMap?latitude=${Lat}&longitude=${Lng}&page=1`);
       const restaurants = data.data.data;
-      console.log("restaurants", restaurants);
+      // console.log("restaurants", restaurants);
       if (restaurants && restaurants.length > 0) {
         setRestaurants(restaurants);
       } else {
         console.log("No restaurants found");
+        setError("No restaurants found");
       }
     } catch (error) {
+
       console.error("Error fetching restaurants:", error);
+      setError("Error fetching restaurants");
     }
-    setLoading(false);
+    finally {
+      setLoading(false);
+    }
 
   }
 
   useEffect(() => {
-      fetchAndProcessRestaurants();
-    console.log("userLocation", userLocation, userLocationFromStorage,restaurants);
+    // console.log("userLocation", userLocation, userLocationFromStorage,restaurants);
     if (userLocation || userLocationFromStorage) {
       fetchAndProcessRestaurants();
     }
@@ -130,22 +135,43 @@ export default function MapPage() {
      const Lat = userLocationFromStorage?.lat || userLocation?.lat;
       const Lng = userLocationFromStorage?.lng || userLocation?.lng;
 
-  return (
+   return (
     <>
-      {
-      restaurants.length >=0  ?(
-      <RestaurantMap restaurants={restaurants} />      
-      )
-    :
-      (<div className="flex flex-col items-center justify-center h-screen">
-
-            <div className="text-lg font-medium text-gray-700 animate-pulse">
-              Loading your location...
-            </div>
-            </div>
-          )}
-      <Footer />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <div
+            style={{
+              position: "fixed",
+              top: "60%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            {language === "es" ? "Cargando..." : "Loading..."}
+          </div>
+        </div>
+      ) : restaurants?.length > 0 ? (
+        <>
+          <RestaurantMap restaurants={restaurants} />
+          <Footer />
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <div
+            style={{
+              position: "fixed",
+              top: "60%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <h1 className="text-2xl font-bold text-gray-700">
+              {language === "es" ? "No se encontraron restaurantes" : error || "No restaurants found"}
+            </h1>
+          </div>
+          <Footer />
+        </div>
+      )}
     </>
-  )
-}
-
+  );
+};
