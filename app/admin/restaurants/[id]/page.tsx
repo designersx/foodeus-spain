@@ -74,7 +74,8 @@ interface MenuItem {
   updated_at: any;
   item_list?: ItemList[]; // Ensure this is an array of ItemList
   start_time?: string;
-  end_time?: string;  
+  end_time?: string; 
+  localDatetime:Date|string ;
 }
 
 interface Restaurant {
@@ -157,7 +158,7 @@ export default function RestaurantDetailPage() {
                 new Date(b.updated_at).getTime() -
                 new Date(a.updated_at).getTime()
             );
-          console.log("menusWithId", menusWithId,restaurants?.data?.menus);
+          // console.log("menusWithId", menusWithId,restaurants?.data?.menus);
           setMenus(menusWithId);
         }
       } catch (error) {
@@ -348,6 +349,7 @@ export default function RestaurantDetailPage() {
 
     return `${formattedHour} ${period}`;
   };
+  console.log("filter",filteredMenus)
 
   return (
     <div className="w-full space-y-6">
@@ -392,7 +394,7 @@ export default function RestaurantDetailPage() {
                     <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                     {restaurant?.address}
                   </CardDescription>
-                </div>
+                </div>  
               </div>
             </CardHeader>
             <CardContent>
@@ -620,10 +622,18 @@ export default function RestaurantDetailPage() {
                             {/* <p className="text-sm text-muted-foreground cardOverflow">{item?.description}</p> */}
                           </div>
                           <div className="text-right">
-                            {item.updated_at && (
+                            {/* {item.updated_at && (
                               <span className="text-sm text-muted-foreground">                               
                                 {t('Updated')}{" "}
-                                {formatDistanceToNow(new Date(toISOStringFromSQL(item?.updated_at)).toLocaleString(), {
+                                {formatDistanceToNow(new Date(toISOStringFromSQL(item?.updated_at)), {
+                                  addSuffix: true,
+                                })}
+                              </span>
+                            )} */}
+                           {item?.localDatetime && (
+                              <span className="text-sm text-muted-foreground">                               
+                                {t('Updated')}{" "}
+                                {formatDistanceToNow(item?.localDatetime, {
                                   addSuffix: true,
                                 })}
                               </span>

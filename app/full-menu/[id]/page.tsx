@@ -31,7 +31,7 @@ export default function FullMenuPage() {
   const storedMenu = sessionStorage.getItem('fullMenu');
   useEffect(() => {
     if (menuId) {
-      localStorage.setItem("lastMenuId", menuId); // ✅ Store in localStorage
+      localStorage.setItem("lastMenuId", menuId); 
     }
   }, [menuId]);
 

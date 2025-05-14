@@ -10,7 +10,7 @@ import { error } from "console";
 interface ProfileSectionModalProps {
   show: boolean;
   onClose: () => void;
-}
+} 
 
 type DecodedToken = {
   userId: string;
@@ -45,6 +45,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
         .get(`/mobileUsers/getMobileUserWithId/${getUserId.userId}`)
         .then((res) => {
           const user = res.data?.data || {};
+          // console.log("user", user,getUserId.userId);
           setName(user.name || "");
           setEmail(user.email || "");
         })
@@ -116,7 +117,6 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
   };
 
   // if (!show) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex justify-center items-center px-4 "

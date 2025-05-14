@@ -24,11 +24,11 @@ const PopUp: React.FC<PopUpProps> = ({ type, message, onClose, onConfirm }) => {
   const getIconPath = () => {
     switch (type) {
       case "success":
-        return "svg/sucess-icon.svg";
+        return "/svg/sucess-icon.svg";
       case "error":
-        return "svg/failed-icon.svg";
+        return "/svg/failed-icon.svg";
       case "info":
-        return "svg/confirmation-icon.svg";
+        return "/svg/confirmation-icon.svg";
       default:
         return "";
     }

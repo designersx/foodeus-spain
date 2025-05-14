@@ -26,7 +26,7 @@ export default function AdminHeader() {
       </Tooltip>
       <div className="flex-1" />
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">{user?.email}</span>
+        {/* <span className="text-sm font-medium">{user?.email}</span> */}
       </div>
     </header>
   );
