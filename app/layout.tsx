@@ -37,6 +37,13 @@ export default function RootLayout({
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
           </style>
+              <Script async
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta`}
+          strategy="afterInteractive"
+          attributes={{
+            loading: 'async',
+          }}
+        />
       </head>
       <body className={inter.className}>
         <LanguageProvider>
@@ -57,13 +64,7 @@ export default function RootLayout({
         async
         defer
       /> */}
-      <Script async
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta`}
-          strategy="afterInteractive"
-          attributes={{
-            loading: 'async',
-          }}
-        />
+  
       </body>
     </html>
   )

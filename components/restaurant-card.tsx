@@ -236,7 +236,7 @@ interface Restaurant {
   distance?: number
 }
 export function RestaurantCard({ restaurant, distance }: { restaurant: Restaurant; distance?: number }) {
-  const { language } = useLanguage()
+  const { t,language } = useLanguage()
   const [src, setSrc] = useState<string>(getMenuImagePath(restaurant?.menu[0].image));
   const [mapUrl, setMapUrl] = useState<string>("")
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -277,11 +277,18 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                 placeholder="blur" // Show a blurred image placeholder while loading
                 blurDataURL={src} // Optional: Add a small, low-quality image or base64-encoded version here
               />
-              <span className="dishPrice"> € {restaurant?.menu[0]?.price}
-
-              </span>
-
+              <span className="dishPrice"> € {restaurant?.menu[0]?.price}</span>
+              {restaurant?.menu?.length > 1 && (
+                    <div 
+                    className="dishMenu"
+                          // className="table-cell px-1 py-1 text-white text-sm font-medium rounded-full text-xs"
+                      // style={{ backgroundColor: '#F1582E'}}
+                    >
+                      +{restaurant?.menu?.length-1} {(restaurant?.menu?.length-1)==1 ?t('menu'):t('Menus') }
+                    </div>
+              )}
             </div>
+            
             <div className="dishContent">
 
               <div className="card-body h-100 foodDescription  text-left text-transform: capitalize text-capitalize" style={{ textAlign: "left" }}>
@@ -289,10 +296,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
 
                   <div className="MeneSequence">
                     {['MainDish', 'Starter', 'Drinks', 'Dessert'].map((type) => {
-                      // Filter items based on type
-                      // const itemsOfType = restaurant?.menu[0]?.items?.filter(
-                      //   (item) => item.item_type === type
-                      // );
                       const itemsOfType = restaurant?.menu?.flatMap(menu =>
                       (menu.items || []).filter(item => item.item_type === type)
                     );
@@ -374,7 +377,6 @@ export function RestaurantCard({ restaurant, distance }: { restaurant: Restauran
                         </div>
                       )}
                     </div>
-
                   </div>
 
                 </div>

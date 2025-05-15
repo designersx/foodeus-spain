@@ -34,6 +34,8 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { language } = useLanguage();
+  const [locationError, setLocationError] = useState<string>("");
+
   // console.log(restaurants)
   // useEffect(() => {
   //   if (restaurants.length === 0) {

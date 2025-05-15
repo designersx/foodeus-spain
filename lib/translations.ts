@@ -443,7 +443,22 @@ export const translations = {
     invalidDestination: "Invalid destination. Please select a valid restaurant.",
     directionsFailed: "Directions request failed",
     placeDetailsFailed: "Failed to fetch place details",
-
+    SkippedDialogTitle: "⚠️ Skipped Restaurants",
+    SkippedDialogDescription: "These restaurants were skipped during import. Please review the reasons below:",
+     HeaderName: "Name",
+  HeaderDescription: "Description",
+  HeaderAddress: "Address",
+  HeaderCuisine: "Cuisine",
+  HeaderPhone: "Phone",
+  HeaderWebsite: "Website",
+  HeaderOpeningHours: "Opening Hours",
+  StatusColumn: "Status",
+  SampleDownloadedTitle: "Sample Downloaded",
+  SampleDownloadedDesc: "Sample CSV template has been downloaded.",
+  RequiredFieldNameDesc: "The name of the restaurant",
+  RequiredFieldDescDesc: "A brief description of the restaurant",
+  RequiredFieldAddressDesc: "The full address of the restaurant",
+  RequiredFieldCuisineDesc: "The type of cuisine (e.g., Italian, Mexican)"
 
 
 
@@ -926,7 +941,22 @@ export const translations = {
     invalidDestination: "Destino inválido. Por favor, selecciona un restaurante válido.",
     directionsFailed: "La solicitud de direcciones falló",
     placeDetailsFailed: "No se pudieron obtener los detalles del lugar",
-
+    SkippedDialogTitle: "⚠️ Restaurantes omitidos",
+    SkippedDialogDescription: "Estos restaurantes se omitieron durante la importación. Por favor, revisa los motivos a continuación:",
+     HeaderName: "Nombre",
+  HeaderDescription: "Descripción",
+  HeaderAddress: "Dirección",
+  HeaderCuisine: "Cocina",
+  HeaderPhone: "Teléfono",
+  HeaderWebsite: "Sitio Web",
+  HeaderOpeningHours: "Horario de Apertura",
+  StatusColumn: "Estado",
+  SampleDownloadedTitle: "Muestra Descargada",
+  SampleDownloadedDesc: "La plantilla CSV de muestra ha sido descargada.",
+    RequiredFieldNameDesc: "El nombre del restaurante",
+  RequiredFieldDescDesc: "Una breve descripción del restaurante",
+  RequiredFieldAddressDesc: "La dirección completa del restaurante",
+  RequiredFieldCuisineDesc: "El tipo de cocina (p.ej., Italiana, Mexicana)",
 
 
 

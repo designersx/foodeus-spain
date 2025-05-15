@@ -442,7 +442,7 @@ export default function MenuDetailPage() {
   const [mapUrl, setMapUrl] = useState<string>("");
   const [src, setSrc] = useState<string>(getMenuImagePath(menuItem?.image));
   const searchParams = useSearchParams();
-  const menuId = searchParams.get("menuId") || localStorage.getItem("lastMenuId");
+  const menuId = searchParams.get("menuId") || localStorage.getItem("lastMenuId") || null;
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
@@ -668,7 +668,7 @@ export default function MenuDetailPage() {
                       <ul className="list-unstyled">
                         {menuItem?.items?.length > 0 ? (
                           menuItem?.items?.map((item: any, index: number) => (
-                            <div className="d-flex gap-3" key={index}>
+                            <div className="d-flex gap-3" key={item.id}>
                               <div
                                 className="position-relative"
                                 style={{

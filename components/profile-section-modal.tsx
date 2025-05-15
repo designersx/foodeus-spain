@@ -154,6 +154,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
             <>
               <Input
                 value={name}
+                maxLength={50}
                 onChange={(e) => {
                   setName(e.target.value);
                   setErrors((prev) => ({ ...prev, name: "" }));
@@ -184,6 +185,7 @@ const ProfileSection: React.FC<ProfileSectionModalProps> = ({ show, onClose }) =
                   setEmail(e.target.value);
                   setErrors((prev) => ({ ...prev, email: "" }));
                 }}
+                maxLength={50}
                 className="w-full border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
               {errors.email && (
