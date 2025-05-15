@@ -3939,6 +3939,35 @@ span.small {
   font-weight: 700  ;
   padding: 0px 15px 0 5px;
 }
+
+.dishMenu {
+  position: absolute;
+  bottom: -10px; /* Shift to top for visual contrast with .dishPrice */
+  left: 0px;
+  background-color: #F1582E;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+   padding: 2px 15px 2px 5px;
+  border-radius: 0px 12px 12px 0; /* A stylish angle variation */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+.dishMenu2{
+  position: unset;
+  bottom: -26px; /* Shift to top for visual contrast with .dishPrice */
+  left: 0px;
+  background-color: #A33D23; /* Lighter red-brown tone to complement #72220E */
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px 0 12px 0; /* A stylish angle variation */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+
 .dishImage img{
   position: unset !important;
   min-width: 90px !important;

@@ -505,7 +505,7 @@ const AdminProfileSection: React.FC<AdminProfileSectionProps> = ({ show, onClose
 
             {/* Form Fields */}
             <div className="space-y-4">
-              {["name", "email", "mobile"].map((field) => (
+              {/* {["name", "email", "mobile"].map((field) => (
                 <div key={field} className="space-y-1">
                   <label className="text-sm font-medium text-gray-700">
                     {t(`adminProfile${field.charAt(0).toUpperCase() + field.slice(1)}`) || field}
@@ -514,6 +514,11 @@ const AdminProfileSection: React.FC<AdminProfileSectionProps> = ({ show, onClose
                     <>
                       <Input
                         type={field === "email" ? "email" : "text"}
+                        maxLength={field === "mobile" ? 10 : undefined}
+                        minLength={field === "mobile" ? 10 : undefined}
+                        maxLength={field === "name" ? 50 : undefined}
+                        maxLen
+
                         value={adminData[field as keyof AdminData]}
                         onChange={(e) => {
                           setAdminData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -532,11 +537,51 @@ const AdminProfileSection: React.FC<AdminProfileSectionProps> = ({ show, onClose
                     </div>
                   )}
                 </div>
-              ))}
+              ))} */}
+              {["name", "email", "mobile"].map((field) => {
+                const label = t(`adminProfile${field.charAt(0).toUpperCase() + field.slice(1)}`) || field;
+                const placeholder = t(`placeholder${field.charAt(0).toUpperCase() + field.slice(1)}`) || `Enter ${field}`;
+                
+                // Field-specific input settings
+                const inputType = field === "email" ? "email" : "text";
+                const maxLength = field === "name" || field === "email" ? 50 : field === "mobile" ? 10 : undefined;
+                const minLength = field === "mobile" ? 10 : undefined;
+
+              return (
+                <div key={field} className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">{label}</label>
+                  {isEditing ? (
+                    <>
+                      <Input
+                        type={inputType}
+                        maxLength={maxLength}
+                        minLength={minLength}
+                        value={adminData[field as keyof AdminData]}
+                        onChange={(e) => {
+                          if(field === "mobile" && !/^\d*$/.test(e.target.value)) return; // Allow only digits
+                          setAdminData((prev) => ({ ...prev, [field]: e.target.value }));
+                          setErrors((prev) => ({ ...prev, [field]: "" }));
+                        }}
+                        className="w-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all rounded-lg"
+                        placeholder={placeholder}
+                      />
+                      {errors[field as keyof typeof errors] && (
+                        <p className="text-danger text-xs mt-1">{errors[field as keyof typeof errors]}</p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
+                      {adminData[field as keyof AdminData] || "N/A"}
+                    </div>
+                  )}
+                </div>
+              );
+              })}
+
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mt-6 sticky bottom-0 bg-white pt-4 -mx-6 px-6">
+            <div className="flex gap-3 mt-5 sticky bottom-0 bg-white pt-4 -mx-6 px-6">
               <Button
                 onClick={handleEditToggle}
                 variant={isEditing ? "outline" : "default"}
