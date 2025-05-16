@@ -36,6 +36,7 @@ export default function Header() {
   const [isShowAdminProfileSection, setIsShowAdminProfileSection] = useState<boolean>(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [toast, setToast] = useState<Toast>({ show: false, message: '', type: '', onConfirm: null });
+  const [isAdminRoute, setIsAdminRoute] = useState(null)
   const router = useRouter()
   const {logout} = useAuth()
 
@@ -111,7 +112,14 @@ export default function Header() {
   }, [setLanguage])
 
   useEffect(() => {
-    const token = localStorage.getItem("mobileToken");
+ const AdminRoute = pathname?.startsWith("/admin");
+    setIsAdminRoute(AdminRoute);
+  },[pathname])
+  // function to check if the user is logged in
+
+  useEffect(() => {
+    
+    const token = localStorage.getItem("token");
     if (token) {
       setToken(token);
     }
@@ -122,7 +130,7 @@ export default function Header() {
     return () => clearInterval(interval); // cleanup on unmount
   }, []);
      
-  const isAdminRoute = pathname?.startsWith("/admin");
+  
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light  border-bottom">

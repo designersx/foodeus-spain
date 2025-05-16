@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { useAuthStore } from "@/store/authStore"
+import { toast } from "@/hooks/use-toast"
 
 interface User {
   email: string
@@ -23,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
+  const { isSuperAdmin, isAdmin, isFieldUser } = useAuthStore();
+  
   
 
   useEffect(() => {
@@ -46,14 +50,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
     const isAuthRoute = pathname?.startsWith("/auth");
     const isAdminRoute = pathname?.startsWith("/admin");
+    const isSuperAdminRoute = pathname?.startsWith("/admin/adminUser");
   
-  
+  //  console.log("User role:", pathname, isSuperAdminRoute,!isSuperAdmin())
     if (!user && isAdminRoute) {
       router.push("/auth/login");
     }
   
     else if (user && isAuthRoute) {
       console.log("User logged in - Redirecting to /admin/restaurants");
+      router.push("/admin/restaurants");
+    }
+   
+    else if(isSuperAdminRoute && !isSuperAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "You do not have permission to access this page.",
+        variant: "destructive",
+      });
       router.push("/admin/restaurants");
     }
   

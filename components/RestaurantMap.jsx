@@ -262,7 +262,7 @@
 
 
 
-
+// 12 may
 // "use client";
 
 // import { useEffect, useRef, useState } from "react";
@@ -901,7 +901,7 @@
 
 
 
-
+// 15 may
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -1687,8 +1687,13 @@ export function RestaurantMap({ restaurants }) {
       mapId: "1azc4FGempttyHrAm898mokpfXA8", // Replace with your custom Map ID
       disableDefaultUI: true,
       styles: [
+        { featureType: "all", elementType: "all", stylers: [{ visibility: "off" }] },
         { elementType: "labels", stylers: [{ visibility: "off" }] },
         { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "administrative.locality", stylers: [{ visibility: "off" }] },
+        { featureType: "administrative.neighborhood", stylers: [{ visibility: "off" }] },
+        { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+         { featureType: "poi.business", stylers: [{ visibility: "off" }] },
         { featureType: "transit", stylers: [{ visibility: "off" }] },
         { featureType: "administrative", stylers: [{ visibility: "off" }] },
         { featureType: "landscape", stylers: [{ visibility: "off" }] },

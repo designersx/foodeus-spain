@@ -15,6 +15,7 @@ import { login, API_BASE_URL } from "@/services/apiService"
 import axios from "axios"
 import { encrypt, decrypt } from "@/utils/crypto";
 import { useLanguage } from "@/context/language-context";
+import { useAuthStore } from "@/store/authStore";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -63,6 +64,7 @@ export default function LoginPage() {
           localStorage.removeItem("rememberMePassword");
           localStorage.setItem("rememberMe", "false");
         }
+        useAuthStore.getState().setToken(response?.data?.data?.token);
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem("foodeus-admin-auth", JSON.stringify({ email, role: "admin" }))
         await login(email, password)

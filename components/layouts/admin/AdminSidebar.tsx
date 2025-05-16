@@ -6,6 +6,7 @@ import Link from "next/link"
 import { LogOut, Clipboard, MenuIcon as Restaurant, Users, Upload } from "lucide-react"
 import { useAuth } from "@/context/auth-context"
 import { useLanguage } from "@/context/language-context"
+import { useAuthStore } from "@/store/authStore"
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +34,7 @@ export default function AdminSidebar() {
   const { logout } = useAuth()
   const [isHydrated, setIsHydrated] = useState(false)
   const {t} = useLanguage()
+  const { isSuperAdmin, isAdmin, isFieldUser } = useAuthStore();
 
   // Only update after hydration
   useEffect(() => {
@@ -104,8 +106,22 @@ export default function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
+          {isSuperAdmin() && (
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/admin/adminUser"}>
+              <Link href="/admin/adminUser" style={{ textDecoration: "none" }}>
+                <Users className="h-4 w-4" />
+                <span>{t('AdminUsers')}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          )}
+
         </SidebarMenu>
       </SidebarContent>
+
+
 
       <SidebarFooter>
         <SidebarMenu>

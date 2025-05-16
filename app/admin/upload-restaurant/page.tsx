@@ -378,10 +378,6 @@ const expectedHeaders = [
               </>
             )}
           </TabsContent>
-            
-
-
-
           </Tabs>
         </CardContent>
       </Card>
